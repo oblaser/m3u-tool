@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32428.217
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "m3u-tool", "m3u-tool.vcxproj", "{FEB6E979-F565-4AFB-A4CD-459216B471A4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FEB6E979-F565-4AFB-A4CD-459216B471A4}.Debug|x64.ActiveCfg = Debug|x64
+		{FEB6E979-F565-4AFB-A4CD-459216B471A4}.Debug|x64.Build.0 = Debug|x64
+		{FEB6E979-F565-4AFB-A4CD-459216B471A4}.Debug|x86.ActiveCfg = Debug|Win32
+		{FEB6E979-F565-4AFB-A4CD-459216B471A4}.Debug|x86.Build.0 = Debug|Win32
+		{FEB6E979-F565-4AFB-A4CD-459216B471A4}.Release|x64.ActiveCfg = Release|x64
+		{FEB6E979-F565-4AFB-A4CD-459216B471A4}.Release|x64.Build.0 = Release|x64
+		{FEB6E979-F565-4AFB-A4CD-459216B471A4}.Release|x86.ActiveCfg = Release|Win32
+		{FEB6E979-F565-4AFB-A4CD-459216B471A4}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1BA7EB66-2256-4ED5-A7A7-660455DE2364}
+	EndGlobalSection
+EndGlobal
