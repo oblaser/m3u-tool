@@ -459,14 +459,15 @@ int exprt::process(const std::string& m3uFile, const std::string& outDir, const 
             const fs::path inFile = lines[i].c_str();
 #endif
 
+            char tmpOutFileNumBuffer[20];
+            sprintf(tmpOutFileNumBuffer, "%04zu", fileCnt.total());
+            const fs::path outFile = outDir / fs::path(tmpOutFileNumBuffer + std::string(" - ") + inFile.filename().string());
+
             if (fs::exists(inFile))
             {
                 if (fs::is_regular_file(inFile))
                 {
-                    char tmp[20];
-                    sprintf(tmp, "%04zu", fileCnt.total());
-
-                    const fs::path outFile = outDir / fs::path(tmp + std::string(" - ") + inFile.filename().string());
+                    
 
 #ifdef PRJ_DEBUG
                     cout << inFile.u8string() << " ==> " << outFile.u8string() << endl;
@@ -474,9 +475,17 @@ int exprt::process(const std::string& m3uFile, const std::string& outDir, const 
                     fileCnt.addCopied();
 #endif
                 }
-                else ERROR_PRINT("###\"" + inFile.u8string() + "\" is not a file");
+                else
+                {
+                    ERROR_PRINT("###\"" + inFile.u8string() + "\" is not a file");
+                    if (verbose) printInfo("###out file would be: \"" + fs::weakly_canonical(outFile).u8string() + "\"");
+                }
             }
-            else ERROR_PRINT("###file \"" + inFile.u8string() + "\" not found");
+            else
+            {
+                ERROR_PRINT("###file \"" + inFile.u8string() + "\" not found");
+                if (verbose) printInfo("###out file would be: \"" + fs::weakly_canonical(outFile).u8string() + "\"");
+            }
         }
 
 
