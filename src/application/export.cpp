@@ -461,31 +461,28 @@ int exprt::process(const std::string& m3uFile, const std::string& outDir, const 
 
             char tmpOutFileNumBuffer[20];
             sprintf(tmpOutFileNumBuffer, "%04zu", fileCnt.total());
-            const fs::path outFile = outDir / fs::path(tmpOutFileNumBuffer + std::string(" - ") + inFile.filename().string());
+            const fs::path outFile = outDir / fs::path(tmpOutFileNumBuffer + std::string("_") + inFile.filename().string());
+
+            if (verbose) printFormattedLine("###copying \"" + inFile.u8string() + "\" to \"" + fs::weakly_canonical(outFile).u8string() + "\"");
 
             if (fs::exists(inFile))
             {
                 if (fs::is_regular_file(inFile))
                 {
-                    
-
-#ifdef PRJ_DEBUG
-                    cout << inFile.u8string() << " ==> " << outFile.u8string() << endl;
-
-                    fileCnt.addCopied();
-#endif
+                    try
+                    {
+                        fs::copy_file(inFile, outFile);
+                        fileCnt.addCopied();
+                    }
+                    catch (const fs::filesystem_error& ex)
+                    {
+                        ERROR_PRINT(std::string("###") + ex.what());
+                    }
+                    // other exceptions will be catched by the main try-catch in this function
                 }
-                else
-                {
-                    ERROR_PRINT("###\"" + inFile.u8string() + "\" is not a file");
-                    if (verbose) printInfo("###out file would be: \"" + fs::weakly_canonical(outFile).u8string() + "\"");
-                }
+                else ERROR_PRINT("###\"" + inFile.u8string() + "\" is not a file");
             }
-            else
-            {
-                ERROR_PRINT("###file \"" + inFile.u8string() + "\" not found");
-                if (verbose) printInfo("###out file would be: \"" + fs::weakly_canonical(outFile).u8string() + "\"");
-            }
+            else ERROR_PRINT("###file \"" + inFile.u8string() + "\" not found");
         }
 
 

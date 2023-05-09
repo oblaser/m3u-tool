@@ -97,7 +97,8 @@ int main(int argc, char** argv)
 
         args.add("../../../test/system/pl.m3u");
 
-        args.add("../../../test/system/pl");
+        //args.add("../../../test/system/pl");
+        args.add("../../../test/system/out/");
 
         // options
         //args.add("-vf");
