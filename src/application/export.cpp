@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            07.05.2023
+date            09.05.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -23,6 +23,7 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 #include <omw/io/file.h>
 #include <omw/string.h>
 #include <omw/vector.h>
+#include <omw/windows/string.h>
 
 
 #define IMPLEMENT_FLAGS()           \
@@ -344,7 +345,7 @@ int exprt::process(const std::string& m3uFile, const std::string& outDir, const 
         // process
         ///////////////////////////////////////////////////////////
 
-        std::vector<omw::string> listItems;
+        std::vector<omw::string> lines;
         // M3U util to be moved in another file
         {
             const omw::io::TxtFileInterface file(m3uFile);
@@ -359,6 +360,97 @@ int exprt::process(const std::string& m3uFile, const std::string& outDir, const 
             if(file.getState()!= omw::io::TxtFileInterface::good) ERROR_PRINT_EC_THROWLINE("file not good after read", EC_ERROR);
 
             
+
+            if (text.size() >= 4)
+            {
+                if (text[0] == (char)(0x00) && text[1] == (char)(0x00) &&
+                    text[2] == (char)(0xFe) && text[3] == (char)(0xFF))
+                {
+                    ERROR_PRINT_EC_THROWLINE("encoding not supported: UTF-32 BE", EC_ERROR);
+                }
+                if (text[0] == (char)(0xFF) && text[1] == (char)(0xFe) &&
+                    text[2] == (char)(0x00) && text[3] == (char)(0x00))
+                {
+                    ERROR_PRINT_EC_THROWLINE("encoding not supported: UTF-32 LE", EC_ERROR);
+                }
+            }
+
+            if (text.size() >= 2)
+            {
+                if (text[0] == (char)(0xFe) && text[1] == (char)(0xFF))
+                {
+                    ERROR_PRINT_EC_THROWLINE("encoding not supported: UTF-16 BE", EC_ERROR);
+                }
+                if (text[0] == (char)(0xFF) && text[1] == (char)(0xFe))
+                {
+                    ERROR_PRINT_EC_THROWLINE("encoding not supported: UTF-16 LE", EC_ERROR);
+                }
+            }
+
+            if (text.size() >= 3)
+            {
+                if (text[0] == (char)(0xeF) && text[0] == (char)(0xBB) && text[0] == (char)(0xBF))
+                {
+                    if (verbose) printInfo("UTF8 BOM found");
+                    text.erase(0, 3);
+                }
+            }
+
+            const char* p = text.data();
+            const char* end = text.data() + text.size();
+
+            if (p < end) lines.assign(1, "");
+
+            while (p < end)
+            {
+                const size_t nNewLine = omw::peekNewLine(p, end);
+
+                if (nNewLine)
+                {
+                    lines.push_back("");
+                    p += nNewLine;
+                }
+                else
+                {
+                    lines.back().push_back(*p);
+                    ++p;
+                }
+            }
+
+            if (lines.back().empty()) lines.pop_back();
+        }
+
+        for (size_t i = 0; i < lines.size(); ++i)
+        {
+            if ((lines[i].length() > 0) && (lines[i][0] == '#')) continue;
+
+            fileCnt.addTotal();
+
+#ifdef PRJ_DEBUG
+            //cout << fileCnt.total() << " - " << lines[i] << endl;
+#endif
+
+            std::string inFileStr = lines[i];
+
+            const fs::path inFile = inFileStr;
+
+            if (fs::exists(inFile))
+            {
+                if (fs::is_regular_file(inFile))
+                {
+                    char tmp[20];
+                    sprintf(tmp, "%04zu", fileCnt.total());
+
+                    const fs::path outFile = outDir / fs::path(tmp + std::string(" - ") + inFile.filename().string());
+
+                    cout << inFile << " ==> " << outFile << endl;
+
+                    fileCnt.addCopied();
+
+                }
+                else ERROR_PRINT("###\"" + inFile.u8string() + "\" is not a file");
+            }
+            else ERROR_PRINT("###file \"" + inFile.u8string() + "\" not found");
         }
 
 
@@ -366,45 +458,41 @@ int exprt::process(const std::string& m3uFile, const std::string& outDir, const 
         // end
         ///////////////////////////////////////////////////////////
 
-        //if (!quiet)
-        //{
-        //    cout << "========";
-        //
-        //    cout << "  ";
-        //    //cout << "  " << omw::fgBrightWhite;
-        //    //cout << nSucceeded << "/" << inDirs.size();
-        //    //cout << omw::normal << " succeeded";
-        //    //
-        //    //cout << ", ";
-        //    if (rcnt.errors() != 0) cout << omw::fgBrightRed;
-        //    cout << rcnt.errors();
-        //    if (rcnt.errors() != 0) cout << omw::normal;
-        //    cout << " error";
-        //    if (rcnt.errors() != 1) cout << "s";
-        //
-        //    cout << ", ";
-        //    if (rcnt.warnings() != 0) cout << omw::fgBrightYellow;
-        //    cout << rcnt.warnings();
-        //    if (rcnt.warnings() != 0) cout << omw::normal;
-        //    cout << " warning";
-        //    if (rcnt.warnings() != 1) cout << "s";
-        //
-        //    cout << " ========" << endl;
-        //
-        //    //if (verbose) printFormattedLine("###copied @" + std::to_string(fileCnt.copied()) + "/" + std::to_string(fileCnt.total()) + "@ files");
-        //    if (verbose) printFormattedLine("copied " + std::to_string(fileCnt.copied()) + "/" + std::to_string(fileCnt.total()) + " files");
-        //}
-        //
-        ////if (verbose) cout << "\n" << omw::fgBrightGreen << "done" << omw::defaultForeColor << endl;
-        //
-        //if (((nSucceeded == inDirs.size()) && (rcnt.errors() != 0)) ||
-        //    ((nSucceeded != inDirs.size()) && (rcnt.errors() == 0)))
-        //{
-        //    r = EC_OK;
-        //    throw (int)(__LINE__);
-        //}
-        //
-        //if (nSucceeded != inDirs.size()) r = EC_ERROR;
+        if (!quiet)
+        {
+            cout << "========";
+        
+            cout << "  " << omw::fgBrightWhite;
+            cout << fileCnt.copied() << "/" << fileCnt.total();
+            cout << omw::normal << " exported";
+            
+            cout << ", ";
+            if (rcnt.errors() != 0) cout << omw::fgBrightRed;
+            cout << rcnt.errors();
+            if (rcnt.errors() != 0) cout << omw::normal;
+            cout << " error";
+            if (rcnt.errors() != 1) cout << "s";
+        
+            cout << ", ";
+            if (rcnt.warnings() != 0) cout << omw::fgBrightYellow;
+            cout << rcnt.warnings();
+            if (rcnt.warnings() != 0) cout << omw::normal;
+            cout << " warning";
+            if (rcnt.warnings() != 1) cout << "s";
+        
+            cout << "  ========" << endl;
+        }
+        
+        if (((fileCnt.copied() == fileCnt.total()) && (rcnt.errors() != 0)) ||
+            ((fileCnt.copied() != fileCnt.total()) && (rcnt.errors() == 0)))
+        {
+            r = EC_OK;
+            throw (int)(__LINE__);
+        }
+
+        //if (verbose) cout << "\n" << omw::fgBrightGreen << "done" << omw::defaultForeColor << endl;
+        
+        if (fileCnt.copied() != fileCnt.total()) r = EC_ERROR;
     }
     catch (const std::filesystem::filesystem_error& ex)
     {
