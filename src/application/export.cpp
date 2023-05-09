@@ -23,7 +23,7 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 #include <omw/io/file.h>
 #include <omw/string.h>
 #include <omw/vector.h>
-#include <omw/windows/string.h>
+#include <omw/windows/windows.h>
 
 
 #define IMPLEMENT_FLAGS()           \
@@ -430,9 +430,34 @@ int exprt::process(const std::string& m3uFile, const std::string& outDir, const 
             //cout << fileCnt.total() << " - " << lines[i] << endl;
 #endif
 
-            std::string inFileStr = lines[i];
+#ifdef OMW_PLAT_WIN
+            omw::string inFileStr = lines[i];
 
-            const fs::path inFile = inFileStr;
+            constexpr size_t inFileStrReplPairsSize = 6;
+            const omw::StringReplacePair inFileStrReplPairs_850[inFileStrReplPairsSize] = {
+                omw::StringReplacePair(OMW_UTF8CP_Auml, "\x8E"),
+                omw::StringReplacePair(OMW_UTF8CP_auml, "\x84"),
+                omw::StringReplacePair(OMW_UTF8CP_Ouml, "\x99"),
+                omw::StringReplacePair(OMW_UTF8CP_ouml, "\x94"),
+                omw::StringReplacePair(OMW_UTF8CP_Uuml, "\x9A"),
+                omw::StringReplacePair(OMW_UTF8CP_uuml, "\x81")
+            };
+            const omw::StringReplacePair inFileStrReplPairs_1252[inFileStrReplPairsSize] = { // Windows-1252 / ISO 8859-1
+                omw::StringReplacePair(OMW_UTF8CP_Auml, "\xC4"),
+                omw::StringReplacePair(OMW_UTF8CP_auml, "\xE4"),
+                omw::StringReplacePair(OMW_UTF8CP_Ouml, "\xD6"),
+                omw::StringReplacePair(OMW_UTF8CP_ouml, "\xF6"),
+                omw::StringReplacePair(OMW_UTF8CP_Uuml, "\xDC"),
+                omw::StringReplacePair(OMW_UTF8CP_uuml, "\xFC")
+            };
+
+            inFileStr.replaceAll(inFileStrReplPairs_1252, inFileStrReplPairsSize);
+
+
+            const fs::path inFile = inFileStr.c_str();
+#else
+            const fs::path inFile = lines[i].c_str();
+#endif
 
             if (fs::exists(inFile))
             {
@@ -443,10 +468,11 @@ int exprt::process(const std::string& m3uFile, const std::string& outDir, const 
 
                     const fs::path outFile = outDir / fs::path(tmp + std::string(" - ") + inFile.filename().string());
 
-                    cout << inFile << " ==> " << outFile << endl;
+#ifdef PRJ_DEBUG
+                    cout << inFile.u8string() << " ==> " << outFile.u8string() << endl;
 
                     fileCnt.addCopied();
-
+#endif
                 }
                 else ERROR_PRINT("###\"" + inFile.u8string() + "\" is not a file");
             }

@@ -119,6 +119,11 @@ int main(int argc, char** argv)
         omw::ansiesc::enable(envt);
     }
 
+#ifdef OMW_PLAT_WIN
+    const auto winOutCodePage = omw::windows::consoleGetOutCodePage();
+    bool winOutCodePageRes = omw::windows::consoleSetOutCodePage(65001);
+#endif
+
 #ifndef PRJ_DEBUG
     if (prj::version.isPreRelease()) cout << omw::fgBrightMagenta << "pre-release v" << prj::version.toString() << omw::defaultForeColor << endl;
 #endif
@@ -178,6 +183,10 @@ int main(int argc, char** argv)
 #endif
 
     cout << omw::normal << std::flush;
+
+#ifdef OMW_PLAT_WIN
+    winOutCodePageRes = omw::windows::consoleSetOutCodePage(winOutCodePage);
+#endif
 
     return r;
 }
