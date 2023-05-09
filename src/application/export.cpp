@@ -442,6 +442,7 @@ int exprt::process(const std::string& m3uFile, const std::string& outDir, const 
                 omw::StringReplacePair(OMW_UTF8CP_Uuml, "\x9A"),
                 omw::StringReplacePair(OMW_UTF8CP_uuml, "\x81")
             };
+
             const omw::StringReplacePair inFileStrReplPairs_1252[inFileStrReplPairsSize] = { // Windows-1252 / ISO 8859-1
                 omw::StringReplacePair(OMW_UTF8CP_Auml, "\xC4"),
                 omw::StringReplacePair(OMW_UTF8CP_auml, "\xE4"),
@@ -450,6 +451,8 @@ int exprt::process(const std::string& m3uFile, const std::string& outDir, const 
                 omw::StringReplacePair(OMW_UTF8CP_Uuml, "\xDC"),
                 omw::StringReplacePair(OMW_UTF8CP_uuml, "\xFC")
             };
+
+            // TODO get system code page and convert properly
 
             inFileStr.replaceAll(inFileStrReplPairs_1252, inFileStrReplPairsSize);
 
