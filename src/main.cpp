@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            07.05.2023
+date            16.08.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -12,6 +12,9 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 
 #include "application/cliarg.h"
 #include "application/export.h"
+#ifdef PRJ_DEBUG
+#include "middleware/m3u.h"
+#endif
 #include "project.h"
 
 #include <omw/cli.h>
@@ -93,13 +96,20 @@ int main(int argc, char** argv)
 #if defined(PRJ_DEBUG) && 1
     if (args.size() == 0)
     {
+#if 0 // export
         args.add("export");
 
         args.add("../../../test/system/pl.m3u");
 
         //args.add("../../../test/system/pl");
         args.add("../../../test/system/out/");
-
+#elif 1 // debug parse m3u
+        args.add("debug");
+        args.add("parse");
+        args.add("../../../test/system/pl.m3u");
+#else
+//#warning "nop"
+#endif
         // options
         //args.add("-vf");
         args.add("-v");
@@ -149,11 +159,25 @@ int main(int argc, char** argv)
             {
                 r = exprt::process(args.raw.at(1), args.raw.at(2), flags);
             }
+#ifdef PRJ_DEBUG
+            else if (args.raw.at(0) == "debug")
+            {
+                if (args.raw.at(1) == "parse")
+                {
+                    auto dbg = m3u::M3U(args.raw.at(2));
+                }
+                else
+                {
+                    r = -1;
+                    cout << omw::fgBrightRed << "ERROR (" << "main.cpp:" << __LINE__ << ")" << endl;
+                }
+            }
+#endif
             else
             {
                 r = -1;
 
-                cout << omw::fgBrightRed << "ERROR (" << OMW__FILENAME__ << ":" << __LINE__ << ")" << endl;
+                cout << omw::fgBrightRed << "ERROR (" << "main.cpp:" << __LINE__ << ")" << endl;
             }
         }
     }

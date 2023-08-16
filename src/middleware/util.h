@@ -4,8 +4,8 @@ date            07.05.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
-#ifndef IG_MDW_UTIL_H
-#define IG_MDW_UTIL_H
+#ifndef IG_MIDDLEWARE_UTIL_H
+#define IG_MIDDLEWARE_UTIL_H
 
 #include <cstddef>
 #include <cstdint>
@@ -58,4 +58,4 @@ namespace util
 }
 
 
-#endif // IG_MDW_UTIL_H
+#endif // IG_MIDDLEWARE_UTIL_H
