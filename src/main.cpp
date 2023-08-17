@@ -165,6 +165,17 @@ int main(int argc, char** argv)
                 if (args.raw.at(1) == "parse")
                 {
                     auto dbg = m3u::M3U(args.raw.at(2));
+
+                    for (const auto& e : dbg.entries())
+                    {
+                        if (e.isRegular()) cout << omw::fgBrightCyan << "R " << omw::fgDefault << e.path() << endl;
+                        else if (e.isComment()) cout << omw::fgBrightBlack << "C " << omw::fgDefault << e.data() << endl;
+                        else if (e.isExt()) cout << omw::fgGreen << "X " << omw::fgDefault << e.ext() << endl;
+                        else if (e.hasExt()) cout << omw::fgBrightYellow << "X " << omw::fgDefault << e.ext() << " \"" << omw::fgBrightWhite << e.path() << omw::fgDefault << "\"" << endl;
+                        else cout << omw::fgBrightRed << "E " << omw::fgDefault << e.path() << endl;
+                    }
+
+                    cout << "\n===================================================\n" << dbg.serialize() << "<EOF>==============================================" << endl;
                 }
                 else
                 {

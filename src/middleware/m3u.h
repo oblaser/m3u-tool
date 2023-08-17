@@ -21,23 +21,28 @@ namespace m3u
     {
     public:
         Entry() = delete;
-        Entry(const std::string& path, const std::string& ext = std::string()) : m_ext(ext), m_path(path) {}
+        Entry(const std::string& data, const std::string& ext = std::string()) : m_ext(ext), m_data(data) {}
         virtual ~Entry() {}
 
-        const std::string& path() const { return m_path; }
+        const std::string& data() const { return m_data; }
+        std::string& path() { return m_data; }
+        const std::string& path() const { return m_data; }
+        std::string& ext() { return m_ext; }
+        const std::string& ext() const { return m_ext; }
 
-        bool isEmpty() const { return m_ext.empty() && m_path.empty(); }
-        bool isExt() const { return !m_ext.empty() && m_path.empty(); }
-        bool isRegular() const { return m_ext.empty() && !m_path.empty(); }
+        bool isEmpty() const { return m_ext.empty() && m_data.empty(); }
+        bool isComment() const { return m_data.substr(0, 1) == "#"; }
+        bool isExt() const { return !m_ext.empty() && m_data.empty(); }
+        bool isRegular() const { return m_ext.empty() && !m_data.empty() && !isComment(); }
         bool hasExt() const { return !m_ext.empty(); }
 
-        void setPath(const std::string& path) { m_path = path; }
+        void setData(const std::string& data) { m_data = data; }
 
         std::string serialize(const char* endOfLine = "\n") const;
 
     private:
         std::string m_ext;
-        std::string m_path;
+        std::string m_data;
     };
 
     class M3U
@@ -47,6 +52,7 @@ namespace m3u
         explicit M3U(const std::string& file) : m_entries() { m_parseFile(file); }
         virtual ~M3U() {}
 
+        std::vector<m3u::Entry>& entries() { return m_entries; }
         const std::vector<m3u::Entry>& entries() const { return m_entries; }
 
         bool isEmpty() const { return m_entries.empty(); }
