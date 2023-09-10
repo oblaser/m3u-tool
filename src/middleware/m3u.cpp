@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            16.08.2023
+date            19.08.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -37,9 +37,66 @@ namespace
         const char* p = txt.data();
         const char* const pEnd = txt.data() + txt.size();
 
-        std::vector<std::string> lines;
+
+
+
+
+
+
 
         // TODO encoding check and conversion
+
+
+/*
+        // UTF BOM check
+        if (txt.size() >= 4)
+        {
+            if (txt[0] == (char)(0x00) && txt[1] == (char)(0x00) &&
+                txt[2] == (char)(0xFe) && txt[3] == (char)(0xFF))
+            {
+                printError(ewiFile, "encoding not supported: UTF-32 BE");
+                return 1;
+            }
+            if (txt[0] == (char)(0xFF) && txt[1] == (char)(0xFe) &&
+                txt[2] == (char)(0x00) && txt[3] == (char)(0x00))
+            {
+                printError(ewiFile, "encoding not supported: UTF-32 LE");
+                return 1;
+            }
+        }
+
+        if (txt.size() >= 2)
+        {
+            if (txt[0] == (char)(0xFe) && txt[1] == (char)(0xFF))
+            {
+                printError(ewiFile, "encoding not supported: UTF-16 BE");
+                return 1;
+            }
+            if (txt[0] == (char)(0xFF) && txt[1] == (char)(0xFe))
+            {
+                printError(ewiFile, "encoding not supported: UTF-16 LE");
+                return 1;
+            }
+        }
+
+        bool isUTF8 = false;
+
+        if (size >= 3)
+        {
+            // EF BB BF
+
+            p += 3;
+
+            isUTF8 = true;
+        }
+
+        if(file extension == "m3u8") isUTF8 = true;
+
+        if (!isUTF8) iconv;
+*/
+
+
+        std::vector<std::string> lines;
 
         if (p < pEnd) lines.push_back("");
 

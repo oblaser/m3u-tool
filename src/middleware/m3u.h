@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            16.08.2023
+date            19.08.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -32,9 +32,10 @@ namespace m3u
 
         bool isEmpty() const { return m_ext.empty() && m_data.empty(); }
         bool isComment() const { return m_data.substr(0, 1) == "#"; }
-        bool isExt() const { return !m_ext.empty() && m_data.empty(); }
-        bool isRegular() const { return m_ext.empty() && !m_data.empty() && !isComment(); }
+        bool isExtension() const { return !m_ext.empty() && m_data.empty(); }
+        bool isResource() const { return !m_data.empty() && !isComment(); } // is resource (with or without extension)
         bool hasExt() const { return !m_ext.empty(); }
+        bool isRegularRes() const { return isResource() && !hasExt(); }
 
         void setData(const std::string& data) { m_data = data; }
 

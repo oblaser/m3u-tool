@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            16.08.2023
+date            19.08.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -11,10 +11,7 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 #include <vector>
 
 #include "application/cliarg.h"
-#include "application/export.h"
-#ifdef PRJ_DEBUG
-#include "middleware/m3u.h"
-#endif
+#include "application/processor.h"
 #include "project.h"
 
 #include <omw/cli.h>
@@ -27,7 +24,7 @@ using std::setw;
 
 namespace
 {
-    const std::string usageString = std::string(prj::exeName) + " module ...";
+    const std::string usageString = std::string(prj::exeName) + " module INPUT_M3U_FILE ...";
 
     void printHelp()
     {
@@ -151,9 +148,7 @@ int main(int argc, char** argv)
         else if (args.containsVersion()) printVersion();
         else
         {
-            const auto flags = app::Flags(args.containsForce(),
-                args.containsQuiet(),
-                args.containsVerbose());
+            
 
             if (args.raw.at(0) == "export")
             {
