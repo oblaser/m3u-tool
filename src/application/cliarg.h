@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            07.05.2023
+date            23.09.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -101,6 +101,19 @@ namespace app
     private:
         FileList m_files;
         OptionList m_options;
+    };
+
+    struct Flags
+    {
+        Flags() = delete;
+
+        Flags(bool force_, bool quiet_, bool verbose_)
+            : force(force_), quiet(quiet_), verbose(verbose_)
+        {}
+
+        bool force;
+        bool quiet;
+        bool verbose;
     };
 }
 

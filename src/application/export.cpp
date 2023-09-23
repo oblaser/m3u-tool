@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            09.05.2023
+date            23.09.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -15,6 +15,7 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 #include <string>
 #include <vector>
 
+#include "defines.h"
 #include "export.h"
 #include "middleware/util.h"
 #include "project.h"
@@ -26,38 +27,6 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 #include <omw/windows/windows.h>
 
 
-#define IMPLEMENT_FLAGS()           \
-const bool quiet = flags.quiet;     \
-bool ___verbose = flags.verbose;    \
-const bool& verbose = ___verbose;   \
-if (quiet) ___verbose = false;
-
-#define ERROR_PRINT(msg)            \
-{                                   \
-    rcnt.incErrors();               \
-    if (!quiet) printError(msg);    \
-}
-
-#define INFO_PRINT(msg)         \
-{                               \
-    if (!quiet) printInfo(msg); \
-}
-
-#define WARNING_PRINT(msg)          \
-{                                   \
-    rcnt.incWarnings();             \
-    if (!quiet) printWarning(msg);  \
-}
-
-#define ERROR_PRINT_EC_THROWLINE(msg, EC_x) \
-{                                   \
-    rcnt.incErrors();               \
-    if (!quiet) printError(msg);    \
-    r = EC_x;                       \
-    throw (int)(__LINE__);          \
-}
-
-
 using std::cout;
 using std::endl;
 
@@ -65,181 +34,6 @@ namespace fs = std::filesystem;
 
 namespace
 {
-    enum ERRORCODE // https://tldp.org/LDP/abs/html/exitcodes.html / on MSW are no preserved codes
-    {
-        EC_OK = 0,
-        EC_ERROR = 1,
-
-        EC__begin_ = 79,
-
-        EC_OUTDIR_NOTEMPTY = EC__begin_,
-        EC_INOUTDIR_EQ, // TODO implment
-        EC_OUTDIR_NOTCREATED,
-        EC_M3UFILE_NOT_FOUND,
-
-        EC_USER_ABORT, // not actually returned, used internally
-
-        EC__end_,
-
-        EC__max_ = 113
-    };
-    static_assert(EC__end_ <= EC__max_, "too many error codes defined");
-
-    // 
-    // "### normal "quoted bright" white"
-    // "### normal @just bright@ white"
-    // 
-    void printFormattedText(const std::string& text)
-    {
-        bool format = false;
-
-        if (text.length() > 5)
-        {
-            if ((text[0] == '#') &&
-                (text[1] == '#') &&
-                (text[2] == '#')
-                )
-            {
-                format = true;
-            }
-        }
-
-        if (format)
-        {
-            bool on = false;
-
-            size_t i = 3;
-
-            while (i < text.length())
-            {
-                if (text[i] == '\"')
-                {
-                    if (on)
-                    {
-                        cout << omw::defaultForeColor;
-                        cout << text[i];
-                        on = false;
-                    }
-                    else
-                    {
-                        cout << text[i];
-                        cout << omw::fgBrightWhite;
-                        on = true;
-                    }
-                }
-                else if (text[i] == '@')
-                {
-                    if (on)
-                    {
-                        cout << omw::defaultForeColor;
-                        on = false;
-                    }
-                    else
-                    {
-                        cout << omw::fgBrightWhite;
-                        on = true;
-                    }
-                }
-                else cout << text[i];
-
-                ++i;
-            }
-
-            cout << omw::defaultForeColor;
-        }
-        else cout << text;
-    }
-
-    void printFormattedLine(const std::string& text)
-    {
-        printFormattedText(text);
-        cout << endl;
-    }
-
-    constexpr int ewiWidth = 10;
-    void printError(const std::string& text)
-    {
-        cout << omw::fgBrightRed << std::left << std::setw(ewiWidth) << "error:" << omw::defaultForeColor;
-        printFormattedText(text);
-        cout << endl;
-    }
-    void printInfo()
-    {
-        cout << omw::fgBrightCyan << std::left << std::setw(ewiWidth) << "info:" << omw::defaultForeColor;
-    }
-    void printInfo(const std::string& text)
-    {
-        printInfo();
-        printFormattedText(text);
-        cout << endl;
-    }
-    void printWarning(const std::string& text)
-    {
-        cout << omw::fgBrightYellow << std::left << std::setw(ewiWidth) << "warning:" << omw::defaultForeColor;
-        printFormattedText(text);
-        cout << endl;
-    }
-
-    void printTitle(const std::string& title)
-    {
-        //cout << omw::fgBrightWhite << title << omw::normal << endl;
-        cout << title << endl;
-    }
-
-
-
-#pragma region library
-    int cliChoice(const std::string& q, int def = 0, char first = 'y', char second = 'n')
-    {
-        int r = 0;
-        const omw::string a(1, first);
-        const omw::string b(1, second);
-        omw::string data;
-
-        do
-        {
-            std::cout << q << " [" << (def == 1 ? a.toUpper_ascii() : a) << "/" << (def == 2 ? b.toUpper_ascii() : b) << "] ";
-            std::getline(std::cin, data);
-
-            if (data.toLower_ascii() == a) r = 1;
-            else if (data.toLower_ascii() == b) r = 2;
-            else if (data.length() == 0) r = def;
-            else r = 0;
-        }
-        while ((r != 1) && (r != 2));
-
-        return r;
-    }
-
-    omw::string to_string(uint64_t val, int base, const char* digits)
-    {
-        omw::string r = "";
-
-        if (val == 0) r += digits[0];
-
-        while (val != 0)
-        {
-            r = digits[val % base] + r; // use reverse() instead
-            val /= base;
-        }
-
-        return r;
-    }
-#pragma endregion
-
-
-    omw::string getDirName(const fs::path& dir)
-    {
-        omw::string r;
-        
-        if (dir.has_filename()) r = dir.filename().u8string();
-        else r = dir.parent_path().filename().u8string();
-
-        return r;
-    }
-
-
-
 #ifdef PRJ_DEBUG
     const std::string magentaDebugStr = "\033[95mDEBUG\033[39m";
 #endif
@@ -275,7 +69,7 @@ namespace
 
 
 
-int exprt::process(const std::string& m3uFile, const std::string& outDir, const app::Flags& flags)
+int app::exprt(const app::Args& args, const app::Flags& flags, const std::string& m3uFile, const std::string& outDir)
 {
     int r = EC_OK; // set to OK because of catch(...) and foreach inDirs
 
@@ -321,9 +115,9 @@ int exprt::process(const std::string& m3uFile, const std::string& outDir, const 
 
                     if (verbose)
                     {
-                        printInfo(msg);
+                        util::printInfo(msg);
 
-                        if (2 == cliChoice("use non empty OUTDIR?"))
+                        if (2 == omw_::cli::choice("use non empty OUTDIR?"))
                         {
                             r = EC_USER_ABORT;
                             throw (int)(__LINE__);
@@ -391,7 +185,7 @@ int exprt::process(const std::string& m3uFile, const std::string& outDir, const 
             {
                 if (text[0] == (char)(0xeF) && text[0] == (char)(0xBB) && text[0] == (char)(0xBF))
                 {
-                    if (verbose) printInfo("UTF8 BOM found");
+                    if (verbose) util::printInfo("UTF8 BOM found");
                     text.erase(0, 3);
                 }
             }
@@ -466,7 +260,7 @@ int exprt::process(const std::string& m3uFile, const std::string& outDir, const 
             sprintf(tmpOutFileNumBuffer, "%04zu", fileCnt.total());
             const fs::path outFile = outDir / fs::path(tmpOutFileNumBuffer + std::string("_") + inFile.filename().string());
 
-            if (verbose) printFormattedLine("###copying \"" + inFile.u8string() + "\" to \"" + fs::weakly_canonical(outFile).u8string() + "\"");
+            if (verbose) util::printFormattedLine("###copying \"" + inFile.u8string() + "\" to \"" + fs::weakly_canonical(outFile).u8string() + "\"");
 
             if (fs::exists(inFile))
             {
@@ -534,7 +328,7 @@ int exprt::process(const std::string& m3uFile, const std::string& outDir, const 
         r = EC_ERROR;
         if (!quiet)
         {
-            printError("fatal error");
+            util::printError("fatal error");
             cout << "    path1: " << ex.path1() << endl;
             cout << "    path2: " << ex.path2() << endl;
             cout << "    cat:   " << ex.code().category().name() << endl;
@@ -548,7 +342,7 @@ int exprt::process(const std::string& m3uFile, const std::string& outDir, const 
         r = EC_ERROR;
         if (!quiet)
         {
-            printError("fatal error");
+            util::printError("fatal error");
             cout << "    cat:   " << ex.code().category().name() << endl;
             cout << "    code:  " << ex.code().value() << endl;
             cout << "    msg:   " << ex.code().message() << endl;
@@ -560,7 +354,7 @@ int exprt::process(const std::string& m3uFile, const std::string& outDir, const 
         r = EC_ERROR;
         if (!quiet)
         {
-            printError("fatal error");
+            util::printError("fatal error");
             cout << "    what:  " << ex.what() << endl;
         }
     }
@@ -569,7 +363,7 @@ int exprt::process(const std::string& m3uFile, const std::string& outDir, const 
         if (r == EC_OK)
         {
             r = EC_ERROR;
-            if (!quiet) printError("fatal error (" + std::to_string(ex) + ")");
+            if (!quiet) util::printError("fatal error (" + std::to_string(ex) + ")");
         }
         else if (verbose) cout << "\n" << omw::fgBrightRed << "failed" << omw::defaultForeColor << endl;
     }
@@ -578,7 +372,7 @@ int exprt::process(const std::string& m3uFile, const std::string& outDir, const 
         if (r == EC_OK)
         {
             r = EC_ERROR;
-            if (!quiet) printError("unspecified fatal error");
+            if (!quiet) util::printError("unspecified fatal error");
         }
         else if (verbose) cout << "\n" << omw::fgBrightRed << "failed" << omw::defaultForeColor << endl;
     }

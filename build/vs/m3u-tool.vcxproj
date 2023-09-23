@@ -139,6 +139,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\application\cliarg.h" />
+    <ClInclude Include="..\..\src\application\defines.h" />
     <ClInclude Include="..\..\src\application\export.h" />
     <ClInclude Include="..\..\src\application\processor.h" />
     <ClInclude Include="..\..\src\middleware\m3u.h" />

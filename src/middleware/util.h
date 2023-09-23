@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            07.05.2023
+date            23.09.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -9,6 +9,9 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 
 #include <cstddef>
 #include <cstdint>
+#include <filesystem>
+
+#include "omw/string.h"
 
 
 namespace util
@@ -55,6 +58,25 @@ namespace util
         counter_type m_e;
         counter_type m_w;
     };
+
+    void printFormattedText(const std::string& text);
+    void printFormattedLine(const std::string& text);
+    void printError(const std::string& text);
+    void printInfo();
+    void printInfo(const std::string& text);
+    void printWarning(const std::string& text);
+    void printTitle(const std::string& title);
+    omw::string getDirName(const std::filesystem::path& dir);
+}
+
+
+#include <omw/omw.h>
+namespace omw_
+{
+#if OMW_VERSION_ID <= OMW_VERSION_ID_0_2_1_ALPHA_2
+    namespace cli { int choice(const std::string& q, int def = 0, char first = 'y', char second = 'n'); }
+    omw::string to_string(uint64_t val, int base, const char* digits);
+#endif
 }
 
 
