@@ -497,7 +497,7 @@ namespace
                 rFileCnt.addTotal();
 
                 const fs::path inFile = (fs::path(entry.path())).make_preferred();
-                const auto inFileStemTokens = omw_::split(inFile.stem().u8string(), '_');
+                const auto inFileStemTokens = omw::split(inFile.stem().u8string(), '_');
 
                 if (scheme == detectScheme(inFileStemTokens))
                 {
