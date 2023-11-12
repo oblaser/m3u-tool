@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            23.09.2023
+date            12.11.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -16,7 +16,7 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 namespace app
 {
     // no, that's not a typo, "export" is a keyword
-    int exprt(const app::Args& args, const app::Flags& flags, const std::string& m3uFile, const std::string& outDir);
+    int exprt(const app::Args& args, const app::Flags& flags);
 }
 
 

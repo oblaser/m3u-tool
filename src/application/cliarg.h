@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            23.09.2023
+date            12.11.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -88,6 +88,7 @@ namespace app
         bool containsQuiet() const { return m_options.contains(argstr::quiet); }
         bool containsVerbose() const { return m_options.contains(argstr::verbose); }
         bool containsVersion() const { return m_options.contains(argstr::version); }
+        bool isGlobalHelp() const { return (!raw.empty() && ((raw[0] == argstr::help) || (raw[0] == argstr::help_alt))); }
 
         size_t count() const;
         size_t size() const;

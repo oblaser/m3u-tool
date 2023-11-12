@@ -175,7 +175,7 @@ omw::string omw_::to_string(uint64_t val, int base, const char* digits)
 
     while (val != 0)
     {
-        r = digits[val % base] + r; // use reverse() instead
+        r = digits[val % base] + r; // maybe use reverse() instead
         val /= base;
     }
 

@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            19.08.2023
+date            12.11.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -101,7 +101,6 @@ int main(int argc, char** argv)
         //args.add("../../../test/system/pl");
         args.add("../../../test/system/out/");
 #elif 1 // debug parse m3u
-        args.add("debug");
         args.add("parse");
         args.add("../../../test/system/pl.m3u");
 #else
@@ -144,48 +143,9 @@ int main(int argc, char** argv)
 
     if (args.isValid())
     {
-        if (args.containsHelp()) printHelp();
+        if (/*args.containsHelp()*/ args.isGlobalHelp()) printHelp();
         else if (args.containsVersion()) printVersion();
-        else
-        {
-            
-
-            if (args.raw.at(0) == "export")
-            {
-                r = exprt::process(args.raw.at(1), args.raw.at(2), flags);
-            }
-#ifdef PRJ_DEBUG
-            else if (args.raw.at(0) == "debug")
-            {
-                if (args.raw.at(1) == "parse")
-                {
-                    auto dbg = m3u::M3U(args.raw.at(2));
-
-                    for (const auto& e : dbg.entries())
-                    {
-                        if (e.isRegular()) cout << omw::fgBrightCyan << "R " << omw::fgDefault << e.path() << endl;
-                        else if (e.isComment()) cout << omw::fgBrightBlack << "C " << omw::fgDefault << e.data() << endl;
-                        else if (e.isExt()) cout << omw::fgGreen << "X " << omw::fgDefault << e.ext() << endl;
-                        else if (e.hasExt()) cout << omw::fgBrightYellow << "X " << omw::fgDefault << e.ext() << " \"" << omw::fgBrightWhite << e.path() << omw::fgDefault << "\"" << endl;
-                        else cout << omw::fgBrightRed << "E " << omw::fgDefault << e.path() << endl;
-                    }
-
-                    cout << "\n===================================================\n" << dbg.serialize() << "<EOF>==============================================" << endl;
-                }
-                else
-                {
-                    r = -1;
-                    cout << omw::fgBrightRed << "ERROR (" << "main.cpp:" << __LINE__ << ")" << endl;
-                }
-            }
-#endif
-            else
-            {
-                r = -1;
-
-                cout << omw::fgBrightRed << "ERROR (" << "main.cpp:" << __LINE__ << ")" << endl;
-            }
-        }
+        else r = app::process(args);
     }
     else
     {

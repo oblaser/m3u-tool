@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            23.09.2023
+date            12.11.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -69,11 +69,15 @@ namespace
 
 
 
-int app::exprt(const app::Args& args, const app::Flags& flags, const std::string& m3uFile, const std::string& outDir)
+int app::exprt(const app::Args& args, const app::Flags& flags)
 {
     int r = EC_OK; // set to OK because of catch(...) and foreach inDirs
 
     IMPLEMENT_FLAGS();
+
+    // TODO make nicer
+    const std::string m3uFile = args.raw.at(1);
+    const std::string outDir = args.raw.at(2);
 
     try
     {

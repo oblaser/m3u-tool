@@ -34,8 +34,8 @@ namespace m3u
         bool isComment() const { return m_data.substr(0, 1) == "#"; }
         bool isExtension() const { return !m_ext.empty() && m_data.empty(); }
         bool isResource() const { return !m_data.empty() && !isComment(); } // is resource (with or without extension)
-        bool hasExt() const { return !m_ext.empty(); }
-        bool isRegularRes() const { return isResource() && !hasExt(); }
+        bool hasExtension() const { return !m_ext.empty(); }
+        bool isRegularRes() const { return isResource() && !hasExtension(); }
 
         void setData(const std::string& data) { m_data = data; }
 
