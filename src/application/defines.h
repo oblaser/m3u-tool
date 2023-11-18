@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            23.09.2023
+date            18.11.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -36,7 +36,6 @@ if (quiet) ___verbose = false;
 
 #define ERROR_PRINT_EC_THROWLINE(msg, EC_x) \
 {                                   \
-    rcnt.incErrors();               \
     if (!quiet) util::printError(msg); \
     r = EC_x;                       \
     throw (int)(__LINE__);          \
@@ -51,12 +50,12 @@ enum ERRORCODE // https://tldp.org/LDP/abs/html/exitcodes.html / on MSW are no p
 
     EC__begin_ = 79,
 
-    EC_OUTDIR_NOTEMPTY = EC__begin_,
-    EC_INOUTDIR_EQ, // TODO implment
+    EC_MODULE_UNKNOWN = EC__begin_,
+    EC_OUTDIR_NOTEMPTY,
     EC_OUTDIR_NOTCREATED,
     EC_M3UFILE_NOT_FOUND,
 
-    EC_USER_ABORT, // not actually returned, used internally
+    EC_USER_ABORT,
 
     EC__end_,
 

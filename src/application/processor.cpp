@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            12.11.2023
+date            18.11.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -55,7 +55,7 @@ namespace
 
 int app::process(const app::Args& args)
 {
-    int r = EC_ERROR;
+    int r = EC_OK; // set to OK because of catch(...)
 
     const auto flags = app::Flags(args.containsForce(),
                 args.containsQuiet(),
@@ -63,40 +63,95 @@ int app::process(const app::Args& args)
 
     IMPLEMENT_FLAGS();
 
-
-
-
-
-
-    if (args.raw.at(0) == "export")
+    try
     {
-        r = app::exprt(args, flags);
-    }
-    else if (args.raw.at(0) == "parse")
-    {
-        auto dbg = m3u::M3U(args.raw.at(2));
-
-        for (const auto& e : dbg.entries())
+        if (args.raw.at(0) == "export")
         {
-            if (e.isRegularRes()) cout << omw::fgBrightCyan << "R " << omw::fgDefault << e.path() << endl;
-            else if (e.isComment()) cout << omw::fgBrightBlack << "C " << omw::fgDefault << e.data() << endl;
-            else if (e.isExtension()) cout << omw::fgGreen << "X " << omw::fgDefault << e.ext() << endl;
-            else if (e.hasExtension()) cout << omw::fgBrightYellow << "X " << omw::fgDefault << e.ext() << " \"" << omw::fgBrightWhite << e.path() << omw::fgDefault << "\"" << endl;
-            else cout << omw::fgBrightRed << "E " << omw::fgDefault << e.path() << endl;
+            r = app::exprt(args, flags);
+        }
+        else if (args.raw.at(0) == "parse")
+        {
+            const std::string m3uFile = args.raw.at(1);
+
+            if (!fs::exists(m3uFile)) ERROR_PRINT_EC_THROWLINE("M3U file not found", EC_M3UFILE_NOT_FOUND);
+
+            const auto m3u = m3u::M3U(m3uFile);
+
+            for (const auto& e : m3u.entries())
+            {
+                if (e.isRegularRes()) cout << omw::fgBrightCyan << "R " << omw::fgDefault << e.path() << endl;
+                else if (e.isComment()) cout << omw::fgBrightBlack << "C " << omw::fgDefault << e.data() << endl;
+                else if (e.isExtension()) cout << omw::fgGreen << "X " << omw::fgDefault << e.ext() << endl;
+                else if (e.hasExtension()) cout << omw::fgBrightYellow << "X " << omw::fgDefault << e.ext() << " \"" << omw::fgBrightWhite << e.path() << omw::fgDefault << "\"" << endl;
+                else cout << omw::fgBrightRed << "E " << omw::fgDefault << e.path() << endl;
+            }
+
+            //cout << "\n===================================================\n" << m3u.serialize() << "<EOF>==============================================" << endl;
+        }
+        else
+        {
+            r = EC_MODULE_UNKNOWN;
+
+            cout << omw::fgBrightRed << "ERROR (" << "main.cpp:" << __LINE__ << ")" << endl;
         }
 
-        cout << "\n===================================================\n" << dbg.serialize() << "<EOF>==============================================" << endl;
+
     }
-    else
+    catch (const std::filesystem::filesystem_error& ex)
     {
-        r = -1;
-
-        cout << omw::fgBrightRed << "ERROR (" << "main.cpp:" << __LINE__ << ")" << endl;
+        r = EC_ERROR;
+        if (!quiet)
+        {
+            util::printError("fatal error");
+            cout << "    path1: " << ex.path1() << endl;
+            cout << "    path2: " << ex.path2() << endl;
+            cout << "    cat:   " << ex.code().category().name() << endl;
+            cout << "    code:  " << ex.code().value() << endl;
+            cout << "    msg:   " << ex.code().message() << endl;
+            cout << "    what:  " << ex.what() << endl;
+        }
+    }
+    catch (const std::system_error& ex)
+    {
+        r = EC_ERROR;
+        if (!quiet)
+        {
+            util::printError("fatal error");
+            cout << "    cat:   " << ex.code().category().name() << endl;
+            cout << "    code:  " << ex.code().value() << endl;
+            cout << "    msg:   " << ex.code().message() << endl;
+            cout << "    what:  " << ex.what() << endl;
+        }
+    }
+    catch (const std::exception& ex)
+    {
+        r = EC_ERROR;
+        if (!quiet)
+        {
+            util::printError("fatal error");
+            cout << "    what:  " << ex.what() << endl;
+        }
+    }
+    catch (const int& ex)
+    {
+        if (r == EC_OK)
+        {
+            r = EC_ERROR;
+            if (!quiet) util::printError("fatal error (" + std::to_string(ex) + ")");
+        }
+        else if (verbose) cout << "\n" << omw::fgBrightRed << "failed" << omw::defaultForeColor << endl;
+    }
+    catch (...)
+    {
+        if (r == EC_OK)
+        {
+            r = EC_ERROR;
+            if (!quiet) util::printError("unspecified fatal error");
+        }
+        else if (verbose) cout << "\n" << omw::fgBrightRed << "failed" << omw::defaultForeColor << endl;
     }
 
-
-
-
+    //if (r == EC_USER_ABORT) r = EC_OK;
 
     return r;
 }
