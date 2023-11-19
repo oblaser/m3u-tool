@@ -4,6 +4,7 @@ date            19.11.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -20,11 +21,17 @@ namespace
     const char* const ext_str = "#EXT";
     const char* const extm3u_str = "#EXTM3U";
     const char* const extinf_str = "#EXTINF:";
+    const char* const ext_x_media_str = "#EXT-X-MEDIA:";
     const char* const ext_x_stream_inf_str = "#EXT-X-STREAM-INF:";
 
     inline bool isExtType(const std::string& line, const std::string& extTypeStr)
     {
         return (line.substr(0, extTypeStr.size()) == extTypeStr);
+    }
+
+    inline bool isExtType(const m3u::Entry& entry, const std::string& extTypeStr)
+    {
+        return (entry.ext().substr(0, extTypeStr.size()) == extTypeStr);
     }
 
 
@@ -137,16 +144,45 @@ void m3u::Entry::ExtParamValue::m_parse(const std::string& value)
             std::string tmp(value.begin() + 1, value.end() - 1);
             omw::replaceAll(tmp, "\"\"", '"');
 
-            m_value = tmp;
+            m_data = tmp;
         }
         else
         {
             if (omw::isInteger(value)) m_type = T_INTEGER;
             else m_type = T_SYMBOL;
 
-            m_value = value;
+            m_data = value;
         }
     }
+}
+
+bool m3u::Entry::ExtParamContainer::contains(const std::string& key) const
+{
+    bool r = false;
+    
+    for (size_type i = 0; i < size(); ++i)
+    {
+        if (at(i).key() == key)
+        {
+            r = true;
+            break;
+        }
+    }
+
+    return r;
+}
+
+const m3u::Entry::ExtParameter& m3u::Entry::ExtParamContainer::get(const std::string& key) const
+{
+    for (size_type i = 0; i < size(); ++i)
+    {
+        if (at(i).key() == key)
+        {
+            return at(i);
+        }
+    }
+
+    throw std::out_of_range("no \"" + key + "\" parameter");
 }
 
 std::string m3u::Entry::serialize(const char* endOfLine) const
@@ -174,7 +210,7 @@ void m3u::Entry::m_parseExtData()
         const char* p = m_ext.c_str() + colonPos + 1;
         const char* const pEnd = m_ext.c_str() + m_ext.length();
 
-        m_extData.clear();
+        m_extParam.clear();
 
         std::string key;
         std::string val;
@@ -202,8 +238,8 @@ void m3u::Entry::m_parseExtData()
             }
             else if (*p == ',')
             {
-                if (!key.empty() && val.empty()) m_extData.push_back(ExtParameter(std::string(), key));
-                else if (!(key.empty() && val.empty())) m_extData.push_back(ExtParameter(key, val));
+                if (!key.empty() && val.empty()) m_extParam.push_back(ExtParameter(std::string(), key));
+                else if (!(key.empty() && val.empty())) m_extParam.push_back(ExtParameter(key, val));
 
                 key.clear();
                 val.clear();
@@ -216,8 +252,8 @@ void m3u::Entry::m_parseExtData()
             }
         }
 
-        if (!key.empty() && val.empty()) m_extData.push_back(ExtParameter("", key));
-        else if (!(key.empty() && val.empty())) m_extData.push_back(ExtParameter(key, val));
+        if (!key.empty() && val.empty()) m_extParam.push_back(ExtParameter("", key));
+        else if (!(key.empty() && val.empty())) m_extParam.push_back(ExtParameter(key, val));
     }
 }
 
@@ -279,4 +315,38 @@ std::string m3u::M3U::serialize(const char* endOfLine) const
     }
 
     return r;
+}
+
+std::string m3u::HLS::serialize(const char* endOfLine) const
+{
+    return std::string();
+}
+
+void m3u::HLS::m_parse()
+{
+    for (size_t i = 0; i < m_entries.size(); ++i)
+    {
+        const auto& e = m_entries[i];
+
+        if (e.isExtension())
+        {
+            if (::isExtType(e, ::ext_x_media_str) && e.extParam().contains("TYPE"))
+            {
+                const auto& type = e.extParam().get("TYPE").value().data();
+
+                if (type == "AUDIO") m_audioStreams.push_back(e);
+                else if (type == "SUBTITLES") m_subtitles.push_back(e);
+                else m_otherEntries.push_back(e);
+            }
+            else m_otherEntries.push_back(e);
+        }
+        else if (::isExtType(e, ::ext_x_stream_inf_str))
+        {
+            m_streams.push_back(e);
+        }
+        else m_otherEntries.push_back(e);
+    }
+
+    m_entries.clear();
+    m_entries.shrink_to_fit();
 }

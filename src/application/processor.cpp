@@ -90,6 +90,14 @@ int app::process(const app::Args& args)
             cout << "\n===================================================\n" << m3u.serialize() << "<EOF>==============================================" << endl;
 #endif
         }
+        else if (args.raw.at(0) == "stream-dl")
+        {
+            const std::string m3uFile = args.raw.at(1);
+
+            if (!fs::exists(m3uFile)) ERROR_PRINT_EC_THROWLINE("M3U file not found", EC_M3UFILE_NOT_FOUND);
+
+            const auto hls = m3u::HLS(m3uFile);
+        }
         else
         {
             r = EC_MODULE_UNKNOWN;

@@ -100,10 +100,14 @@ int main(int argc, char** argv)
 
         //args.add("../../../test/system/pl");
         args.add("../../../test/system/out/");
-#elif 1 // debug parse m3u
+#elif 0 // parse m3u
         args.add("parse");
         //args.add("../../../test/system/ext-mixed.m3u");
-        args.add("../../../test/system/non-ext.m3u");
+        args.add("../../../test/system/hls.m3u");
+        //args.add("../../../test/system/non-ext.m3u");
+#elif 1 // stream download
+        args.add("stream-dl");
+        args.add("../../../test/system/hls.m3u");
 #else
 //#warning "nop"
 #endif

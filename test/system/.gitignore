@@ -4,3 +4,4 @@
 !.gitignore
 
 !ext-mixed.m3u
+!hls.m3u
