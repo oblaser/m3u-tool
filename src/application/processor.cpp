@@ -86,7 +86,9 @@ int app::process(const app::Args& args)
                 else cout << omw::fgBrightRed << "E " << omw::fgDefault << e.path() << endl;
             }
 
-            //cout << "\n===================================================\n" << m3u.serialize() << "<EOF>==============================================" << endl;
+#if defined(PRJ_DEBUG) && 1
+            cout << "\n===================================================\n" << m3u.serialize() << "<EOF>==============================================" << endl;
+#endif
         }
         else
         {

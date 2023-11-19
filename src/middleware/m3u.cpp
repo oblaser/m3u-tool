@@ -1,11 +1,10 @@
 /*
 author          Oliver Blaser
-date            19.08.2023
+date            19.11.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
 #include <string>
-#include <string_view>
 #include <vector>
 
 #include "m3u.h"
@@ -18,8 +17,15 @@ namespace fs = std::filesystem;
 
 namespace
 {
-    constexpr std::string_view extm3u_str = "#EXTM3U";
-    constexpr std::string_view extinf_str = "#EXTINF:";
+    const char* const ext_str = "#EXT";
+    const char* const extm3u_str = "#EXTM3U";
+    const char* const extinf_str = "#EXTINF:";
+    const char* const ext_x_stream_inf_str = "#EXT-X-STREAM-INF:";
+
+    inline bool isExtType(const std::string& line, const std::string& extTypeStr)
+    {
+        return (line.substr(0, extTypeStr.size()) == extTypeStr);
+    }
 
 
 
@@ -120,6 +126,29 @@ namespace
 
 
 
+void m3u::Entry::ExtParamValue::m_parse(const std::string& value)
+{
+    if (!value.empty())
+    {
+        if ((value[0] == '"') && (value.back() == '"'))
+        {
+            m_type = T_STRING;
+
+            std::string tmp(value.begin() + 1, value.end() - 1);
+            omw::replaceAll(tmp, "\"\"", '"');
+
+            m_value = tmp;
+        }
+        else
+        {
+            if (omw::isInteger(value)) m_type = T_INTEGER;
+            else m_type = T_SYMBOL;
+
+            m_value = value;
+        }
+    }
+}
+
 std::string m3u::Entry::serialize(const char* endOfLine) const
 {
     std::string r = "";
@@ -134,6 +163,62 @@ std::string m3u::Entry::serialize(const char* endOfLine) const
     if (!m_data.empty()) r += m_data;
 
     return r;
+}
+
+void m3u::Entry::m_parseExtData()
+{
+    const size_t colonPos = m_ext.find(':');
+
+    if (colonPos != std::string::npos)
+    {
+        const char* p = m_ext.c_str() + colonPos + 1;
+        const char* const pEnd = m_ext.c_str() + m_ext.length();
+
+        m_extData.clear();
+
+        std::string key;
+        std::string val;
+
+        while (p < pEnd)
+        {
+            if (*p == '=')
+            {
+                ++p;
+                if (p < pEnd)
+                {
+                    bool ignoreComma = false;
+
+                    // proper quote interpretation is done in m3u::Entry::ExtParamValue ctor
+
+                    while ((p < pEnd) &&
+                           ((*p != ',') || ignoreComma))
+                    {
+                        if (*p == '"') ignoreComma = !ignoreComma;
+
+                        val += *p;
+                        ++p;
+                    }
+                }
+            }
+            else if (*p == ',')
+            {
+                if (!key.empty() && val.empty()) m_extData.push_back(ExtParameter(std::string(), key));
+                else if (!(key.empty() && val.empty())) m_extData.push_back(ExtParameter(key, val));
+
+                key.clear();
+                val.clear();
+                ++p;
+            }
+            else
+            {
+                key += *p;
+                ++p;
+            }
+        }
+
+        if (!key.empty() && val.empty()) m_extData.push_back(ExtParameter("", key));
+        else if (!(key.empty() && val.empty())) m_extData.push_back(ExtParameter(key, val));
+    }
 }
 
 
@@ -152,23 +237,31 @@ void m3u::M3U::m_parseFile(const std::string& file)
 
             for (size_t i = 1; i < lines.size(); ++i)
             {
-                if (lines[i].substr(0, ::extinf_str.size()) == extinf_str)
+                if (!lines[i].empty())
                 {
-                    if (i < (lines.size() - 1))
+                    // is entry with extension
+                    if (::isExtType(lines[i], ::extinf_str) ||
+                        ::isExtType(lines[i], ::ext_x_stream_inf_str))
                     {
-                        m_entries.push_back(m3u::Entry(lines[i + 1], lines[i]));
-                        ++i;
+                        if (i < (lines.size() - 1))
+                        {
+                            m_entries.push_back(m3u::Entry(lines[i + 1], lines[i]));
+                            ++i;
+                        }
+                        else m_entries.push_back(m3u::Entry("", lines[i]));
                     }
-                    else m_entries.push_back(m3u::Entry("", lines[i]));
+                    // is only extension
+                    else if (::isExtType(lines[i], ::ext_str)) m_entries.push_back(m3u::Entry("", lines[i]));
+                    // is entry
+                    else m_entries.push_back(lines[i]);
                 }
-                else m_entries.push_back(lines[i]);
             }
         }
         else
         {
             for (size_t i = 0; i < lines.size(); ++i)
             {
-                m_entries.push_back(lines[i]);
+                if (!lines[i].empty()) m_entries.push_back(lines[i]);
             }
         }
 

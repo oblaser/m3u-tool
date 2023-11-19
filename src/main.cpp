@@ -102,7 +102,8 @@ int main(int argc, char** argv)
         args.add("../../../test/system/out/");
 #elif 1 // debug parse m3u
         args.add("parse");
-        args.add("../../../test/system/ext-mixed.m3u");
+        //args.add("../../../test/system/ext-mixed.m3u");
+        args.add("../../../test/system/non-ext.m3u");
 #else
 //#warning "nop"
 #endif

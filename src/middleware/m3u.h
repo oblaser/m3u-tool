@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            19.08.2023
+date            18.11.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -11,6 +11,7 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <utility>
 
 
 namespace m3u
@@ -20,8 +21,43 @@ namespace m3u
     class Entry
     {
     public:
+        class ExtParamValue
+        {
+        public:
+            enum
+            {
+                T_UNKNOWN = 0,
+                T_INTEGER,
+                T_STRING,
+                T_SYMBOL,
+            };
+
+        public:
+            ExtParamValue() = delete;
+            ExtParamValue(const std::string& value) : m_type(T_UNKNOWN), m_value() { m_parse(value); }
+            virtual ~ExtParamValue() {}
+
+        private:
+            int m_type;
+            std::string m_value;
+
+            void m_parse(const std::string& value);
+        };
+
+        class ExtParameter : private std::pair<std::string, m3u::Entry::ExtParamValue>
+        {
+        public:
+            ExtParameter() = delete;
+            ExtParameter(const std::string& key, const ExtParamValue& value) : std::pair<std::string, m3u::Entry::ExtParamValue>(key, value) {}
+            virtual ~ExtParameter() {}
+
+            const std::string& key() const { return first; }
+            const ExtParamValue& value() const { return second; }
+        };
+
+    public:
         Entry() = delete;
-        Entry(const std::string& data, const std::string& ext = std::string()) : m_ext(ext), m_data(data) {}
+        Entry(const std::string& data, const std::string& ext = std::string()) : m_ext(ext), m_extData(), m_data(data) { m_parseExtData(); }
         virtual ~Entry() {}
 
         const std::string& data() const { return m_data; }
@@ -29,6 +65,7 @@ namespace m3u
         const std::string& path() const { return m_data; }
         std::string& ext() { return m_ext; }
         const std::string& ext() const { return m_ext; }
+        const std::vector<ExtParameter>& extData() const { return m_extData; }
 
         bool isEmpty() const { return m_ext.empty() && m_data.empty(); }
         bool isComment() const { return m_data.substr(0, 1) == "#"; }
@@ -43,7 +80,10 @@ namespace m3u
 
     private:
         std::string m_ext;
+        std::vector<ExtParameter> m_extData;
         std::string m_data;
+
+        void m_parseExtData();
     };
 
     class M3U
