@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            19.11.2023
+date            23.11.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -259,6 +259,18 @@ void m3u::Entry::m_parseExtData()
 
 
 
+std::string m3u::M3U::serialize(const char* endOfLine) const
+{
+    std::string r = "";
+
+    for (size_t i = 0; i < m_entries.size(); ++i)
+    {
+        r += m_entries[i].serialize(endOfLine) + endOfLine;
+    }
+
+    return r;
+}
+
 void m3u::M3U::m_parseFile(const std::string& file)
 {
     const auto lines = ::readAllLines(file);
@@ -305,21 +317,17 @@ void m3u::M3U::m_parseFile(const std::string& file)
     }
 }
 
-std::string m3u::M3U::serialize(const char* endOfLine) const
+void m3u::HLS::Subtitles::m_parse()
 {
-    std::string r = "";
-
-    for (size_t i = 0; i < m_entries.size(); ++i)
+    for (const auto& param : m_extParam)
     {
-        r += m_entries[i].serialize(endOfLine) + endOfLine;
+        if (!param.value().empty())
+        {
+            if (param.key() == "LANGUAGE") m_language = param.value();
+            else if (param.key() == "FORCED") m_forced = (param.value() == "YES");
+            else if (param.key() == "URI") m_uri = param.value();
+        }
     }
-
-    return r;
-}
-
-std::string m3u::HLS::serialize(const char* endOfLine) const
-{
-    return std::string();
 }
 
 void m3u::HLS::m_parse()
@@ -347,6 +355,5 @@ void m3u::HLS::m_parse()
         else m_otherEntries.push_back(e);
     }
 
-    m_entries.clear();
-    m_entries.shrink_to_fit();
+    // do not clear entries, needed by serialize
 }

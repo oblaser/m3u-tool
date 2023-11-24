@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            19.11.2023
+date            23.11.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -39,6 +39,10 @@ namespace m3u
 
             int type() const { return m_type; }
             const std::string& data() const { return m_data; }
+
+            bool empty() const { return m_data.empty(); }
+
+            operator const std::string& () const { return m_data; }
 
         private:
             int m_type;
@@ -104,6 +108,16 @@ namespace m3u
         void m_parseExtData();
     };
 
+    inline bool operator==(const m3u::Entry::ExtParamValue& a, const char* b) { return (a.data() == b); }
+    inline bool operator==(const m3u::Entry::ExtParamValue& a, const std::string& b) { return (a.data() == b); }
+    inline bool operator==(const char* a, const m3u::Entry::ExtParamValue& b) { return (a == b.data()); }
+    inline bool operator==(const std::string& a, const m3u::Entry::ExtParamValue& b) { return (a == b.data()); }
+
+    inline bool operator!=(const m3u::Entry::ExtParamValue& a, const char* b) { return (a.data() != b); }
+    inline bool operator!=(const m3u::Entry::ExtParamValue& a, const std::string& b) { return (a.data() != b); }
+    inline bool operator!=(const char* a, const m3u::Entry::ExtParamValue& b) { return (a != b.data()); }
+    inline bool operator!=(const std::string& a, const m3u::Entry::ExtParamValue& b) { return (a != b.data()); }
+
     class M3U
     {
     public:
@@ -142,10 +156,21 @@ namespace m3u
         {
         public:
             Subtitles() = delete;
-            Subtitles(const m3u::Entry& entry) : m3u::Entry(entry) {}
+            Subtitles(const m3u::Entry& entry) : m3u::Entry(entry), m_language(), m_forced(false), m_uri() { m_parse(); }
             virtual ~Subtitles() {}
 
+            const std::string& language() const { return m_language; }
+            bool forced() const { return m_forced; }
+            const std::string& uri() const { return m_uri; }
+
             std::string serialize(const char* endOfLine = serializeEndOfLine) const { return m3u::Entry::serialize(endOfLine); }
+
+        private:
+            std::string m_language;
+            bool m_forced;
+            std::string m_uri;
+
+            void m_parse();
         };
 
         class Stream : protected m3u::Entry
@@ -163,7 +188,12 @@ namespace m3u
         explicit HLS(const std::string& file) : M3U(file), m_audioStreams(), m_subtitles(), m_streams(), m_otherEntries() { m_parse(); }
         virtual ~HLS() {}
 
-        std::string serialize(const char* endOfLine = serializeEndOfLine) const;
+        const std::vector<m3u::HLS::AudioStream>& audioStreams() const { return  m_audioStreams; }
+        const std::vector<m3u::HLS::Subtitles>& subtitles() const { return  m_subtitles; }
+        const std::vector<m3u::HLS::Stream>& streams() const { return  m_streams; }
+        const std::vector<m3u::Entry>& otherEntries() const { return  m_otherEntries; }
+
+        std::string serialize(const char* endOfLine = serializeEndOfLine) const { return m3u::M3U::serialize(endOfLine); }
 
     private:
         std::vector<m3u::HLS::AudioStream> m_audioStreams;

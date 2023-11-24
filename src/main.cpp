@@ -105,8 +105,8 @@ int main(int argc, char** argv)
         //args.add("../../../test/system/ext-mixed.m3u");
         args.add("../../../test/system/hls.m3u");
         //args.add("../../../test/system/non-ext.m3u");
-#elif 1 // stream download
-        args.add("stream-dl");
+#elif 1 // video stream download
+        args.add("vstreamdl");
         args.add("../../../test/system/hls.m3u");
 #else
 //#warning "nop"

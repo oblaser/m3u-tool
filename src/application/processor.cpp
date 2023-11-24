@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            18.11.2023
+date            23.11.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -8,6 +8,7 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 #include <array>
 #include <cmath>
 #include <filesystem>
+#include <fstream>
 #include <functional>
 #include <iomanip>
 #include <iostream>
@@ -90,13 +91,34 @@ int app::process(const app::Args& args)
             cout << "\n===================================================\n" << m3u.serialize() << "<EOF>==============================================" << endl;
 #endif
         }
-        else if (args.raw.at(0) == "stream-dl")
+        else if (args.raw.at(0) == "vstreamdl")
         {
             const std::string m3uFile = args.raw.at(1);
 
             if (!fs::exists(m3uFile)) ERROR_PRINT_EC_THROWLINE("M3U file not found", EC_M3UFILE_NOT_FOUND);
 
             const auto hls = m3u::HLS(m3uFile);
+
+            const std::string stemFileName = fs::path(m3uFile).stem().string();
+
+            std::string srtScript = "\nmkdir subs\n\n";
+
+            for (const auto& st : hls.subtitles())
+            {
+                if (!st.uri().empty())
+                {
+                    const std::string filename = "./subs/" + stemFileName + "-" + st.language() + (st.forced() ? "-forced" : "") + ".srt";
+
+                    srtScript += "ffmpeg -i \"" + st.uri() + "\" -scodec srt -loglevel warning \"" + filename + "\"\n";
+                    srtScript += "echo $?\n";
+                }
+            }
+
+            std::ofstream ofs;
+            ofs.exceptions(std::ios::badbit | std::ios::failbit | std::ios::eofbit);
+            ofs.open("dl-subs-" + stemFileName + ".sh", std::ios::out | std::ios::binary);
+            ofs << srtScript;
+            ofs.close();
         }
         else
         {
