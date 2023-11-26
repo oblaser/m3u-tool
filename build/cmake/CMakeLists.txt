@@ -19,7 +19,9 @@ include_directories(../../src/)
 set(SOURCES
 ../../src/application/cliarg.cpp
 ../../src/application/export.cpp
+../../src/application/m3u-helper.cpp
 ../../src/application/processor.cpp
+../../src/application/vstreamdl.cpp
 ../../src/middleware/m3u.cpp
 ../../src/middleware/util.cpp
 ../../src/main.cpp

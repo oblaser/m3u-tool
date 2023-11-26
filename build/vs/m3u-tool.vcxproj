@@ -132,7 +132,9 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\application\cliarg.cpp" />
     <ClCompile Include="..\..\src\application\export.cpp" />
+    <ClCompile Include="..\..\src\application\m3u-helper.cpp" />
     <ClCompile Include="..\..\src\application\processor.cpp" />
+    <ClCompile Include="..\..\src\application\vstreamdl.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
     <ClCompile Include="..\..\src\middleware\m3u.cpp" />
     <ClCompile Include="..\..\src\middleware\util.cpp" />
@@ -141,7 +143,9 @@
     <ClInclude Include="..\..\src\application\cliarg.h" />
     <ClInclude Include="..\..\src\application\defines.h" />
     <ClInclude Include="..\..\src\application\export.h" />
+    <ClInclude Include="..\..\src\application\m3u-helper.h" />
     <ClInclude Include="..\..\src\application\processor.h" />
+    <ClInclude Include="..\..\src\application\vstreamdl.h" />
     <ClInclude Include="..\..\src\middleware\m3u.h" />
     <ClInclude Include="..\..\src\middleware\util.h" />
     <ClInclude Include="..\..\src\project.h" />

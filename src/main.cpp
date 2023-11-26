@@ -99,7 +99,7 @@ int main(int argc, char** argv)
         args.add("../../../test/system/pl.m3u");
 
         //args.add("../../../test/system/pl");
-        args.add("../../../test/system/out/");
+        args.add("../../../test/system/out-export/");
 #elif 0 // parse m3u
         args.add("parse");
         //args.add("../../../test/system/ext-mixed.m3u");
@@ -108,6 +108,7 @@ int main(int argc, char** argv)
 #elif 1 // video stream download
         args.add("vstreamdl");
         args.add("../../../test/system/hls.m3u");
+        args.add("../../../test/system/out-vstreamdl");
 #else
 //#warning "nop"
 #endif

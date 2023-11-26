@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            23.11.2023
+date            26.11.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -122,7 +122,8 @@ namespace m3u
     {
     public:
         M3U() noexcept : m_entries() {}
-        explicit M3U(const std::string& file) : m_entries() { m_parseFile(file); }
+        M3U(const std::string& txt) : m_entries() { m_parse(txt.data(), txt.data() + txt.size()); }
+        M3U(const char* p, const char* pEnd) : m_entries() { m_parse(p, pEnd); }
         virtual ~M3U() {}
 
         std::vector<m3u::Entry>& entries() { return m_entries; }
@@ -136,7 +137,7 @@ namespace m3u
     protected:
         std::vector<m3u::Entry> m_entries;
 
-        void m_parseFile(const std::string& file);
+        void m_parse(const char* p, const char* pEnd);
     };
     
     class HLS : protected M3U
@@ -185,7 +186,9 @@ namespace m3u
 
     public:
         HLS() noexcept : M3U(), m_audioStreams(), m_subtitles(), m_streams(), m_otherEntries() {}
-        explicit HLS(const std::string& file) : M3U(file), m_audioStreams(), m_subtitles(), m_streams(), m_otherEntries() { m_parse(); }
+        HLS(const std::string& txt) : M3U(txt), m_audioStreams(), m_subtitles(), m_streams(), m_otherEntries() { m_parse(); }
+        HLS(const char* p, const char* pEnd) : M3U(p, pEnd), m_audioStreams(), m_subtitles(), m_streams(), m_otherEntries() { m_parse(); }
+        HLS(const M3U& m3u) : M3U(m3u), m_audioStreams(), m_subtitles(), m_streams(), m_otherEntries() { m_parse(); }
         virtual ~HLS() {}
 
         const std::vector<m3u::HLS::AudioStream>& audioStreams() const { return  m_audioStreams; }

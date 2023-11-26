@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            23.11.2023
+date            26.11.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -10,11 +10,8 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 
 #include "m3u.h"
 
-#include <omw/io/file.h>
 #include <omw/string.h>
 
-
-namespace fs = std::filesystem;
 
 namespace
 {
@@ -36,27 +33,8 @@ namespace
 
 
 
-    std::vector<std::string> readAllLines(const std::string& file)
+    std::vector<std::string> readAllLines(const char* p, const char* const pEnd)
     {
-        const auto fileIf = omw::io::TxtFileInterface(file);
-        fileIf.openRead();
-        const size_t fileSize = fileIf.size();
-
-        std::string ___txt(fileSize, ' ');
-        const std::string& txt = ___txt;
-
-        fileIf.read(___txt.data(), ___txt.size());
-
-        const char* p = txt.data();
-        const char* const pEnd = txt.data() + txt.size();
-
-
-
-
-
-
-
-
         // TODO encoding check and conversion
 
 
@@ -271,9 +249,9 @@ std::string m3u::M3U::serialize(const char* endOfLine) const
     return r;
 }
 
-void m3u::M3U::m_parseFile(const std::string& file)
+void m3u::M3U::m_parse(const char* p, const char* pEnd)
 {
-    const auto lines = ::readAllLines(file);
+    const auto lines = ::readAllLines(p, pEnd);
 
     m_entries.clear();
 

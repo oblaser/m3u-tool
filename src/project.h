@@ -22,12 +22,12 @@ namespace prj
     const char* const appDirName = appDirName_unix;
 #endif
 
-    const char* const appName = "m3u-tool";
+    const char* const appName = "M3U Tool";
     const char* const exeName = "m3u-tool"; // eq to the linker setting
 
     const char* const website = "https://github.com/oblaser/m3u-tool";
 
-    const omw::Version version(0, 1, 0, "alpha.1");
+    const omw::Version version(0, 1, 1, "alpha");
 }
 
 
