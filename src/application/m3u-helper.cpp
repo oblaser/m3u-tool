@@ -24,7 +24,8 @@ namespace
 {
     bool isUrl(const std::string& uri)
     {
-        return false;
+        const auto tmp = uri.substr(0, 10);
+        return (omw::contains(tmp, "https://") || omw::contains(tmp, "http://"));
     }
 
     std::string readFile(const std::string& file)

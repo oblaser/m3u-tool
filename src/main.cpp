@@ -107,14 +107,17 @@ int main(int argc, char** argv)
         //args.add("../../../test/system/non-ext.m3u");
 #elif 1 // video stream download
         args.add("vstreamdl");
-        args.add("../../../test/system/hls.m3u");
+        
+        //args.add("../../../test/system/hls.m3u");
+        args.add("https://raw.githubusercontent.com/oblaser/m3u-tool/main/test/system/hls.m3u");
+        
         args.add("../../../test/system/out-vstreamdl");
 #else
 //#warning "nop"
 #endif
         // options
         //args.add("-vf");
-        //args.add("-v");
+        args.add("-v");
         //args.add("-f");
         //args.add("-h");
         //args.add("-q");

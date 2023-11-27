@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            23.09.2023
+date            27.11.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -29,6 +29,27 @@ namespace
 }
 
 
+
+std::string util::getDateTimeStr(time_t t, const char* strftimeFormat)
+{
+    constexpr size_t bufferSize = 100;
+    char buffer[bufferSize];
+    std::string r;
+
+#if defined(OMW_PLAT_WIN)
+    std::tm dateTime;
+    const std::tm* pDateTime = nullptr;
+    const auto error = localtime_s(&dateTime, &t);
+    if (error == 0) pDateTime = &dateTime;
+#else
+    const struct std::tm* pDateTime = std::localtime(&t);
+#endif
+
+    if (pDateTime && (std::strftime(buffer, bufferSize, strftimeFormat, pDateTime) > 0)) r = buffer;
+    else r = "[" + std::to_string(t) + "]";
+
+    return r;
+}
 
 // 
 // "### normal "quoted bright" white"

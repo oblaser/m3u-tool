@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            23.09.2023
+date            27.11.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -9,6 +9,7 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 
 #include <cstddef>
 #include <cstdint>
+#include <ctime>
 #include <filesystem>
 
 #include "omw/string.h"
@@ -58,6 +59,8 @@ namespace util
         counter_type m_e;
         counter_type m_w;
     };
+
+    std::string getDateTimeStr(time_t t = std::time(nullptr), const char* strftimeFormat = "%FT%T%z");
 
     void printFormattedText(const std::string& text);
     void printFormattedLine(const std::string& text);
