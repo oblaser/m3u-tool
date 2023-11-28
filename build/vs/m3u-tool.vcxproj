@@ -85,14 +85,14 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../src;$(ProjectDir)../../sdk/omw/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../src;$(ProjectDir)../../sdk/omw/include;$(sdk)/curl-7.81.0/x86/include</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)/obj/a/b/%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>$(ProjectDir)../../sdk/omw/lib/omw-d.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)../../sdk/omw/lib/omw-d.lib;Normaliz.lib;Ws2_32.lib;Wldap32.lib;Crypt32.lib;advapi32.lib;$(sdk)/curl-7.81.0/x86/lib/libcurl_a.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -102,7 +102,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../src;$(ProjectDir)../../sdk/omw/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../src;$(ProjectDir)../../sdk/omw/include;$(sdk)/curl-7.81.0/x86/include</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)/obj/a/b/%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
@@ -111,7 +111,7 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(ProjectDir)../../sdk/omw/lib/omw.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)../../sdk/omw/lib/omw.lib;Normaliz.lib;Ws2_32.lib;Wldap32.lib;Crypt32.lib;advapi32.lib;$(sdk)/curl-7.81.0/x86/lib/libcurl_a.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -136,6 +136,7 @@
     <ClCompile Include="..\..\src\application\processor.cpp" />
     <ClCompile Include="..\..\src\application\vstreamdl.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
+    <ClCompile Include="..\..\src\middleware\curl-helper.cpp" />
     <ClCompile Include="..\..\src\middleware\m3u.cpp" />
     <ClCompile Include="..\..\src\middleware\util.cpp" />
   </ItemGroup>
@@ -146,6 +147,7 @@
     <ClInclude Include="..\..\src\application\m3u-helper.h" />
     <ClInclude Include="..\..\src\application\processor.h" />
     <ClInclude Include="..\..\src\application\vstreamdl.h" />
+    <ClInclude Include="..\..\src\middleware\curl-helper.h" />
     <ClInclude Include="..\..\src\middleware\m3u.h" />
     <ClInclude Include="..\..\src\middleware\util.h" />
     <ClInclude Include="..\..\src\project.h" />

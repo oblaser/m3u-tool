@@ -14,6 +14,8 @@ add_compile_definitions(_DEBUG)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
+
+
 include_directories(../../src/)
 
 set(SOURCES
@@ -27,9 +29,12 @@ set(SOURCES
 ../../src/main.cpp
 )
 
+
+
 include_directories(../../sdk/omw/include)
 link_directories(../../sdk/omw/lib)
 
-add_executable(${EXE} ${SOURCES})
 
-target_link_libraries(${EXE} omw)
+
+add_executable(${EXE} ${SOURCES})
+target_link_libraries(${EXE} libomw.a curl)

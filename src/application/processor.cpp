@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            26.11.2023
+date            27.11.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -17,9 +17,9 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 #include <vector>
 
 #include "application/export.h"
+#include "application/m3u-helper.h"
 #include "application/vstreamdl.h"
 #include "defines.h"
-#include "middleware/m3u.h"
 #include "middleware/util.h"
 #include "processor.h"
 #include "project.h"
@@ -71,11 +71,7 @@ int app::process(const app::Args& args)
         else if (args.raw.at(0) == "vstreamdl") r = app::vstreamdl(args, flags);
         else if (args.raw.at(0) == "parse")
         {
-            const std::string m3uFile = args.raw.at(1);
-
-            if (!fs::exists(m3uFile)) ERROR_PRINT_EC_THROWLINE("M3U file not found", EC_M3UFILE_NOT_FOUND);
-
-            const auto m3u = m3u::M3U(m3uFile);
+            const m3u::M3U m3u = app::getFromUri(r, flags, args.raw.at(1));
 
             for (const auto& e : m3u.entries())
             {
@@ -94,7 +90,8 @@ int app::process(const app::Args& args)
         {
             r = EC_MODULE_UNKNOWN;
 
-            cout << omw::fgBrightRed << "ERROR (" << "main.cpp:" << __LINE__ << ")" << endl;
+            // TODO throw processor_exception
+            util::printError("unknown module");
         }
     }
     catch (const std::filesystem::filesystem_error& ex)

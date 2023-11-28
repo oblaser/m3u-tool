@@ -94,18 +94,25 @@ int main(int argc, char** argv)
     if (args.size() == 0)
     {
 #if 0 // export
+        
         args.add("export");
 
         args.add("../../../test/system/pl.m3u");
 
         //args.add("../../../test/system/pl");
         args.add("../../../test/system/out-export/");
-#elif 0 // parse m3u
+
+#elif 1 // parse m3u
+        
         args.add("parse");
+        
         //args.add("../../../test/system/ext-mixed.m3u");
-        args.add("../../../test/system/hls.m3u");
+        //args.add("../../../test/system/hls.m3u");
         //args.add("../../../test/system/non-ext.m3u");
+        args.add("https://raw.githubusercontent.com/oblaser/m3u-tool/main/test/system/hls.m3u");
+
 #elif 1 // video stream download
+        
         args.add("vstreamdl");
         
         //args.add("../../../test/system/hls.m3u");

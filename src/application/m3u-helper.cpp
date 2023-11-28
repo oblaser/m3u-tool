@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            26.11.2023
+date            27.11.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -11,6 +11,7 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 
 #include "defines.h"
 #include "m3u-helper.h"
+#include "middleware/curl-helper.h"
 #include "middleware/util.h"
 #include "project.h"
 
@@ -51,9 +52,17 @@ m3u::M3U app::getFromUri(int& r, const app::Flags& flags, const std::string& uri
 
     if (isUrl(uri))
     {
-        // TODO cURL
+        util::Curl curl;
 
-        return "#empty";
+        const auto res = curl.httpGET(uri, 60, 60);
+
+        if (!res.good())
+        {
+            if (verbose) util::printInfo(res.toString());
+            ERROR_PRINT_EC_THROWLINE("HTTP GET failed", EC_M3UFILE_NOT_FOUND);
+        }
+
+        return res.data();
     }
     else
     {
