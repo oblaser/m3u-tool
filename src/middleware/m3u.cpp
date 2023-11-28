@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            26.11.2023
+date            28.11.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -15,12 +15,6 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 
 namespace
 {
-    const char* const ext_str = "#EXT";
-    const char* const extm3u_str = "#EXTM3U";
-    const char* const extinf_str = "#EXTINF:";
-    const char* const ext_x_media_str = "#EXT-X-MEDIA:";
-    const char* const ext_x_stream_inf_str = "#EXT-X-STREAM-INF:";
-
     inline bool isExtType(const std::string& line, const std::string& extTypeStr)
     {
         return (line.substr(0, extTypeStr.size()) == extTypeStr);
@@ -108,6 +102,16 @@ namespace
         return lines;
     }
 }
+
+
+
+const char* const m3u::ext_str = "#EXT";
+const char* const m3u::extm3u_str = "#EXTM3U";
+const char* const m3u::extinf_str = "#EXTINF:";
+const char* const m3u::ext_x_media_str = "#EXT-X-MEDIA:";
+const char* const m3u::ext_x_stream_inf_str = "#EXT-X-STREAM-INF:";
+
+const char* const m3u::serializeEndOfLine = "\n";
 
 
 
@@ -257,7 +261,7 @@ void m3u::M3U::m_parse(const char* p, const char* pEnd)
 
     if (lines.size() > 0)
     {
-        if (lines[0] == ::extm3u_str)
+        if (lines[0] == m3u::extm3u_str)
         {
             m_entries.push_back(m3u::Entry("", lines[0]));
 
@@ -266,8 +270,8 @@ void m3u::M3U::m_parse(const char* p, const char* pEnd)
                 if (!lines[i].empty())
                 {
                     // is entry with extension
-                    if (::isExtType(lines[i], ::extinf_str) ||
-                        ::isExtType(lines[i], ::ext_x_stream_inf_str))
+                    if (::isExtType(lines[i], m3u::extinf_str) ||
+                        ::isExtType(lines[i], m3u::ext_x_stream_inf_str))
                     {
                         if (i < (lines.size() - 1))
                         {
@@ -277,7 +281,7 @@ void m3u::M3U::m_parse(const char* p, const char* pEnd)
                         else m_entries.push_back(m3u::Entry("", lines[i]));
                     }
                     // is only extension
-                    else if (::isExtType(lines[i], ::ext_str)) m_entries.push_back(m3u::Entry("", lines[i]));
+                    else if (::isExtType(lines[i], m3u::ext_str)) m_entries.push_back(m3u::Entry("", lines[i]));
                     // is entry
                     else m_entries.push_back(lines[i]);
                 }
@@ -308,6 +312,42 @@ void m3u::HLS::Subtitles::m_parse()
     }
 }
 
+m3u::Entry::ExtParameter m3u::HLS::Stream::resolutionExtParam() const
+{
+    m3u::Entry::ExtParameter r;
+
+    try
+    {
+        r = extParam().get("RESOLUTION");
+    }
+    catch (...)
+    {
+        r = m3u::Entry::ExtParameter("RESOLUTION", "-1x-1");
+    }
+
+    return r;
+}
+
+void m3u::HLS::Stream::m_parse()
+{
+    for (const auto& param : m_extParam)
+    {
+        if (!param.value().empty())
+        {
+            if (param.key() == "RESOLUTION")
+            {
+                const auto tokens = omw::split(param.value(), 'x');
+
+                if ((tokens.size() == 2) && omw::isUInteger(tokens[0]) && omw::isUInteger(tokens[1]))
+                {
+                    m_resolutionHeight = std::stoi(tokens[1]);
+                }
+            }
+            //else if (param.key() == "") ;
+        }
+    }
+}
+
 void m3u::HLS::m_parse()
 {
     for (size_t i = 0; i < m_entries.size(); ++i)
@@ -316,7 +356,7 @@ void m3u::HLS::m_parse()
 
         if (e.isExtension())
         {
-            if (::isExtType(e, ::ext_x_media_str) && e.extParam().contains("TYPE"))
+            if (::isExtType(e, m3u::ext_x_media_str) && e.extParam().contains("TYPE"))
             {
                 const auto& type = e.extParam().get("TYPE").value().data();
 
@@ -326,7 +366,7 @@ void m3u::HLS::m_parse()
             }
             else m_otherEntries.push_back(e);
         }
-        else if (::isExtType(e, ::ext_x_stream_inf_str))
+        else if (::isExtType(e, m3u::ext_x_stream_inf_str))
         {
             m_streams.push_back(e);
         }

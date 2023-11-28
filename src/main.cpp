@@ -102,7 +102,7 @@ int main(int argc, char** argv)
         //args.add("../../../test/system/pl");
         args.add("../../../test/system/out-export/");
 
-#elif 1 // parse m3u
+#elif 0 // parse m3u
         
         args.add("parse");
         
@@ -115,8 +115,10 @@ int main(int argc, char** argv)
         
         args.add("vstreamdl");
         
+        //args.add("../../../test/system/ext-mixed.m3u");
         //args.add("../../../test/system/hls.m3u");
-        args.add("https://raw.githubusercontent.com/oblaser/m3u-tool/main/test/system/hls.m3u");
+        args.add("https://raw.githubusercontent.com/oblaser/m3u-tool/main/test/system/hls.m3u?param=asdf&t=1230");
+        //args.add("../../../test/system/non-ext.m3u");
         
         args.add("../../../test/system/out-vstreamdl");
 #else

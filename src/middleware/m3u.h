@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            26.11.2023
+date            28.11.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -16,7 +16,13 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 
 namespace m3u
 {
-    const char* const serializeEndOfLine = "\n";
+    extern const char* const ext_str;
+    extern const char* const extm3u_str;
+    extern const char* const extinf_str;
+    extern const char* const ext_x_media_str;
+    extern const char* const ext_x_stream_inf_str;
+
+    extern const char* const serializeEndOfLine;
 
     class Entry
     {
@@ -55,6 +61,7 @@ namespace m3u
         {
         public:
             ExtParameter() : std::pair<std::string, m3u::Entry::ExtParamValue>(), m_validity(false) {}
+            ExtParameter(const std::string& key, const std::string& value) : std::pair<std::string, m3u::Entry::ExtParamValue>(key, value), m_validity(true) {}
             ExtParameter(const std::string& key, const ExtParamValue& value) : std::pair<std::string, m3u::Entry::ExtParamValue>(key, value), m_validity(true) {}
             virtual ~ExtParameter() {}
 
@@ -178,10 +185,18 @@ namespace m3u
         {
         public:
             Stream() = delete;
-            Stream(const m3u::Entry& entry) : m3u::Entry(entry) {}
+            Stream(const m3u::Entry& entry) : m3u::Entry(entry), m_resolutionHeight(-1) { m_parse(); }
             virtual ~Stream() {}
 
+            m3u::Entry::ExtParameter resolutionExtParam() const;
+            int resolutionHeight() const { return m_resolutionHeight; }
+
             std::string serialize(const char* endOfLine = serializeEndOfLine) const { return m3u::Entry::serialize(endOfLine); }
+
+        private:
+            int m_resolutionHeight;
+
+            void m_parse();
         };
 
     public:

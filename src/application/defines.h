@@ -55,6 +55,8 @@ enum ERRORCODE // https://tldp.org/LDP/abs/html/exitcodes.html / on MSW are no p
     EC_OUTDIR_NOTCREATED,
     EC_M3UFILE_NOT_FOUND,
 
+    EC_STREAM_EMPTY,
+
     EC_USER_ABORT,
 
     EC__end_,
