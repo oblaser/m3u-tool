@@ -9,7 +9,7 @@ project(m3u-tool)
 
 set(EXE m3u-tool)
 
-add_compile_definitions(_DEBUG)
+#add_compile_definitions(_DEBUG)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
@@ -24,6 +24,7 @@ set(SOURCES
 ../../src/application/m3u-helper.cpp
 ../../src/application/processor.cpp
 ../../src/application/vstreamdl.cpp
+../../src/middleware/curl-helper.cpp
 ../../src/middleware/m3u.cpp
 ../../src/middleware/util.cpp
 ../../src/main.cpp

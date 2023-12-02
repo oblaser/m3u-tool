@@ -34,9 +34,9 @@ namespace
         cout << endl;
         cout << "Usage:" << endl;
         cout << "  " << usageString << endl;
-        cout << "  " << prj::exeName << "export INFILE OUTDIR" << endl;
-        cout << "  " << prj::exeName << "parse INFILE" << endl;
-        cout << "  " << prj::exeName << "vstreamdl" << "INFILE OUTDIR OUTNAME [MAX-RES-HEIGHT]" << endl;
+        cout << "  " << prj::exeName << " export INFILE OUTDIR" << endl;
+        cout << "  " << prj::exeName << " parse INFILE" << endl;
+        cout << "  " << prj::exeName << " vstreamdl INFILE OUTDIR OUTNAME [MAX-RES-HEIGHT]" << endl;
         cout << endl;
         cout << "Modules:" << endl;
         cout << std::left << setw(lw) << std::string("  ") + "export" << "copy and rename the files of the playlist" << endl;
