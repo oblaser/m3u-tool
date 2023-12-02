@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            28.11.2023
+date            02.12.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -78,6 +78,9 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     // TODO make nicer
     const std::string m3uFile = args.raw.at(1);
     const std::string outDir = args.raw.at(2);
+    const std::string outName = args.raw.at(3);
+    std::string maxResHStr = "1080";
+    if (args.raw.size() > 4) maxResHStr = args.raw.at(4);
 
     util::ResultCounter rcnt = 0;
 
@@ -138,9 +141,11 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     // process
     ///////////////////////////////////////////////////////////
 
-    const std::string stemFileName = fs::path(m3uFile).stem().string(); // TODO if name is provided in cliarg, use it
+    const std::string stemFileName = outName;
 
-    constexpr int maxResHeight = 1080; // TODO cliarg
+    if (!omw::isUInteger(maxResHStr)) ERROR_PRINT_EC_THROWLINE("invalid MAX-RES-HEIGHT", EC_ERROR);
+
+    const int maxResHeight = std::stoi(maxResHStr);
 
     const bool noAudio = hls.audioStreams().empty();
     const bool noVideo = hls.streams().empty();

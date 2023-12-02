@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            12.11.2023
+date            02.12.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -24,7 +24,7 @@ using std::setw;
 
 namespace
 {
-    const std::string usageString = std::string(prj::exeName) + " module INPUT_M3U_FILE ...";
+    const std::string usageString = std::string(prj::exeName) + " MODULE ...";
 
     void printHelp()
     {
@@ -34,18 +34,24 @@ namespace
         cout << endl;
         cout << "Usage:" << endl;
         cout << "  " << usageString << endl;
+        cout << "  " << prj::exeName << "export INFILE OUTDIR" << endl;
+        cout << "  " << prj::exeName << "parse INFILE" << endl;
+        cout << "  " << prj::exeName << "vstreamdl" << "INFILE OUTDIR OUTNAME [MAX-RES-HEIGHT]" << endl;
         cout << endl;
         cout << "Modules:" << endl;
-        cout << std::left << setw(lw) << std::string("  ") << "tbd..." << endl;
+        cout << std::left << setw(lw) << std::string("  ") + "export" << "copy and rename the files of the playlist" << endl;
+        cout << std::left << setw(lw) << std::string("  ") + "parse" << "display the m3u entries" << endl;
+        cout << std::left << setw(lw) << std::string("  ") + "vstreamdl" << "" << endl;
+        cout << std::left << setw(lw) << std::string("  ") << omw::fgCyan << "tbd..." << omw::fgDefault << endl;
         cout << endl;
         cout << "Options:" << endl;
-        cout << std::left << setw(lw) << std::string("  ") << "tbd..." << endl;
-        //cout << std::left << setw(lw) << std::string("  ") + argstr::force << "force overwriting output files" << endl;
-        //cout << std::left << setw(lw) << std::string("  ") + argstr::quiet << "quiet" << endl;
-        //cout << std::left << setw(lw) << std::string("  ") + argstr::verbose << "verbose" << endl;
-        //cout << std::left << setw(lw) << std::string("  ") + argstr::noColor << "monochrome console output" << endl;
-        //cout << std::left << setw(lw) << std::string("  ") + argstr::help + std::string(", ") + argstr::help_alt << "prints this help text" << endl;
-        //cout << std::left << setw(lw) << std::string("  ") + argstr::version << "prints version info" << endl;
+        cout << std::left << setw(lw) << std::string("  ") + argstr::force << "force overwriting output files" << endl;
+        cout << std::left << setw(lw) << std::string("  ") + argstr::quiet << "quiet" << endl;
+        cout << std::left << setw(lw) << std::string("  ") + argstr::verbose << "verbose" << endl;
+        cout << std::left << setw(lw) << std::string("  ") + argstr::noColor << "monochrome console output" << endl;
+        cout << std::left << setw(lw) << std::string("  ") + argstr::help + std::string(", ") + argstr::help_alt << "prints this help text" << endl;
+        cout << std::left << setw(lw) << std::string("  ") + argstr::version << "prints version info" << endl;
+        cout << std::left << setw(lw) << std::string("  ") << omw::fgCyan << "tbd..." << omw::fgDefault << endl;
         cout << endl;
         cout << "Website: <" << prj::website << ">" << endl;
     }
@@ -121,6 +127,10 @@ int main(int argc, char** argv)
         //args.add("../../../test/system/non-ext.m3u");
         
         args.add("../../../test/system/out-vstreamdl");
+
+        args.add("test");
+
+        args.add("1000");
 #else
 //#warning "nop"
 #endif
