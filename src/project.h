@@ -27,7 +27,7 @@ namespace prj
 
     const char* const website = "https://github.com/oblaser/m3u-tool";
 
-    const omw::Version version(0, 1, 1, "");
+    const omw::Version version(0, 1, 2, "alpha");
 }
 
 
