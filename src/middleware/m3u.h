@@ -137,7 +137,7 @@ namespace m3u
         const std::vector<m3u::Entry>& entries() const { return m_entries; }
 
         bool isEmpty() const { return m_entries.empty(); }
-        bool isExt() const {}
+        //bool isExt() const {}
 
         std::string serialize(const char* endOfLine = serializeEndOfLine) const;
 
