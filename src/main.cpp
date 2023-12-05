@@ -34,9 +34,10 @@ namespace
         cout << endl;
         cout << "Usage:" << endl;
         cout << "  " << usageString << endl;
-        cout << "  " << prj::exeName << "export INFILE OUTDIR" << endl;
-        cout << "  " << prj::exeName << "parse INFILE" << endl;
-        cout << "  " << prj::exeName << "vstreamdl" << "INFILE OUTDIR OUTNAME [MAX-RES-HEIGHT]" << endl;
+        cout << "  " << prj::exeName << " export INFILE OUTDIR" << endl;
+        cout << "  " << prj::exeName << " parse INFILE" << endl;
+        cout << "  " << prj::exeName << " vstreamdl INFILE OUTDIR OUTNAME [MAX-RES-HEIGHT]" << endl;
+        cout << "  " << std::string(strlen(prj::exeName), ' ') << "     MAX-RES-HEIGHT defaults to 1080" << endl;
         cout << endl;
         cout << "Modules:" << endl;
         cout << std::left << setw(lw) << std::string("  ") + "export" << "copy and rename the files of the playlist" << endl;
@@ -99,6 +100,8 @@ int main(int argc, char** argv)
 #if defined(PRJ_DEBUG) && 1
     if (args.size() == 0)
     {
+        args.add("--help");
+
 #if 0 // export
         
         args.add("export");
@@ -130,7 +133,7 @@ int main(int argc, char** argv)
 
         args.add("test");
 
-        args.add("1000");
+        //args.add("900");
 #else
 //#warning "nop"
 #endif
