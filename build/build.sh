@@ -34,6 +34,7 @@ function printHelp()
     echo "  -h help     print help"
     echo "  cleanAll    delete all but CMakeLists.txt"
     echo "  cmake       cmake ."
+    echo "  cmaked      cmake -D_DEBUG ."
     echo "  make        make"
     echo "  clean       make clean"
     echo "  run         execute"
@@ -98,6 +99,16 @@ function cmd_cmake()
     procErrorCode $?
 }
 
+function cmd_cmaked()
+{
+    cd ./$cmakeDirName
+    procErrorCode $?
+    cmake -D_DEBUG=1 .
+    procErrorCode $?
+    cd ..
+    procErrorCode $?
+}
+
 function cmd_make()
 {
     cd ./$cmakeDirName
@@ -129,6 +140,7 @@ function procArg()
     
     if [ "$1" == "cleanAll" ]; then cmd_cmake_clean
     elif [ "$1" == "cmake" ]; then cmd_cmake
+    elif [ "$1" == "cmaked" ]; then cmd_cmaked
     elif [ "$1" == "make" ]; then cmd_make
     elif [ "$1" == "clean" ]; then cmd_clean
     elif [ "$1" == "run" ]

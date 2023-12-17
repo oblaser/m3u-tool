@@ -9,7 +9,11 @@ project(m3u-tool)
 
 set(BINNAME m3u-tool)
 
-#add_compile_definitions(_DEBUG)
+
+
+if(_DEBUG)
+    add_compile_definitions(_DEBUG)
+endif(_DEBUG)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
