@@ -4,6 +4,7 @@ date            02.12.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
+#include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -100,36 +101,37 @@ int main(int argc, char** argv)
 #if defined(PRJ_DEBUG) && 1
     if (args.size() == 0)
     {
-        args.add("--help");
+        //args.add("--help");
 
 #if 0 // export
         
         args.add("export");
 
-        args.add("../../../test/system/pl.m3u");
+        args.add("../../test/system/pl.m3u");
 
-        //args.add("../../../test/system/pl");
-        args.add("../../../test/system/out-export/");
+        //args.add("../../test/system/pl");
+        args.add("../../test/system/out-export/");
 
-#elif 0 // parse m3u
+#elif 1 // parse m3u
         
         args.add("parse");
         
-        //args.add("../../../test/system/ext-mixed.m3u");
-        //args.add("../../../test/system/hls.m3u");
-        //args.add("../../../test/system/non-ext.m3u");
-        args.add("https://raw.githubusercontent.com/oblaser/m3u-tool/main/test/system/hls.m3u");
+        //args.add("../../test/system/ext-mixed.m3u");
+        args.add("../../test/system/f\xc3\xael\xc3\xab\xc3\xb1\xc3\xa0m\xc3\xa9.m3u");
+        //args.add("../../test/system/hls.m3u");
+        //args.add("../../test/system/non-ext.m3u");
+        //args.add("https://raw.githubusercontent.com/oblaser/m3u-tool/main/test/system/hls.m3u");
 
 #elif 1 // video stream download
         
         args.add("vstreamdl");
         
-        //args.add("../../../test/system/ext-mixed.m3u");
-        //args.add("../../../test/system/hls.m3u");
+        //args.add("../../test/system/ext-mixed.m3u");
+        //args.add("../../test/system/hls.m3u");
         args.add("https://raw.githubusercontent.com/oblaser/m3u-tool/main/test/system/hls.m3u?param=asdf&t=1230");
-        //args.add("../../../test/system/non-ext.m3u");
+        //args.add("../../test/system/non-ext.m3u");
         
-        args.add("../../../test/system/out-vstreamdl");
+        args.add("../../test/system/out-vstreamdl");
 
         args.add("test");
 
