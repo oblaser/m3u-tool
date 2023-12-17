@@ -76,7 +76,7 @@ namespace util
 #include <omw/omw.h>
 namespace omw_
 {
-#if OMW_VERSION_ID <= OMW_VERSION_ID_0_2_1_ALPHA_2
+#if OMW_VERSION_ID <= OMW_VERSION_ID_0_2_1_BETA
     namespace cli { int choice(const std::string& q, int def = 0, char first = 'y', char second = 'n'); }
     omw::string to_string(uint64_t val, int base, const char* digits);
 #endif
