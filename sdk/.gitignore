@@ -9,5 +9,6 @@
 !rebuild.sh
 !update.sh
 
+!build.bat
 !init.bat
 !update.bat

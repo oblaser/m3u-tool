@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.13)
 
 project(m3u-tool)
 
-set(EXE m3u-tool)
+set(BINNAME m3u-tool)
 
 #add_compile_definitions(_DEBUG)
 
@@ -37,5 +37,5 @@ link_directories(../../sdk/omw/lib)
 
 
 
-add_executable(${EXE} ${SOURCES})
-target_link_libraries(${EXE} libomw.a curl)
+add_executable(${BINNAME} ${SOURCES})
+target_link_libraries(${BINNAME} libomw.a curl)
