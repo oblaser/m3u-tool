@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            12.11.2023
+date            17.12.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -11,8 +11,6 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 #include <vector>
 
 #include "project.h"
-
-#include <omw/omw.h>
 
 namespace argstr
 {
@@ -32,30 +30,30 @@ namespace argstr
 
 namespace app
 {
-    class FileList : public std::vector<omw::string>
+    class FileList : public std::vector<std::string>
     {
     public:
         FileList() {}
         virtual ~FileList() {}
 
-        virtual void add(const omw::string& file) { push_back(file); }
+        virtual void add(const std::string& file) { push_back(file); }
 
-        inline omw::string getFile(size_t idx) const;
+        inline std::string getFile(size_t idx) const;
 
         bool isValid() const;
     };
 
-    class OptionList : public std::vector<omw::string>
+    class OptionList : public std::vector<std::string>
     {
     public:
         OptionList();
         virtual ~OptionList() {}
 
-        virtual void add(const omw::string& opt);
+        virtual void add(const std::string& opt);
 
-        virtual bool contains(const omw::string& arg) const;
+        virtual bool contains(const std::string& arg) const;
 
-        omw::string unrecognized() const;
+        std::string unrecognized() const;
 
         bool isValid() const { return m_isValid; }
 
@@ -63,19 +61,21 @@ namespace app
         size_t m_unrecognizedIdx;
         bool m_isValid;
 
-        void addOpt(const omw::string& opt);
-        bool checkOpt(const omw::string& opt) const;
+        void addOpt(const std::string& opt);
+        bool checkOpt(const std::string& opt) const;
     };
 
     class Args
     {
     public:
         Args() {}
-        Args(int argc, char** argv) { parse(argc, argv); }
+        Args(int argc, const char* const* argv) { parse(argc, argv); }
+        Args(const std::vector<std::string>& args) { parse(args); }
         virtual ~Args() {}
 
-        void parse(int argc, char** argv);
-        void add(const omw::string& arg);
+        void parse(int argc, const char* const* argv);
+        void parse(const std::vector<std::string>& args);
+        void add(const std::string& arg);
 
         std::vector<std::string> inDirs() const;
         std::string outDir() const;
@@ -95,9 +95,9 @@ namespace app
 
         bool isValid() const;
 
-        const omw::string& operator[](size_t idx) const;
+        const std::string& operator[](size_t idx) const;
 
-        std::vector<omw::string>raw;
+        std::vector<std::string>raw;
 
     private:
         FileList m_files;

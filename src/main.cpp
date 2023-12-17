@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            02.12.2023
+date            17.12.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -12,10 +12,13 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 #include <vector>
 
 #include "application/cliarg.h"
+#include "application/defines.h"
 #include "application/processor.h"
+#include "middleware/util.h"
 #include "project.h"
 
 #include <omw/cli.h>
+#include <omw/defs.h>
 #include <omw/windows/windows.h>
 
 
@@ -88,15 +91,67 @@ namespace
 
 
 
+#ifdef OMW_PLAT_WIN
+int wmain(int argc, wchar_t** argv)
+{
+#if defined(PRJ_DEBUG) && 0 // print argv
+    for (int iarg = 0; iarg < argc; ++iarg)
+    {
+        bool utf = false;
+
+        const size_t len = wcslen(argv[iarg]);
+        for (size_t i = 0; i < len; ++i)
+        {
+            const auto& c = argv[iarg][i];
+
+            if (c > 127)
+            {
+                if (!utf) cout << '[';
+                cout << omw::toHexStr((uint16_t)c);
+                utf = true;
+            }
+            else
+            {
+                if (utf) cout << ']';
+                cout << (char)c;
+                utf = false;
+            }
+        }
+
+        cout << endl;
+    }
+#endif// print argv
+
+    std::vector<std::string> rawArgs(argc);
+
+    for (int i = 0; i < argc; ++i)
+    {
+        omw::windows::ErrorCode ec;
+        omw::windows::wstr_to_utf8(argv[i], rawArgs[i], ec);
+
+        if (!ec.good())
+        {
+            util::printError("faild to convert argv");
+            util::printInfo(ec.msg());
+            return EC_ENCCONV;
+        }
+    }
+
+#ifndef PRJ_DEBUG
+    const
+#endif // PRJ_DEBUG
+    app::Args args(rawArgs);
+
+#else // OMW_PLAT_WIN
 int main(int argc, char** argv)
 {
-    int r = 0;
-
-#ifdef PRJ_DEBUG
+#ifndef PRJ_DEBUG
+    const
+#endif // PRJ_DEBUG
     app::Args args(argc, argv);
-#else
-    const app::Args args(argc, argv);
-#endif
+#endif // OMW_PLAT_WIN
+
+    int r = 0;
 
 #if defined(PRJ_DEBUG) && 1
     if (args.size() == 0)

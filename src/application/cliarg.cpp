@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            07.05.2023
+date            17.12.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -22,7 +22,7 @@ namespace
 
 
 
-inline omw::string app::FileList::getFile(size_t idx) const
+inline std::string app::FileList::getFile(size_t idx) const
 {
     return (this->size() > idx ? this->at(idx) : "");
 }
@@ -38,7 +38,7 @@ app::OptionList::OptionList()
     : m_unrecognizedIdx(OMW_SIZE_MAX), m_isValid(true)
 { }
 
-void app::OptionList::add(const omw::string& opt)
+void app::OptionList::add(const std::string& opt)
 {
     if (opt.length() > 1)
     {
@@ -46,7 +46,7 @@ void app::OptionList::add(const omw::string& opt)
         {
             for (size_t i = 1; i < opt.length(); ++i)
             {
-                addOpt(omw::string("-") + opt[i]);
+                addOpt(std::string("-") + opt[i]);
             }
         }
         else addOpt(opt);
@@ -54,7 +54,7 @@ void app::OptionList::add(const omw::string& opt)
     else addOpt(opt);
 }
 
-bool app::OptionList::contains(const omw::string& arg) const
+bool app::OptionList::contains(const std::string& arg) const
 {
     bool r = false;
 
@@ -66,12 +66,12 @@ bool app::OptionList::contains(const omw::string& arg) const
     return r;
 }
 
-omw::string app::OptionList::unrecognized() const
+std::string app::OptionList::unrecognized() const
 {
     return (m_unrecognizedIdx != OMW_SIZE_MAX ? this->at(m_unrecognizedIdx) : "");
 }
 
-void app::OptionList::addOpt(const omw::string& opt)
+void app::OptionList::addOpt(const std::string& opt)
 {
     if (!checkOpt(opt))
     {
@@ -82,7 +82,7 @@ void app::OptionList::addOpt(const omw::string& opt)
     this->push_back(opt);
 }
 
-bool app::OptionList::checkOpt(const omw::string& opt) const
+bool app::OptionList::checkOpt(const std::string& opt) const
 {
     return (
         (opt == argstr::force) ||
@@ -96,17 +96,27 @@ bool app::OptionList::checkOpt(const omw::string& opt) const
 
 
 
-void app::Args::parse(int argc, char** argv)
+void app::Args::parse(int argc, const char* const* argv)
 {
     for (int i = 1; i < argc; ++i)
     {
-        const omw::string arg(argv[i]);
+        const std::string arg(argv[i]);
 
         if (arg.length() > 0) add(arg);
     }
 }
 
-void app::Args::add(const omw::string& arg)
+void app::Args::parse(const std::vector<std::string>& args)
+{
+    for (int i = 1; i < args.size(); ++i)
+    {
+        const auto& arg = args[i];
+
+        if (arg.length() > 0) add(arg);
+    }
+}
+
+void app::Args::add(const std::string& arg)
 {
     if (arg[0] == '-') m_options.add(arg);
 #ifdef OMW_PLAT_WIN
@@ -161,7 +171,7 @@ bool app::Args::isValid() const
     //    );
 }
 
-const omw::string& app::Args::operator[](size_t idx) const
+const std::string& app::Args::operator[](size_t idx) const
 {
     if (idx < m_options.size()) return m_options[idx];
     else return m_files[idx - m_options.size()];

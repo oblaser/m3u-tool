@@ -59,6 +59,8 @@ enum ERRORCODE // https://tldp.org/LDP/abs/html/exitcodes.html / on MSW are no p
 
     EC_USER_ABORT,
 
+    EC_ENCCONV,
+
     EC__end_,
 
     EC__max_ = 113
