@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            17.12.2023
+date            31.12.2023
 copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 */
 
@@ -126,13 +126,11 @@ int wmain(int argc, wchar_t** argv)
 
     for (int i = 0; i < argc; ++i)
     {
-        omw::windows::ErrorCode ec;
-        omw::windows::wstr_to_utf8(argv[i], rawArgs[i], ec);
-
-        if (!ec.good())
+        try { rawArgs[i] = omw::windows::wstou8(argv[i]); }
+        catch (const std::exception& ex)
         {
             util::printError("faild to convert argv");
-            util::printInfo(ec.msg());
+            util::printInfo(ex.what());
             return EC_ENCCONV;
         }
     }
@@ -162,9 +160,9 @@ int main(int argc, char** argv)
         
         args.add("export");
 
-        args.add("../../test/system/pl.m3u");
+        //args.add("../../test/system/pl.m3u");
+        args.add("../../test/system/f\xc3\xael\xc3\xab\xc3\xb1\xc3\xa0m\xc3\xa9.m3u");
 
-        //args.add("../../test/system/pl");
         args.add("../../test/system/out-export/");
 
 #elif 1 // parse m3u
