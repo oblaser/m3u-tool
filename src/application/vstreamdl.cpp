@@ -1,7 +1,7 @@
 /*
 author          Oliver Blaser
-date            02.12.2023
-copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
+date            04.01.2024
+copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
 #include <algorithm>
@@ -17,6 +17,7 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 
 #include "defines.h"
 #include "m3u-helper.h"
+#include "middleware/encoding-helper.h"
 #include "middleware/util.h"
 #include "project.h"
 #include "vstreamdl.h"
@@ -191,11 +192,7 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
 
         const auto outFile = outDirPath / (stemFileName + ".m3u");
 
-        std::ofstream ofs;
-        ofs.exceptions(std::ios::badbit | std::ios::failbit | std::ios::eofbit);
-        ofs.open(outFile, std::ios::out | std::ios::binary); // binary so that line feeds don't get converted
-        ofs << txt;
-        ofs.close();
+        enc::writeFile(outFile, txt);
 
         INFO_PRINT("created file \"" + fs::weakly_canonical(outFile).string() + "\"");
     }
@@ -218,11 +215,7 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
 
         const auto scriptFile = outDirPath / ("dl-subs-" + stemFileName + ".sh");
 
-        std::ofstream ofs;
-        ofs.exceptions(std::ios::badbit | std::ios::failbit | std::ios::eofbit);
-        ofs.open(scriptFile, std::ios::out | std::ios::binary); // binary so that line feeds don't get converted
-        ofs << srtScript;
-        ofs.close();
+        enc::writeFile(scriptFile.string(), srtScript);
     }
     else if (verbose) INFO_PRINT("no subtitles");
 

@@ -83,7 +83,7 @@ namespace
         cout << endl;
         cout << "project page: " << prj::website << endl;
         cout << endl;
-        cout << "Copyright (c) 2023 Oliver Blaser." << endl;
+        cout << "Copyright (c) 2024 Oliver Blaser." << endl;
         cout << "License: GNU GPLv3 <http://gnu.org/licenses/>." << endl;
         cout << "This is free software. There is NO WARRANTY." << endl;
     }
@@ -188,7 +188,7 @@ int main(int argc, char** argv)
 
         args.add("test");
 
-        //args.add("900");
+        args.add("900");
 #else
 //#warning "nop"
 #endif

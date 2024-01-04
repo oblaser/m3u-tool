@@ -1,7 +1,7 @@
 /*
 author          Oliver Blaser
-date            17.12.2023
-copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
+date            04.01.2024
+copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
 #include <filesystem>
@@ -14,7 +14,7 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 #include "defines.h"
 #include "m3u-helper.h"
 #include "middleware/curl-helper.h"
-#include "middleware/encoding.h"
+#include "middleware/encoding-helper.h"
 #include "middleware/util.h"
 #include "project.h"
 
@@ -32,13 +32,13 @@ namespace
         return (omw::contains(tmp, "https://") || omw::contains(tmp, "http://"));
     }
 
-    std::string readFile(const std::string& file)
+    std::string readFile(const fs::path& file)
     {
         std::stringstream txt;
 
         std::ifstream ifs;
         ifs.exceptions(std::ios::badbit | std::ios::failbit | std::ios::eofbit);
-        ifs.open(enc::u8tos(file), std::ios::in | std::ios::binary); // binary so that no conversations happen
+        ifs.open(file, std::ios::in | std::ios::binary); // binary so that no conversations happen
         txt << ifs.rdbuf();
         ifs.close();
 
@@ -68,8 +68,10 @@ m3u::M3U app::getFromUri(int& r, const app::Flags& flags, const std::string& uri
     }
     else
     {
-        if (!fs::exists(enc::u8tos(uri))) ERROR_PRINT_EC_THROWLINE("M3U file not found", EC_M3UFILE_NOT_FOUND);
+        const auto file = enc::path(uri);
 
-        return readFile(uri);
+        if (!fs::exists(file)) ERROR_PRINT_EC_THROWLINE("M3U file not found", EC_M3UFILE_NOT_FOUND);
+
+        return readFile(file);
     }
 }

@@ -1,7 +1,7 @@
 /*
 author          Oliver Blaser
-date            27.11.2023
-copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
+date            04.01.2024
+copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
 #include <algorithm>
@@ -20,6 +20,7 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 #include "application/m3u-helper.h"
 #include "application/vstreamdl.h"
 #include "defines.h"
+#include "middleware/encoding-helper.h"
 #include "middleware/util.h"
 #include "processor.h"
 #include "project.h"
@@ -36,18 +37,6 @@ namespace fs = std::filesystem;
 
 namespace
 {
-    bool equivalent(const std::vector<fs::path>& inDirs, const fs::path& outDir)
-    {
-        bool r = false;
-
-        for (size_t i = 0; (i < inDirs.size()) && !r; ++i)
-        {
-            if (fs::exists(inDirs[i])) r = fs::equivalent(inDirs[i], outDir);
-        }
-
-        return r;
-    }
-
 #ifdef PRJ_DEBUG
     const std::string magentaDebugStr = "\033[95mDEBUG\033[39m";
 #endif
@@ -67,6 +56,43 @@ int app::process(const app::Args& args)
 
     try
     {
+#if defined(OMW_PLAT_WIN) && defined(PRJ_DEBUG) && 0 // tests with UTF-8 path on Windows
+        {
+            // https://stackoverflow.com/questions/45401822/how-to-convert-filesystem-path-to-string
+
+            //const std::string str_u8 = "\xc3\xae-\xc3\xab-\xC5\xA4";
+            const std::string str_u8 = "\xc3\xae-\xc3\xab";
+            const std::string str_mb = "\xEE-\xEB";
+            const std::wstring str_w = enc::u8tos(str_u8);
+            const std::vector<char> bin_u8(str_u8.begin(), str_u8.end());
+            std::vector<wchar_t> ___bin_u8w;
+            for (const auto& c : str_u8) { ___bin_u8w.push_back((uint8_t)c); }
+            const std::vector<wchar_t>& bin_u8w = ___bin_u8w;
+            const std::vector<wchar_t> bin_w(str_w.begin(), str_w.end());
+            //const auto binstr_u8 = omw::toHexStr(bin_u8);
+
+            // no encoding conversation done
+            const auto p_u8 = fs::path(str_u8); // contains the UTF-8 encoded string as wchar_t (like uint8_t to uint16_t), failes find existing file
+            const auto p_w = fs::path(str_w); // natively encoded, can find existing files
+
+            const std::wstring pnative_u8 = p_u8.native(); // c_str()
+            const std::wstring pnative_w = p_w.native(); // c_str()
+            const bool pnative_ok = ((bin_u8w == std::vector<wchar_t>(pnative_u8.begin(), pnative_u8.end())) && (bin_w == std::vector<wchar_t>(pnative_w.begin(), pnative_w.end())));
+
+            const std::string pstr_u8 = p_u8.string();
+            const std::string pstr_w = p_w.string(); // converts to the current Windows code page
+            const bool pstr_ok = ((pstr_u8 == str_u8) && (pstr_w == str_mb));
+
+            const std::string pu8str_u8 = p_u8.u8string();
+            const std::string pu8str_w = p_w.u8string();
+            const bool pu8str_ok = ((pu8str_u8 == enc::stou8(std::wstring(bin_u8w.begin(), bin_u8w.end()))) && (bin_u8 == std::vector<char>(pu8str_w.begin(), pu8str_w.end())));
+
+            // debugger display
+            const std::wstring wpu8str_u8 = enc::u8tos(pu8str_u8);
+            const std::wstring wpu8str_w = enc::u8tos(pu8str_w);
+        }
+#endif
+
         if (args.raw.at(0) == "export") r = app::exprt(args, flags);
         else if (args.raw.at(0) == "vstreamdl") r = app::vstreamdl(args, flags);
         else if (args.raw.at(0) == "parse")
@@ -100,12 +126,12 @@ int app::process(const app::Args& args)
         if (!quiet)
         {
             util::printError("fatal error");
-            cout << "    path1: " << ex.path1() << endl;
-            cout << "    path2: " << ex.path2() << endl;
-            cout << "    cat:   " << ex.code().category().name() << endl;
+            cout << "    path1: " << ex.path1().u8string() << endl;
+            cout << "    path2: " << ex.path2().u8string() << endl;
+            cout << "    cat:   " << enc::acptou8(ex.code().category().name()) << endl;
             cout << "    code:  " << ex.code().value() << endl;
-            cout << "    msg:   " << ex.code().message() << endl;
-            cout << "    what:  " << ex.what() << endl;
+            cout << "    msg:   " << enc::acptou8(ex.code().message()) << endl;
+            cout << "    what:  " << enc::acptou8(ex.what()) << endl;
         }
     }
     catch (const std::system_error& ex)
@@ -114,10 +140,10 @@ int app::process(const app::Args& args)
         if (!quiet)
         {
             util::printError("fatal error");
-            cout << "    cat:   " << ex.code().category().name() << endl;
+            cout << "    cat:   " << enc::acptou8(ex.code().category().name()) << endl;
             cout << "    code:  " << ex.code().value() << endl;
-            cout << "    msg:   " << ex.code().message() << endl;
-            cout << "    what:  " << ex.what() << endl;
+            cout << "    msg:   " << enc::acptou8(ex.code().message()) << endl;
+            cout << "    what:  " << enc::acptou8(ex.what()) << endl;
         }
     }
     catch (const std::exception& ex)
@@ -126,7 +152,7 @@ int app::process(const app::Args& args)
         if (!quiet)
         {
             util::printError("fatal error");
-            cout << "    what:  " << ex.what() << endl;
+            cout << "    what:  " << enc::acptou8(ex.what()) << endl;
         }
     }
     catch (const int& ex)

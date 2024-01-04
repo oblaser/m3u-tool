@@ -42,7 +42,7 @@
     <ClCompile Include="..\..\src\middleware\curl-helper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\middleware\encoding.cpp">
+    <ClCompile Include="..\..\src\middleware\encoding-helper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -77,7 +77,7 @@
     <ClInclude Include="..\..\src\middleware\curl-helper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\middleware\encoding.h">
+    <ClInclude Include="..\..\src\middleware\encoding-helper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
