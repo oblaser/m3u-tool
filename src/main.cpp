@@ -165,7 +165,7 @@ int main(int argc, char** argv)
 
         args.add("../../test/system/out-export/");
 
-#elif 1 // parse m3u
+#elif 0 // parse m3u
         
         args.add("parse");
         
@@ -184,9 +184,9 @@ int main(int argc, char** argv)
         args.add("https://raw.githubusercontent.com/oblaser/m3u-tool/main/test/system/hls.m3u?param=asdf&t=1230");
         //args.add("../../test/system/non-ext.m3u");
         
-        args.add("../../test/system/out-vstreamdl");
+        args.add("../../test/system/out-vstreamdl-\xc3\xae");
 
-        args.add("test");
+        args.add("test-\xc3\xae");
 
         args.add("900");
 #else

@@ -42,7 +42,7 @@ namespace
 
 
 #if defined(PRJ_DEBUG)
-    void dbg_rm_outDir(const std::string& outDir)
+    void dbg_rm_outDir(const fs::path& outDir)
     {
         try
         {
@@ -85,11 +85,11 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
 
     util::ResultCounter rcnt = 0;
 
-    const fs::path m3uFilePath = m3uFile;
-    const fs::path outDirPath = outDir;
+    const fs::path m3uFilePath = enc::path(m3uFile);
+    const fs::path outDirPath = enc::path(outDir);
 
 #if defined(PRJ_DEBUG) && 1
-    dbg_rm_outDir(outDir);
+    dbg_rm_outDir(outDirPath);
 #endif
 
 
@@ -104,9 +104,9 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     // check/create out dir
     ///////////////////////////////////////////////////////////
 
-    if (fs::exists(outDir))
+    if (fs::exists(outDirPath))
     {
-        if (!fs::is_empty(outDir))
+        if (!fs::is_empty(outDirPath))
         {
             if (flags.force)
             {
@@ -134,7 +134,7 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     {
         fs::create_directories(outDirPath);
 
-        if (!fs::exists(outDir)) ERROR_PRINT_EC_THROWLINE("failed to create OUTDIR", EC_OUTDIR_NOTCREATED);
+        if (!fs::exists(outDirPath)) ERROR_PRINT_EC_THROWLINE("failed to create OUTDIR", EC_OUTDIR_NOTCREATED);
     }
 
 
@@ -190,11 +190,11 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
         txt += stream.serialize();
         txt += m3u::serializeEndOfLine;
 
-        const auto outFile = outDirPath / (stemFileName + ".m3u");
+        const auto outFile = outDirPath / enc::path(stemFileName + ".m3u");
 
         enc::writeFile(outFile, txt);
 
-        INFO_PRINT("created file \"" + fs::weakly_canonical(outFile).string() + "\"");
+        INFO_PRINT("created file \"" + fs::weakly_canonical(outFile).u8string() + "\"");
     }
     else WARNING_PRINT("no audio and no video");
 
@@ -213,9 +213,9 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
             }
         }
 
-        const auto scriptFile = outDirPath / ("dl-subs-" + stemFileName + ".sh");
+        const auto scriptFile = outDirPath / enc::path("dl-subs-" + stemFileName + ".sh");
 
-        enc::writeFile(scriptFile.string(), srtScript);
+        enc::writeFile(scriptFile, srtScript);
     }
     else if (verbose) INFO_PRINT("no subtitles");
 
