@@ -1,14 +1,18 @@
 /*
 author          Oliver Blaser
-date            18.11.2023
-copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
+date            05.01.2024
+copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
-#ifndef IG_APP_DEFINES_H
-#define IG_APP_DEFINES_H
+#ifndef IG_APP_COMMON_H
+#define IG_APP_COMMON_H
 
 #include <cstddef>
 #include <cstdint>
+#include <filesystem>
+#include <string>
+
+#include "middleware/m3u.h"
 
 
 #define IMPLEMENT_FLAGS()           \
@@ -70,7 +74,8 @@ static_assert(EC__end_ <= EC__max_, "too many error codes defined");
 
 namespace app
 {
+    m3u::M3U getFromUri(int& r, const app::Flags& flags, const std::string& uri);
 }
 
 
-#endif // IG_APP_DEFINES_H
+#endif // IG_APP_COMMON_H
