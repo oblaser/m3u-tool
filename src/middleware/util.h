@@ -1,7 +1,7 @@
 /*
 author          Oliver Blaser
-date            27.11.2023
-copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
+date            05.01.2024
+copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
 #ifndef IG_MIDDLEWARE_UTIL_H
@@ -62,14 +62,10 @@ namespace util
 
     std::string getDateTimeStr(time_t t = std::time(nullptr), const char* strftimeFormat = "%FT%T%z");
 
-    void printFormattedText(const std::string& text);
-    void printFormattedLine(const std::string& text);
-    void printError(const std::string& text);
-    void printInfo();
-    void printInfo(const std::string& text);
-    void printWarning(const std::string& text);
-    void printTitle(const std::string& title);
     omw::string getDirName(const std::filesystem::path& dir);
+
+    std::string readFile(const std::filesystem::path& file);
+    void writeFile(const std::filesystem::path& file, const std::string& text);
 }
 
 

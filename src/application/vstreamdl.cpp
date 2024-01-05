@@ -15,8 +15,7 @@ copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 #include <string>
 #include <vector>
 
-#include "defines.h"
-#include "m3u-helper.h"
+#include "application/common.h"
 #include "middleware/encoding-helper.h"
 #include "middleware/util.h"
 #include "project.h"
@@ -37,34 +36,6 @@ namespace
 {
 #ifdef PRJ_DEBUG
     const std::string magentaDebugStr = "\033[95mDEBUG\033[39m";
-#endif
-
-
-
-#if defined(PRJ_DEBUG)
-    void dbg_rm_outDir(const fs::path& outDir)
-    {
-        try
-        {
-            const auto n = fs::remove_all(outDir);
-            cout << omw::fgBrightBlack << "rm OUTDIR: " << n << " items deleted" << omw::fgDefault << endl;
-        }
-        catch (const std::filesystem::filesystem_error& ex)
-        {
-            cout << omw::fgBrightMagenta << __FUNCTION__ << omw::fgDefault << endl;
-            throw ex;
-        }
-        catch (const std::system_error& ex)
-        {
-            cout << omw::fgBrightMagenta << __FUNCTION__ << omw::fgDefault << endl;
-            throw ex;
-        }
-        catch (const std::exception& ex)
-        {
-            cout << omw::fgBrightMagenta << __FUNCTION__ << omw::fgDefault << endl;
-            throw ex;
-        }
-    }
 #endif
 }
 
@@ -89,7 +60,7 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     const fs::path outDirPath = enc::path(outDir);
 
 #if defined(PRJ_DEBUG) && 1
-    dbg_rm_outDir(outDirPath);
+    app::dbg_rm_outDir(outDirPath);
 #endif
 
 
@@ -104,38 +75,7 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     // check/create out dir
     ///////////////////////////////////////////////////////////
 
-    if (fs::exists(outDirPath))
-    {
-        if (!fs::is_empty(outDirPath))
-        {
-            if (flags.force)
-            {
-                if (verbose) WARNING_PRINT("using non empty OUTDIR");
-            }
-            else
-            {
-                const std::string msg = "###OUTDIR \"" + outDir + "\" is not empty";
-
-                if (verbose)
-                {
-                    util::printInfo(msg);
-
-                    if (2 == omw_::cli::choice("use non empty OUTDIR?"))
-                    {
-                        r = EC_USER_ABORT;
-                        throw (int)(__LINE__);
-                    }
-                }
-                else ERROR_PRINT_EC_THROWLINE(msg, EC_OUTDIR_NOTEMPTY);
-            }
-        }
-    }
-    else
-    {
-        fs::create_directories(outDirPath);
-
-        if (!fs::exists(outDirPath)) ERROR_PRINT_EC_THROWLINE("failed to create OUTDIR", EC_OUTDIR_NOTCREATED);
-    }
+    app::checkCreateOutDir(rcnt, flags, outDirPath, outDir);
 
 
     ///////////////////////////////////////////////////////////
@@ -185,14 +125,19 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
         }
         const auto& stream = hls.streams()[streamIdx];
 
-        if (stream.resolutionHeight() > maxResHeight) WARNING_PRINT("stream resolution: " + stream.resolutionExtParam().value().data());
+        // no stream found with resolution <= maxResHeight
+        if (stream.resolutionHeight() > maxResHeight)
+        {
+            // TODO improve with force and verbosity flags
+            WARNING_PRINT("stream resolution: " + stream.resolutionExtParam().value().data());
+        }
 
         txt += stream.serialize();
         txt += m3u::serializeEndOfLine;
 
         const auto outFile = outDirPath / enc::path(stemFileName + ".m3u");
 
-        enc::writeFile(outFile, txt);
+        util::writeFile(outFile, txt);
 
         INFO_PRINT("created file \"" + fs::weakly_canonical(outFile).u8string() + "\"");
     }
@@ -215,7 +160,7 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
 
         const auto scriptFile = outDirPath / enc::path("dl-subs-" + stemFileName + ".sh");
 
-        enc::writeFile(scriptFile, srtScript);
+        util::writeFile(scriptFile, srtScript);
     }
     else if (verbose) INFO_PRINT("no subtitles");
 

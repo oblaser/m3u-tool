@@ -1,7 +1,7 @@
 /*
 author          Oliver Blaser
-date            12.11.2023
-copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
+date            05.01.2024
+copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
 #ifndef IG_APP_EXPORT_H
@@ -11,6 +11,7 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 #include <vector>
 
 #include "application/cliarg.h"
+#include "application/common.h"
 
 
 namespace app

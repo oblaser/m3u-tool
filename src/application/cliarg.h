@@ -103,19 +103,6 @@ namespace app
         FileList m_files;
         OptionList m_options;
     };
-
-    struct Flags
-    {
-        Flags() = delete;
-
-        Flags(bool force_, bool quiet_, bool verbose_)
-            : force(force_), quiet(quiet_), verbose(verbose_)
-        {}
-
-        bool force;
-        bool quiet;
-        bool verbose;
-    };
 }
 
 #endif // IG_APP_CLIARG_H

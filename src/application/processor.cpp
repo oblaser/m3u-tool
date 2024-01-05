@@ -16,10 +16,9 @@ copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 #include <string>
 #include <vector>
 
+#include "application/common.h"
 #include "application/export.h"
-#include "application/m3u-helper.h"
 #include "application/vstreamdl.h"
-#include "defines.h"
 #include "middleware/encoding-helper.h"
 #include "middleware/util.h"
 #include "processor.h"
@@ -117,7 +116,7 @@ int app::process(const app::Args& args)
             r = EC_MODULE_UNKNOWN;
 
             // TODO throw processor_exception
-            util::printError("unknown module");
+            app::printError("unknown module");
         }
     }
     catch (const std::filesystem::filesystem_error& ex)
@@ -125,7 +124,7 @@ int app::process(const app::Args& args)
         r = EC_ERROR;
         if (!quiet)
         {
-            util::printError("fatal error");
+            app::printError("fatal error");
             cout << "    path1: " << ex.path1().u8string() << endl;
             cout << "    path2: " << ex.path2().u8string() << endl;
             cout << "    cat:   " << enc::acptou8(ex.code().category().name()) << endl;
@@ -139,7 +138,7 @@ int app::process(const app::Args& args)
         r = EC_ERROR;
         if (!quiet)
         {
-            util::printError("fatal error");
+            app::printError("fatal error");
             cout << "    cat:   " << enc::acptou8(ex.code().category().name()) << endl;
             cout << "    code:  " << ex.code().value() << endl;
             cout << "    msg:   " << enc::acptou8(ex.code().message()) << endl;
@@ -151,7 +150,7 @@ int app::process(const app::Args& args)
         r = EC_ERROR;
         if (!quiet)
         {
-            util::printError("fatal error");
+            app::printError("fatal error");
             cout << "    what:  " << enc::acptou8(ex.what()) << endl;
         }
     }
@@ -160,7 +159,7 @@ int app::process(const app::Args& args)
         if (r == EC_OK)
         {
             r = EC_ERROR;
-            if (!quiet) util::printError("fatal error (" + std::to_string(ex) + ")");
+            if (!quiet) app::printError("fatal error (" + std::to_string(ex) + ")");
         }
         else if (verbose) cout << "\n" << omw::fgBrightRed << "failed" << omw::defaultForeColor << endl;
     }
@@ -169,7 +168,7 @@ int app::process(const app::Args& args)
         if (r == EC_OK)
         {
             r = EC_ERROR;
-            if (!quiet) util::printError("unspecified fatal error");
+            if (!quiet) app::printError("unspecified fatal error");
         }
         else if (verbose) cout << "\n" << omw::fgBrightRed << "failed" << omw::defaultForeColor << endl;
     }

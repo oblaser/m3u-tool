@@ -35,8 +35,6 @@ namespace enc
 #endif // OMW_PLAT_WIN
 
     static inline std::filesystem::path path(const std::string& path_u8) { return enc::u8tos(path_u8); }
-
-    void writeFile(const std::filesystem::path& file, const std::string& text);
 }
 
 

@@ -12,7 +12,7 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 #include <vector>
 
 #include "application/cliarg.h"
-#include "application/defines.h"
+#include "application/common.h"
 #include "application/processor.h"
 #include "middleware/util.h"
 #include "project.h"
@@ -129,8 +129,9 @@ int wmain(int argc, wchar_t** argv)
         try { rawArgs[i] = omw::windows::wstou8(argv[i]); }
         catch (const std::exception& ex)
         {
-            util::printError("faild to convert argv");
-            util::printInfo(ex.what());
+            app::printError("faild to convert argv");
+            app::printInfo(ex.what());
+            std::wcout << L"argv[" << i << L"] " << argv[i] << endl; // console code page is not yet set to UTF-8
             return EC_ENCCONV;
         }
     }
@@ -154,18 +155,18 @@ int main(int argc, char** argv)
 #if defined(PRJ_DEBUG) && 1
     if (args.size() == 0)
     {
-        //args.add("--help");
+        args.add("--help");
 
-#if 0 // export
+#if 1 // export
         
         args.add("export");
 
         //args.add("../../test/system/pl.m3u");
         args.add("../../test/system/f\xc3\xael\xc3\xab\xc3\xb1\xc3\xa0m\xc3\xa9.m3u");
 
-        args.add("../../test/system/out-export/");
+        args.add("../../test/system/out-export-\xC5\xA4");
 
-#elif 0 // parse m3u
+#elif 1 // parse m3u
         
         args.add("parse");
         

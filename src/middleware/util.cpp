@@ -1,20 +1,21 @@
 /*
 author          Oliver Blaser
-date            27.11.2023
-copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
+date            05.01.2024
+copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
 #include <algorithm>
 #include <cmath>
 #include <filesystem>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
 #include "util.h"
 
-#include <omw/cli.h>
 #include <omw/omw.h>
 
 
@@ -25,7 +26,6 @@ namespace fs = std::filesystem;
 
 namespace
 {
-    constexpr int ewiWidth = 10;
 }
 
 
@@ -51,109 +51,6 @@ std::string util::getDateTimeStr(time_t t, const char* strftimeFormat)
     return r;
 }
 
-// 
-// "### normal "quoted bright" white"
-// "### normal @just bright@ white"
-// 
-void util::printFormattedText(const std::string& text)
-{
-    bool format = false;
-
-    if (text.length() > 5)
-    {
-        if ((text[0] == '#') &&
-            (text[1] == '#') &&
-            (text[2] == '#')
-            )
-        {
-            format = true;
-        }
-    }
-
-    if (format)
-    {
-        bool on = false;
-
-        size_t i = 3;
-
-        while (i < text.length())
-        {
-            if (text[i] == '\"')
-            {
-                if (on)
-                {
-                    cout << omw::defaultForeColor;
-                    cout << text[i];
-                    on = false;
-                }
-                else
-                {
-                    cout << text[i];
-                    cout << omw::fgBrightWhite;
-                    on = true;
-                }
-            }
-            else if (text[i] == '@')
-            {
-                if (on)
-                {
-                    cout << omw::defaultForeColor;
-                    on = false;
-                }
-                else
-                {
-                    cout << omw::fgBrightWhite;
-                    on = true;
-                }
-            }
-            else cout << text[i];
-
-            ++i;
-        }
-
-        cout << omw::defaultForeColor;
-    }
-    else cout << text;
-}
-
-void util::printFormattedLine(const std::string& text)
-{
-    printFormattedText(text);
-    cout << endl;
-}
-
-void util::printError(const std::string& text)
-{
-    cout << omw::fgBrightRed << std::left << std::setw(ewiWidth) << "error:" << omw::defaultForeColor;
-    printFormattedText(text);
-    cout << endl;
-}
-
-void util::printInfo()
-{
-    cout << omw::fgBrightCyan << std::left << std::setw(ewiWidth) << "info:" << omw::defaultForeColor;
-}
-
-void util::printInfo(const std::string& text)
-{
-    printInfo();
-    printFormattedText(text);
-    cout << endl;
-}
-
-void util::printWarning(const std::string& text)
-{
-    cout << omw::fgBrightYellow << std::left << std::setw(ewiWidth) << "warning:" << omw::defaultForeColor;
-    printFormattedText(text);
-    cout << endl;
-}
-
-void util::printTitle(const std::string& title)
-{
-    //cout << omw::fgBrightWhite << title << omw::normal << endl;
-    cout << title << endl;
-}
-
 omw::string util::getDirName(const fs::path& dir)
 {
     omw::string r;
@@ -162,6 +59,28 @@ omw::string util::getDirName(const fs::path& dir)
     else r = dir.parent_path().filename().u8string();
 
     return r;
+}
+
+std::string util::readFile(const std::filesystem::path& file)
+{
+    std::stringstream txt;
+
+    std::ifstream ifs;
+    ifs.exceptions(std::ios::badbit | std::ios::failbit | std::ios::eofbit);
+    ifs.open(file, std::ios::in | std::ios::binary); // binary so that no conversations happen
+    txt << ifs.rdbuf();
+    ifs.close();
+
+    return txt.str();
+}
+
+void util::writeFile(const fs::path& file, const std::string& text)
+{
+    std::ofstream ofs;
+    ofs.exceptions(std::ios::badbit | std::ios::failbit | std::ios::eofbit);
+    ofs.open(file, std::ios::out | std::ios::binary); // binary so that nothing gets converted
+    ofs << text;
+    ofs.close();
 }
 
 

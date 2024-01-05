@@ -1,7 +1,7 @@
 /*
 author          Oliver Blaser
-date            18.11.2023
-copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
+date            05.01.2024
+copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
 #include <algorithm>
@@ -15,8 +15,10 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 #include <string>
 #include <vector>
 
-#include "defines.h"
+#include "application/cliarg.h"
+#include "application/common.h"
 #include "export.h"
+#include "middleware/encoding-helper.h"
 #include "middleware/util.h"
 #include "project.h"
 
@@ -37,37 +39,48 @@ namespace
 #ifdef PRJ_DEBUG
     const std::string magentaDebugStr = "\033[95mDEBUG\033[39m";
 #endif
-
-
-
-#if defined(PRJ_DEBUG)
-    void dbg_rm_outDir(const std::string& outDir)
-    {
-        try
-        {
-            const auto n = fs::remove_all(outDir);
-            cout << omw::fgBrightBlack << "rm OUTDIR: " << n << " items deleted" << omw::fgDefault << endl;
-        }
-        catch (const std::filesystem::filesystem_error& ex)
-        {
-            cout << omw::fgBrightMagenta << __FUNCTION__ << omw::fgDefault << endl;
-            throw ex;
-        }
-        catch (const std::system_error& ex)
-        {
-            cout << omw::fgBrightMagenta << __FUNCTION__ << omw::fgDefault << endl;
-            throw ex;
-        }
-        catch (const std::exception& ex)
-        {
-            cout << omw::fgBrightMagenta << __FUNCTION__ << omw::fgDefault << endl;
-            throw ex;
-        }
-    }
-#endif
 }
 
 
+
+/*int app::exprt(const app::Args& args, const util::Flags& flags)
+{
+    int r = EC_OK; // set to OK because of catch(...) in processor.cpp
+
+    IMPLEMENT_FLAGS();
+
+    // TODO make nicer
+    const std::string m3uFileArg = args.raw.at(1);
+    const std::string outDirArg = args.raw.at(2);
+
+    util::ResultCounter rcnt = 0;
+
+    const fs::path m3uFilePath = enc::path(m3uFileArg);
+    const fs::path outDirPath = enc::path(outDirArg);
+
+#if defined(PRJ_DEBUG) && 1
+    util::dbg_rm_outDir(outDirPath);
+#endif
+
+
+    ///////////////////////////////////////////////////////////
+    // check and read in file
+    ///////////////////////////////////////////////////////////
+
+    const m3u::M3U m3u = getFromUri(r, flags, m3uFileArg);
+
+
+    ///////////////////////////////////////////////////////////
+    // check/create out dir
+    ///////////////////////////////////////////////////////////
+
+    
+
+
+    ///////////////////////////////////////////////////////////
+    // process
+    ///////////////////////////////////////////////////////////
+}*/
 
 int app::exprt(const app::Args& args, const app::Flags& flags)
 {
@@ -88,7 +101,7 @@ int app::exprt(const app::Args& args, const app::Flags& flags)
 
 
 #if defined(PRJ_DEBUG) && 1
-    dbg_rm_outDir(outDir);
+    app::dbg_rm_outDir(outDirPath);
 #endif
 
 
@@ -117,7 +130,7 @@ int app::exprt(const app::Args& args, const app::Flags& flags)
 
                 if (verbose)
                 {
-                    util::printInfo(msg);
+                    app::printInfo(msg);
 
                     if (2 == omw_::cli::choice("use non empty OUTDIR?"))
                     {
@@ -187,7 +200,7 @@ int app::exprt(const app::Args& args, const app::Flags& flags)
         {
             if (text[0] == (char)(0xeF) && text[0] == (char)(0xBB) && text[0] == (char)(0xBF))
             {
-                if (verbose) util::printInfo("UTF8 BOM found");
+                if (verbose) app::printInfo("UTF8 BOM found");
                 text.erase(0, 3);
             }
         }
@@ -262,7 +275,7 @@ int app::exprt(const app::Args& args, const app::Flags& flags)
         sprintf(tmpOutFileNumBuffer, "%04zu", fileCnt.total());
         const fs::path outFile = outDir / fs::path(tmpOutFileNumBuffer + std::string("_") + inFile.filename().string());
 
-        if (verbose) util::printFormattedLine("###copying \"" + inFile.u8string() + "\" to \"" + fs::weakly_canonical(outFile).u8string() + "\"");
+        if (verbose) app::printFormattedLine("###copying \"" + inFile.u8string() + "\" to \"" + fs::weakly_canonical(outFile).u8string() + "\"");
 
         if (fs::exists(inFile))
         {

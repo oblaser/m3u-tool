@@ -36,7 +36,7 @@
     <ClCompile Include="..\..\src\application\vstreamdl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\application\m3u-helper.cpp">
+    <ClCompile Include="..\..\src\application\common.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\middleware\curl-helper.cpp">
@@ -65,13 +65,10 @@
     <ClInclude Include="..\..\src\application\processor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\application\defines.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\application\vstreamdl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\application\m3u-helper.h">
+    <ClInclude Include="..\..\src\application\common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\middleware\curl-helper.h">

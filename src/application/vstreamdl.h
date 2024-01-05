@@ -11,6 +11,7 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 #include <vector>
 
 #include "application/cliarg.h"
+#include "application/common.h"
 
 
 namespace app

@@ -5,7 +5,6 @@ copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
 #include <filesystem>
-#include <fstream>
 #include <string>
 #include <vector>
 
@@ -106,12 +105,3 @@ std::string enc::acptou8(const std::string& str)
 
 #else // OMW_PLAT_WIN
 #endif // OMW_PLAT_WIN
-
-void enc::writeFile(const fs::path& file, const std::string& text)
-{
-    std::ofstream ofs;
-    ofs.exceptions(std::ios::badbit | std::ios::failbit | std::ios::eofbit);
-    ofs.open(file, std::ios::out | std::ios::binary); // binary so that nothing gets converted
-    ofs << text;
-    ofs.close();
-}
