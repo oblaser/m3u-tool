@@ -9,7 +9,7 @@ prjDisplayName="M3U Tool"
 prjBinName=$prjName
 prjDirName=$prjName
 repoDirName=$prjName
-copyrightYear="2023"
+copyrightYear="2024"
 
 versionstr=$(head -n 1 dep_vstr.txt)
 

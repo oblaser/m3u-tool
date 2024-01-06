@@ -13,6 +13,7 @@ copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <sstream>
 #include <vector>
 
 #include "application/cliarg.h"
@@ -43,7 +44,7 @@ namespace
 
 
 
-/*int app::exprt(const app::Args& args, const util::Flags& flags)
+int app::exprt(const app::Args& args, const app::Flags& flags)
 {
     int r = EC_OK; // set to OK because of catch(...) in processor.cpp
 
@@ -53,52 +54,11 @@ namespace
     const std::string m3uFileArg = args.raw.at(1);
     const std::string outDirArg = args.raw.at(2);
 
+    util::FileCounter fileCnt;
     util::ResultCounter rcnt = 0;
 
     const fs::path m3uFilePath = enc::path(m3uFileArg);
     const fs::path outDirPath = enc::path(outDirArg);
-
-#if defined(PRJ_DEBUG) && 1
-    util::dbg_rm_outDir(outDirPath);
-#endif
-
-
-    ///////////////////////////////////////////////////////////
-    // check and read in file
-    ///////////////////////////////////////////////////////////
-
-    const m3u::M3U m3u = getFromUri(r, flags, m3uFileArg);
-
-
-    ///////////////////////////////////////////////////////////
-    // check/create out dir
-    ///////////////////////////////////////////////////////////
-
-    
-
-
-    ///////////////////////////////////////////////////////////
-    // process
-    ///////////////////////////////////////////////////////////
-}*/
-
-int app::exprt(const app::Args& args, const app::Flags& flags)
-{
-    int r = EC_ERROR;
-
-    IMPLEMENT_FLAGS();
-
-    // TODO make nicer
-    const std::string m3uFile = args.raw.at(1);
-    const std::string outDir = args.raw.at(2);
-
-    util::FileCounter fileCnt;
-    util::ResultCounter rcnt = 0;
-    omw::vector<std::string> postfixes;
-
-    const fs::path m3uFilePath = m3uFile;
-    const fs::path outDirPath = outDir;
-
 
 #if defined(PRJ_DEBUG) && 1
     app::dbg_rm_outDir(outDirPath);
@@ -106,184 +66,50 @@ int app::exprt(const app::Args& args, const app::Flags& flags)
 
 
     ///////////////////////////////////////////////////////////
-    // check in file
+    // check and read in file
     ///////////////////////////////////////////////////////////
 
-    if (!fs::exists(m3uFile)) ERROR_PRINT_EC_THROWLINE("M3U file not found", EC_M3UFILE_NOT_FOUND);
+    const m3u::M3U m3u = app::getFromUri(r, flags, m3uFileArg);
 
 
     ///////////////////////////////////////////////////////////
     // check/create out dir
     ///////////////////////////////////////////////////////////
 
-    if (fs::exists(outDir))
-    {
-        if (!fs::is_empty(outDir))
-        {
-            if (flags.force)
-            {
-                if (verbose) WARNING_PRINT("using non empty OUTDIR");
-            }
-            else
-            {
-                const std::string msg = "###OUTDIR \"" + outDir + "\" is not empty";
-
-                if (verbose)
-                {
-                    app::printInfo(msg);
-
-                    if (2 == omw_::cli::choice("use non empty OUTDIR?"))
-                    {
-                        r = EC_USER_ABORT;
-                        throw (int)(__LINE__);
-                    }
-                }
-                else ERROR_PRINT_EC_THROWLINE(msg, EC_OUTDIR_NOTEMPTY);
-            }
-        }
-    }
-    else
-    {
-        fs::create_directories(outDirPath);
-
-        if (!fs::exists(outDir)) ERROR_PRINT_EC_THROWLINE("failed to create OUTDIR", EC_OUTDIR_NOTCREATED);
-    }
+    app::checkCreateOutDir(rcnt, flags, outDirPath, outDirArg);
 
 
     ///////////////////////////////////////////////////////////
     // process
     ///////////////////////////////////////////////////////////
 
-    std::vector<omw::string> lines;
-    // M3U util to be moved in another file
+    const fs::path basePath = m3uFilePath.parent_path();
+
+    for (size_t i = 0; i < m3u.entries().size(); ++i)
     {
-        const omw::io::TxtFileInterface file(m3uFile);
-        file.openRead();
-        const size_t fileSize = file.size();
-        omw::string text(fileSize, '\0');
+        const auto& entry = m3u.entries().at(i);
 
-        if (file.getState() != omw::io::TxtFileInterface::good) ERROR_PRINT_EC_THROWLINE("file not good before read", EC_ERROR);
-
-        file.read(text.data(), fileSize);
-
-        if(file.getState()!= omw::io::TxtFileInterface::good) ERROR_PRINT_EC_THROWLINE("file not good after read", EC_ERROR);
-
-            
-
-        if (text.size() >= 4)
-        {
-            if (text[0] == (char)(0x00) && text[1] == (char)(0x00) &&
-                text[2] == (char)(0xFe) && text[3] == (char)(0xFF))
-            {
-                ERROR_PRINT_EC_THROWLINE("encoding not supported: UTF-32 BE", EC_ERROR);
-            }
-            if (text[0] == (char)(0xFF) && text[1] == (char)(0xFe) &&
-                text[2] == (char)(0x00) && text[3] == (char)(0x00))
-            {
-                ERROR_PRINT_EC_THROWLINE("encoding not supported: UTF-32 LE", EC_ERROR);
-            }
-        }
-
-        if (text.size() >= 2)
-        {
-            if (text[0] == (char)(0xFe) && text[1] == (char)(0xFF))
-            {
-                ERROR_PRINT_EC_THROWLINE("encoding not supported: UTF-16 BE", EC_ERROR);
-            }
-            if (text[0] == (char)(0xFF) && text[1] == (char)(0xFe))
-            {
-                ERROR_PRINT_EC_THROWLINE("encoding not supported: UTF-16 LE", EC_ERROR);
-            }
-        }
-
-        if (text.size() >= 3)
-        {
-            if (text[0] == (char)(0xeF) && text[0] == (char)(0xBB) && text[0] == (char)(0xBF))
-            {
-                if (verbose) app::printInfo("UTF8 BOM found");
-                text.erase(0, 3);
-            }
-        }
-
-        const char* p = text.data();
-        const char* end = text.data() + text.size();
-
-        if (p < end) lines.assign(1, "");
-
-        while (p < end)
-        {
-            const size_t nNewLine = omw::peekNewLine(p, end);
-
-            if (nNewLine)
-            {
-                lines.push_back("");
-                p += nNewLine;
-            }
-            else
-            {
-                lines.back().push_back(*p);
-                ++p;
-            }
-        }
-
-        if (lines.back().empty()) lines.pop_back();
-    }
-
-    for (size_t i = 0; i < lines.size(); ++i)
-    {
-        if ((lines[i].length() > 0) && (lines[i][0] == '#')) continue;
+        if (!entry.isResource()) continue;
 
         fileCnt.addTotal();
 
-#ifdef PRJ_DEBUG
-        //cout << fileCnt.total() << " - " << lines[i] << endl;
-#endif
+        fs::path inFilePath = enc::path(entry.path());
+        if (!inFilePath.is_absolute()) inFilePath = basePath / inFilePath;
 
-#ifdef OMW_PLAT_WIN
-        omw::string inFileStr = lines[i];
+        std::stringstream filename;
+        filename << std::setw(4) << std::setfill('0') << fileCnt.total();
+        filename << '_' << inFilePath.filename().u8string();
+        const fs::path outFilePath = outDirPath / enc::path(filename.str());
 
-        constexpr size_t inFileStrReplPairsSize = 6;
-        const omw::StringReplacePair inFileStrReplPairs_850[inFileStrReplPairsSize] = {
-            omw::StringReplacePair(OMW_UTF8CP_Auml, "\x8E"),
-            omw::StringReplacePair(OMW_UTF8CP_auml, "\x84"),
-            omw::StringReplacePair(OMW_UTF8CP_Ouml, "\x99"),
-            omw::StringReplacePair(OMW_UTF8CP_ouml, "\x94"),
-            omw::StringReplacePair(OMW_UTF8CP_Uuml, "\x9A"),
-            omw::StringReplacePair(OMW_UTF8CP_uuml, "\x81")
-        };
+        if (verbose) app::printFormattedLine("###copying \"" + inFilePath.u8string() + "\" to \"" + fs::weakly_canonical(outFilePath).u8string() + "\"");
 
-        const omw::StringReplacePair inFileStrReplPairs_1252[inFileStrReplPairsSize] = { // Windows-1252 / ISO 8859-1
-            omw::StringReplacePair(OMW_UTF8CP_Auml, "\xC4"),
-            omw::StringReplacePair(OMW_UTF8CP_auml, "\xE4"),
-            omw::StringReplacePair(OMW_UTF8CP_Ouml, "\xD6"),
-            omw::StringReplacePair(OMW_UTF8CP_ouml, "\xF6"),
-            omw::StringReplacePair(OMW_UTF8CP_Uuml, "\xDC"),
-            omw::StringReplacePair(OMW_UTF8CP_uuml, "\xFC")
-        };
-
-        // TODO get system code page and convert properly
-
-        inFileStr.replaceAll(inFileStrReplPairs_1252, inFileStrReplPairsSize);
-
-
-        const fs::path inFile = inFileStr.c_str();
-#else
-        const fs::path inFile = lines[i].c_str();
-#endif
-
-        char tmpOutFileNumBuffer[20];
-        sprintf(tmpOutFileNumBuffer, "%04zu", fileCnt.total());
-        const fs::path outFile = outDir / fs::path(tmpOutFileNumBuffer + std::string("_") + inFile.filename().string());
-
-        if (verbose) app::printFormattedLine("###copying \"" + inFile.u8string() + "\" to \"" + fs::weakly_canonical(outFile).u8string() + "\"");
-
-        if (fs::exists(inFile))
+        if (fs::exists(inFilePath))
         {
-            if (fs::is_regular_file(inFile))
+            if (fs::is_regular_file(inFilePath))
             {
                 try
                 {
-                    fs::copy_file(inFile, outFile);
+                    fs::copy_file(inFilePath, outFilePath);
                     fileCnt.addCopied();
                 }
                 catch (const fs::filesystem_error& ex)
@@ -292,9 +118,9 @@ int app::exprt(const app::Args& args, const app::Flags& flags)
                 }
                 // other exceptions will be catched by the main try-catch in this function
             }
-            else ERROR_PRINT("###\"" + inFile.u8string() + "\" is not a file");
+            else ERROR_PRINT("###\"" + inFilePath.u8string() + "\" is not a file");
         }
-        else ERROR_PRINT("###file \"" + inFile.u8string() + "\" not found");
+        else ERROR_PRINT("###file \"" + inFilePath.u8string() + "\" not found");
     }
 
 
@@ -337,6 +163,8 @@ int app::exprt(const app::Args& args, const app::Flags& flags)
     //if (verbose) cout << "\n" << omw::fgBrightGreen << "done" << omw::defaultForeColor << endl;
         
     if (fileCnt.copied() != fileCnt.total()) r = EC_ERROR;
+
+    return r;
 
     return r;
 }

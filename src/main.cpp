@@ -155,14 +155,14 @@ int main(int argc, char** argv)
 #if defined(PRJ_DEBUG) && 1
     if (args.size() == 0)
     {
-        args.add("--help");
+        //args.add("--help");
 
 #if 1 // export
         
         args.add("export");
 
-        //args.add("../../test/system/pl.m3u");
-        args.add("../../test/system/f\xc3\xael\xc3\xab\xc3\xb1\xc3\xa0m\xc3\xa9.m3u");
+        args.add("../../test/system/linux.m3u");
+        //args.add("../../test/system/f\xc3\xael\xc3\xab\xc3\xb1\xc3\xa0m\xc3\xa9.m3u");
 
         args.add("../../test/system/out-export-\xC5\xA4");
 
@@ -257,7 +257,9 @@ int main(int argc, char** argv)
 
 #if defined(PRJ_DEBUG) && 1
     cout << omw::foreColor(26) << "===============\nreturn " << r << "\npress enter..." << omw::normal << endl;
+#ifdef OMW_PLAT_WIN
     int dbg___getc_ = getc(stdin);
+#endif
 #endif
 
     cout << omw::normal << std::flush;
