@@ -34,6 +34,7 @@ namespace enc
 
 #endif // OMW_PLAT_WIN
 
+    // constructs a path from an UTF-8 string
     static inline std::filesystem::path path(const std::string& path_u8) { return enc::u8tos(path_u8); }
 }
 

@@ -82,6 +82,11 @@ namespace app
 
         OptionList& options() { return m_options; }
         const OptionList& options() const { return m_options; }
+
+        // contains function in library base class
+        bool contains(const std::string& option) const { return m_options.contains(option); }
+
+        // contains functions in user derived cass
         bool containsForce() const { return m_options.contains(argstr::force); }
         bool containsHelp() const { return (m_options.contains(argstr::help) || m_options.contains(argstr::help_alt)); }
         bool containsNoColor() const { return m_options.contains(argstr::noColor); }
@@ -98,6 +103,7 @@ namespace app
         const std::string& operator[](size_t idx) const;
 
         std::vector<std::string>raw;
+        bool isOption(size_t raw_idx) const; // hot fix, remove on the new nice and shiny args implementation
 
     private:
         FileList m_files;

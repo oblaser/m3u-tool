@@ -43,7 +43,7 @@ namespace
 
 int app::vstreamdl(const app::Args& args, const app::Flags& flags)
 {
-    int r = EC_OK; // set to OK because of catch(...) in processor.cpp
+    int r = EC_ERROR;
 
     IMPLEMENT_FLAGS();
 
@@ -68,14 +68,14 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     // check and read in file
     ///////////////////////////////////////////////////////////
 
-    const m3u::HLS hls = getFromUri(r, flags, m3uFile);
+    const m3u::HLS hls = getFromUri(flags, m3uFile);
 
 
     ///////////////////////////////////////////////////////////
     // check/create out dir
     ///////////////////////////////////////////////////////////
 
-    app::checkCreateOutDir(rcnt, flags, outDirPath, outDir);
+    app::checkCreateOutDir(flags, outDirPath, outDir);
 
 
     ///////////////////////////////////////////////////////////
@@ -137,6 +137,7 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
 
         const auto outFile = outDirPath / enc::path(stemFileName + ".m3u");
 
+        // TODO check if file exists
         util::writeFile(outFile, txt);
 
         INFO_PRINT("created file \"" + fs::weakly_canonical(outFile).u8string() + "\"");
@@ -160,6 +161,7 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
 
         const auto scriptFile = outDirPath / enc::path("dl-subs-" + stemFileName + ".sh");
 
+        // TODO check if file exists
         util::writeFile(scriptFile, srtScript);
     }
     else if (verbose) INFO_PRINT("no subtitles");

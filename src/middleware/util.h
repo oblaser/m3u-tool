@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            05.01.2024
+date            12.01.2024
 copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
@@ -75,6 +75,9 @@ namespace omw_
 #if OMW_VERSION_ID <= OMW_VERSION_ID_0_2_1_BETA
     namespace cli { int choice(const std::string& q, int def = 0, char first = 'y', char second = 'n'); }
     omw::string to_string(uint64_t val, int base, const char* digits);
+    
+    std::string toUpper(const std::string& str);
+    std::string& upper(std::string& str); // do not implement!
 #endif
 }
 

@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            05.01.2024
+date            12.01.2024
 copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
@@ -117,6 +117,18 @@ omw::string omw_::to_string(uint64_t val, int base, const char* digits)
     {
         r = digits[val % base] + r; // maybe use reverse() instead
         val /= base;
+    }
+
+    return r;
+}
+
+std::string omw_::toUpper(const std::string& str)
+{
+    std::string r = str;
+
+    for (auto& c : r)
+    {
+        if ((c >= 'a') && (c <= 'z')) c -= 32;
     }
 
     return r;

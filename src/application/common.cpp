@@ -1,11 +1,12 @@
 /*
 author          Oliver Blaser
-date            05.01.2024
+date            12.01.2024
 copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
 #include <filesystem>
 #include <fstream>
+#include <iomanip>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -141,20 +142,24 @@ void app::printTitle(const std::string& title)
     cout << title << endl;
 }
 
-void app::checkCreateOutDir(util::ResultCounter& rcnt, const app::Flags& flags, const std::filesystem::path& outDirPath, const std::string& outDirArg)
+#ifdef PRJ_DEBUG
+void app::printDebug(const std::string& text)
+{
+    cout << omw::fgBrightMagenta << std::left << std::setw(ewiWidth) << "debug:" << omw::defaultForeColor;
+    printFormattedText(text);
+    cout << endl;
+}
+#endif // PRJ_DEBUG
+
+void app::checkCreateOutDir(const app::Flags& flags, const std::filesystem::path& outDirPath, const std::string& outDirArg)
 {
     IMPLEMENT_FLAGS();
-
-    int r; // dummy, can be removed if proper error handling (process_error exception instead of throwing line number) is implemented
 
     if (fs::exists(outDirPath))
     {
         if (!fs::is_empty(outDirPath))
         {
-            if (flags.force)
-            {
-                if (verbose) WARNING_PRINT("using non empty OUTDIR");
-            }
+            if (flags.force) { PRINT_WARNING_V("using non empty OUTDIR"); }
             else
             {
                 const std::string msg = "###OUTDIR \"" + outDirArg + "\" is not empty";
@@ -165,23 +170,23 @@ void app::checkCreateOutDir(util::ResultCounter& rcnt, const app::Flags& flags, 
 
                     if (2 == omw_::cli::choice("use non empty OUTDIR?"))
                     {
-                        r = EC_USER_ABORT;
-                        throw (int)(__LINE__);
+                        throw app::processor_exit(EC_USER_ABORT);
                     }
                 }
-                else ERROR_PRINT_EC_THROWLINE(msg, EC_OUTDIR_NOTEMPTY);
+                else PRINT_ERROR_EXIT(msg, EC_OUTDIR_NOTEMPTY);
             }
         }
     }
     else
     {
-        fs::create_directories(outDirPath);
+        std::error_code ec;
+        fs::create_directory(outDirPath, outDirPath.parent_path(), ec);
 
-        if (!fs::exists(outDirPath)) ERROR_PRINT_EC_THROWLINE("failed to create OUTDIR", EC_OUTDIR_NOTCREATED);
+        if (!fs::exists(outDirPath)) PRINT_ERROR_EXIT("failed to create OUTDIR", EC_OUTDIR_NOTCREATED);
     }
 }
 
-m3u::M3U app::getFromUri(int& r, const app::Flags& flags, const std::string& uri)
+m3u::M3U app::getFromUri(const app::Flags& flags, const std::string& uri)
 {
     IMPLEMENT_FLAGS();
 
@@ -194,7 +199,7 @@ m3u::M3U app::getFromUri(int& r, const app::Flags& flags, const std::string& uri
         if (!res.good())
         {
             if (verbose) app::printInfo(res.toString());
-            ERROR_PRINT_EC_THROWLINE("HTTP GET failed", EC_M3UFILE_NOT_FOUND);
+            PRINT_ERROR_EXIT("HTTP GET failed", EC_M3UFILE_NOTFOUND);
         }
 
         return res.data();
@@ -203,7 +208,7 @@ m3u::M3U app::getFromUri(int& r, const app::Flags& flags, const std::string& uri
     {
         const auto file = enc::path(uri);
 
-        if (!fs::exists(file)) ERROR_PRINT_EC_THROWLINE("M3U file not found", EC_M3UFILE_NOT_FOUND);
+        if (!fs::exists(file)) PRINT_ERROR_EXIT("M3U file not found", EC_M3UFILE_NOTFOUND);
 
         return util::readFile(file);
     }

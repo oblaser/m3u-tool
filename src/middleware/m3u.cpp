@@ -1,7 +1,7 @@
 /*
 author          Oliver Blaser
-date            28.11.2023
-copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
+date            12.01.2024
+copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
 #include <stdexcept>
@@ -15,17 +15,15 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 
 namespace
 {
-    inline bool isExtType(const std::string& line, const std::string& extTypeStr)
+    inline bool isExtType(const std::string& line, const std::string& extBaseStr)
     {
-        return (line.substr(0, extTypeStr.size()) == extTypeStr);
+        return (line.substr(0, extBaseStr.size()) == extBaseStr);
     }
 
-    inline bool isExtType(const m3u::Entry& entry, const std::string& extTypeStr)
+    inline bool isExtType(const m3u::Entry& entry, const std::string& extBaseStr)
     {
-        return (entry.ext().substr(0, extTypeStr.size()) == extTypeStr);
+        return (entry.ext().substr(0, extBaseStr.size()) == extBaseStr);
     }
-
-
 
     std::vector<std::string> readAllLines(const char* p, const char* const pEnd)
     {
@@ -107,6 +105,7 @@ namespace
 
 const char* const m3u::ext_str = "#EXT";
 const char* const m3u::extm3u_str = "#EXTM3U";
+const char* const m3u::extenc_str = "#EXTENC:";
 const char* const m3u::extinf_str = "#EXTINF:";
 const char* const m3u::ext_x_media_str = "#EXT-X-MEDIA:";
 const char* const m3u::ext_x_stream_inf_str = "#EXT-X-STREAM-INF:";
@@ -165,6 +164,11 @@ const m3u::Entry::ExtParameter& m3u::Entry::ExtParamContainer::get(const std::st
     }
 
     throw std::out_of_range("no \"" + key + "\" parameter");
+}
+
+bool m3u::Entry::extIs(const std::string& extBaseStr) const
+{
+    return ::isExtType(*this, extBaseStr);
 }
 
 std::string m3u::Entry::serialize(const char* endOfLine) const
@@ -283,7 +287,7 @@ void m3u::M3U::m_parse(const char* p, const char* pEnd)
                     // is only extension
                     else if (::isExtType(lines[i], m3u::ext_str)) m_entries.push_back(m3u::Entry("", lines[i]));
                     // is entry
-                    else m_entries.push_back(lines[i]);
+                    else m_entries.push_back(m3u::Entry(lines[i]));
                 }
             }
         }
@@ -291,7 +295,7 @@ void m3u::M3U::m_parse(const char* p, const char* pEnd)
         {
             for (size_t i = 0; i < lines.size(); ++i)
             {
-                if (!lines[i].empty()) m_entries.push_back(lines[i]);
+                if (!lines[i].empty()) m_entries.push_back(m3u::Entry(lines[i]));
             }
         }
 

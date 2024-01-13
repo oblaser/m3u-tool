@@ -1,7 +1,7 @@
 /*
 author          Oliver Blaser
-date            31.12.2023
-copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
+date            07.01.2024
+copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
 #include <cstring>
@@ -38,9 +38,10 @@ namespace
         cout << endl;
         cout << "Usage:" << endl;
         cout << "  " << usageString << endl;
-        cout << "  " << prj::exeName << " export INFILE OUTDIR" << endl;
-        cout << "  " << prj::exeName << " parse INFILE" << endl;
-        cout << "  " << prj::exeName << " vstreamdl INFILE OUTDIR OUTNAME [MAX-RES-HEIGHT]" << endl;
+        cout << "  " << prj::exeName << " export INFILE OUTDIR [options]" << endl;
+        cout << "  " << prj::exeName << " parse INFILE [options]" << endl;
+        cout << "  " << prj::exeName << " path INFILE OUTFILE [INBASEPATH [OUTBASEPATH]] [options]" << endl;
+        cout << "  " << prj::exeName << " vstreamdl INFILE OUTDIR NAME [MAX-RES-HEIGHT] [options]" << endl;
         cout << "  " << std::string(strlen(prj::exeName), ' ') << "     MAX-RES-HEIGHT defaults to 1080" << endl;
         cout << endl;
         cout << "Modules:" << endl;
@@ -132,7 +133,7 @@ int wmain(int argc, wchar_t** argv)
             app::printError("faild to convert argv");
             app::printInfo(ex.what());
             std::wcout << L"argv[" << i << L"] " << argv[i] << endl; // console code page is not yet set to UTF-8
-            return EC_ENCCONV;
+            return EC_ERROR;
         }
     }
 
@@ -157,24 +158,45 @@ int main(int argc, char** argv)
     {
         //args.add("--help");
 
-#if 1 // export
+#if 0 // export
         
         args.add("export");
 
-        args.add("../../test/system/linux.m3u");
-        //args.add("../../test/system/f\xc3\xael\xc3\xab\xc3\xb1\xc3\xa0m\xc3\xa9.m3u");
+        //args.add("../../test/system/linux.m3u");
+        args.add("../../test/system/f\xc3\xael\xc3\xab\xc3\xb1\xc3\xa0m\xc3\xa9.m3u");
 
         args.add("../../test/system/out-export-\xC5\xA4");
 
-#elif 1 // parse m3u
+#elif 0 // parse m3u
         
         args.add("parse");
         
-        //args.add("../../test/system/ext-mixed.m3u");
-        args.add("../../test/system/f\xc3\xael\xc3\xab\xc3\xb1\xc3\xa0m\xc3\xa9.m3u");
+        args.add("../../test/system/ext-mixed.m3u");
+        //args.add("../../test/system/f\xc3\xael\xc3\xab\xc3\xb1\xc3\xa0m\xc3\xa9.m3u");
         //args.add("../../test/system/hls.m3u");
         //args.add("../../test/system/non-ext.m3u");
         //args.add("https://raw.githubusercontent.com/oblaser/m3u-tool/main/test/system/hls.m3u");
+
+#elif 1 // path
+
+        args.add("path");
+
+        // in file
+        args.add("../../test/system/ext-mixed.m3u");
+        //args.add("../../test/system/f\xc3\xael\xc3\xab\xc3\xb1\xc3\xa0m\xc3\xa9.m3u");
+
+        // outfile
+        args.add("../../test/system/out/path-out.m3u8");
+
+        // in base
+        //args.add("D:\\Musik\\Interpreten");
+        //args.add("asdf");
+        
+        // out base
+        //args.add("artists");
+
+        args.add("--remove");
+        args.add("-f");
 
 #elif 1 // video stream download
         

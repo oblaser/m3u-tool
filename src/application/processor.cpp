@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            04.01.2024
+date            12.01.2024
 copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
@@ -18,6 +18,7 @@ copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 
 #include "application/common.h"
 #include "application/export.h"
+#include "application/path.h"
 #include "application/vstreamdl.h"
 #include "middleware/encoding-helper.h"
 #include "middleware/util.h"
@@ -45,7 +46,7 @@ namespace
 
 int app::process(const app::Args& args)
 {
-    int r = EC_OK; // set to OK because of catch(...)
+    int r = EC_ERROR;
 
     const auto flags = app::Flags(args.containsForce(),
                 args.containsQuiet(),
@@ -93,30 +94,36 @@ int app::process(const app::Args& args)
 #endif
 
         if (args.raw.at(0) == "export") r = app::exprt(args, flags);
+        else if (args.raw.at(0) == "path") r = app::path(args, flags);
         else if (args.raw.at(0) == "vstreamdl") r = app::vstreamdl(args, flags);
         else if (args.raw.at(0) == "parse")
         {
-            const m3u::M3U m3u = app::getFromUri(r, flags, args.raw.at(1));
+            const m3u::M3U m3u = app::getFromUri(flags, args.raw.at(1));
 
             for (const auto& e : m3u.entries())
             {
-                if (e.isRegularRes()) cout << omw::fgBrightCyan << "R " << omw::fgDefault << e.path() << endl;
+                if (e.isRegularRes()) cout << omw::fgBrightCyan << "R " << omw::fgBrightWhite << e.data() << omw::fgDefault << endl;
                 else if (e.isComment()) cout << omw::fgBrightBlack << "C " << omw::fgDefault << e.data() << endl;
                 else if (e.isExtension()) cout << omw::fgGreen << "X " << omw::fgDefault << e.ext() << endl;
-                else if (e.hasExtension()) cout << omw::fgBrightYellow << "X " << omw::fgDefault << e.ext() << " \"" << omw::fgBrightWhite << e.path() << omw::fgDefault << "\"" << endl;
-                else cout << omw::fgBrightRed << "E " << omw::fgDefault << e.path() << endl;
+                else if (e.hasExtension()) cout << omw::fgBrightYellow << "X " << omw::fgDefault << e.ext() << "\n  " << omw::fgBrightWhite << e.data() << omw::fgDefault << endl;
+                else cout << omw::fgBrightRed << "E " << omw::fgDefault << e.data() << endl;
             }
 
 #if defined(PRJ_DEBUG) && 1
             cout << "\n===================================================\n" << m3u.serialize() << "<EOF>==============================================" << endl;
 #endif
+            r = EC_OK;
         }
-        else
-        {
-            r = EC_MODULE_UNKNOWN;
+        else PRINT_ERROR_EXIT("unknown module", EC_MODULE_UNKNOWN);
+    }
+    catch (const app::processor_exit& ex)
+    {
+        r = ex.ec();
 
-            // TODO throw processor_exception
-            app::printError("unknown module");
+        if (verbose)
+        {
+            if (r == EC_USER_ABORT) cout << omw::fgRed << "aborted by user" << omw::defaultForeColor << endl;
+            else cout << omw::fgBrightRed << "failed" << omw::defaultForeColor << endl;
         }
     }
     catch (const std::filesystem::filesystem_error& ex)
@@ -156,21 +163,13 @@ int app::process(const app::Args& args)
     }
     catch (const int& ex)
     {
-        if (r == EC_OK)
-        {
-            r = EC_ERROR;
-            if (!quiet) app::printError("fatal error (" + std::to_string(ex) + ")");
-        }
-        else if (verbose) cout << "\n" << omw::fgBrightRed << "failed" << omw::defaultForeColor << endl;
+        r = EC_ERROR;
+        if (!quiet) app::printError("fatal error (" + std::to_string(ex) + ")");
     }
     catch (...)
     {
-        if (r == EC_OK)
-        {
-            r = EC_ERROR;
-            if (!quiet) app::printError("unspecified fatal error");
-        }
-        else if (verbose) cout << "\n" << omw::fgBrightRed << "failed" << omw::defaultForeColor << endl;
+        r = EC_ERROR;
+        if (!quiet) app::printError("unspecified fatal error");
     }
 
     //if (r == EC_USER_ABORT) r = EC_OK;

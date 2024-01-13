@@ -46,7 +46,7 @@ namespace
 
 int app::exprt(const app::Args& args, const app::Flags& flags)
 {
-    int r = EC_OK; // set to OK because of catch(...) in processor.cpp
+    int r = EC_ERROR;
 
     IMPLEMENT_FLAGS();
 
@@ -69,14 +69,14 @@ int app::exprt(const app::Args& args, const app::Flags& flags)
     // check and read in file
     ///////////////////////////////////////////////////////////
 
-    const m3u::M3U m3u = app::getFromUri(r, flags, m3uFileArg);
+    const m3u::M3U m3u = app::getFromUri(flags, m3uFileArg);
 
 
     ///////////////////////////////////////////////////////////
     // check/create out dir
     ///////////////////////////////////////////////////////////
 
-    app::checkCreateOutDir(rcnt, flags, outDirPath, outDirArg);
+    app::checkCreateOutDir(flags, outDirPath, outDirArg);
 
 
     ///////////////////////////////////////////////////////////
@@ -93,7 +93,7 @@ int app::exprt(const app::Args& args, const app::Flags& flags)
 
         fileCnt.addTotal();
 
-        fs::path inFilePath = enc::path(entry.path());
+        fs::path inFilePath = enc::path(entry.data());
         if (!inFilePath.is_absolute()) inFilePath = basePath / inFilePath;
 
         std::stringstream filename;
@@ -163,8 +163,6 @@ int app::exprt(const app::Args& args, const app::Flags& flags)
     //if (verbose) cout << "\n" << omw::fgBrightGreen << "done" << omw::defaultForeColor << endl;
         
     if (fileCnt.copied() != fileCnt.total()) r = EC_ERROR;
-
-    return r;
 
     return r;
 }

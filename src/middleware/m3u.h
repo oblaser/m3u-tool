@@ -1,7 +1,7 @@
 /*
 author          Oliver Blaser
-date            28.11.2023
-copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
+date            12.01.2024
+copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
 #ifndef IG_MIDDLEWARE_M3U_H
@@ -17,7 +17,8 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 namespace m3u
 {
     extern const char* const ext_str;
-    extern const char* const extm3u_str;
+    extern const char* const extm3u_str; // header of extended M3U
+    extern const char* const extenc_str;
     extern const char* const extinf_str;
     extern const char* const ext_x_media_str;
     extern const char* const ext_x_stream_inf_str;
@@ -86,22 +87,24 @@ namespace m3u
 
     public:
         Entry() = delete;
-        Entry(const std::string& data, const std::string& ext = std::string()) : m_ext(ext), m_extParam(), m_data(data) { m_parseExtData(); }
+        explicit Entry(const std::string& data, const std::string& ext = std::string()) : m_ext(ext), m_extParam(), m_data(data) { m_parseExtData(); }
         virtual ~Entry() {}
 
         const std::string& data() const { return m_data; }
-        std::string& path() { return m_data; }
-        const std::string& path() const { return m_data; }
+
         std::string& ext() { return m_ext; }
         const std::string& ext() const { return m_ext; }
+        
+        bool extIs(const std::string& extBaseStr) const;
+
         const ExtParamContainer& extParam() const { return m_extParam; }
 
-        bool isEmpty() const { return m_ext.empty() && m_data.empty(); }
-        bool isComment() const { return m_data.substr(0, 1) == "#"; }
-        bool isExtension() const { return !m_ext.empty() && m_data.empty(); }
-        bool isResource() const { return !m_data.empty() && !isComment(); } // is resource (with or without extension)
+        bool isEmpty() const { return (m_ext.empty() && m_data.empty()); }
+        bool isComment() const { return (!m_data.empty() && (m_data[0] == '#')); }
+        bool isExtension() const { return (!m_ext.empty() && m_data.empty()); }
+        bool isResource() const { return (!m_data.empty() && (m_data[0] != '#')); } // is resource (with or without extension)
         bool hasExtension() const { return !m_ext.empty(); }
-        bool isRegularRes() const { return isResource() && !hasExtension(); }
+        bool isRegularRes() const { return (isResource() && !hasExtension()); }
 
         void setData(const std::string& data) { m_data = data; }
 
@@ -119,11 +122,13 @@ namespace m3u
     inline bool operator==(const m3u::Entry::ExtParamValue& a, const std::string& b) { return (a.data() == b); }
     inline bool operator==(const char* a, const m3u::Entry::ExtParamValue& b) { return (a == b.data()); }
     inline bool operator==(const std::string& a, const m3u::Entry::ExtParamValue& b) { return (a == b.data()); }
+    inline bool operator!=(const m3u::Entry::ExtParamValue& a, const char* b) { return !(a == b); }
+    inline bool operator!=(const m3u::Entry::ExtParamValue& a, const std::string& b) { return !(a == b); }
+    inline bool operator!=(const char* a, const m3u::Entry::ExtParamValue& b) { return !(a == b); }
+    inline bool operator!=(const std::string& a, const m3u::Entry::ExtParamValue& b) { return !(a == b); }
 
-    inline bool operator!=(const m3u::Entry::ExtParamValue& a, const char* b) { return (a.data() != b); }
-    inline bool operator!=(const m3u::Entry::ExtParamValue& a, const std::string& b) { return (a.data() != b); }
-    inline bool operator!=(const char* a, const m3u::Entry::ExtParamValue& b) { return (a != b.data()); }
-    inline bool operator!=(const std::string& a, const m3u::Entry::ExtParamValue& b) { return (a != b.data()); }
+    inline bool operator==(const m3u::Entry& a, const m3u::Entry& b) { return ((a.data() == b.data()) && (a.ext() == b.ext())); }
+    inline bool operator!=(const m3u::Entry& a, const m3u::Entry& b) { return !(a == b); }
 
     class M3U
     {
@@ -133,11 +138,13 @@ namespace m3u
         M3U(const char* p, const char* pEnd) : m_entries() { m_parse(p, pEnd); }
         virtual ~M3U() {}
 
+        void add(const m3u::Entry& entry) { m_entries.push_back(entry); }
+
         std::vector<m3u::Entry>& entries() { return m_entries; }
         const std::vector<m3u::Entry>& entries() const { return m_entries; }
 
         bool isEmpty() const { return m_entries.empty(); }
-        //bool isExt() const {}
+        bool isExtended() const { return (isEmpty() ? false : (m_entries[0] == m3u::Entry("", m3u::extm3u_str))); }
 
         std::string serialize(const char* endOfLine = serializeEndOfLine) const;
 

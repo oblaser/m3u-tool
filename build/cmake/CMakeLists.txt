@@ -26,9 +26,11 @@ set(SOURCES
 ../../src/application/cliarg.cpp
 ../../src/application/common.cpp
 ../../src/application/export.cpp
+../../src/application/path.cpp
 ../../src/application/processor.cpp
 ../../src/application/vstreamdl.cpp
 ../../src/middleware/curl-helper.cpp
+../../src/middleware/encoding-helper.cpp
 ../../src/middleware/m3u.cpp
 ../../src/middleware/util.cpp
 ../../src/main.cpp

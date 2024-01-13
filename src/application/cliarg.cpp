@@ -56,14 +56,15 @@ void app::OptionList::add(const std::string& opt)
 
 bool app::OptionList::contains(const std::string& arg) const
 {
-    bool r = false;
-
-    for (size_t i = 0; (i < this->size()) && !r; ++i)
+    for (const auto& e : *this)
     {
-        if (this->at(i) == arg) r = true;
+        if (e == arg)
+        {
+           return  true;
+        }
     }
 
-    return r;
+    return false;
 }
 
 std::string app::OptionList::unrecognized() const
@@ -108,7 +109,7 @@ void app::Args::parse(int argc, const char* const* argv)
 
 void app::Args::parse(const std::vector<std::string>& args)
 {
-    for (int i = 1; i < args.size(); ++i)
+    for (size_t i = 1; i < args.size(); ++i)
     {
         const auto& arg = args[i];
 
@@ -175,4 +176,18 @@ const std::string& app::Args::operator[](size_t idx) const
 {
     if (idx < m_options.size()) return m_options[idx];
     else return m_files[idx - m_options.size()];
+}
+
+bool app::Args::isOption(size_t raw_idx) const
+{
+    bool r = false;
+
+    const auto& arg = raw.at(raw_idx);
+
+    if (arg.at(0) == '-') r = true;
+#ifdef OMW_PLAT_WIN
+    else if (arg == "/?") r = true;
+#endif
+
+    return r;
 }
