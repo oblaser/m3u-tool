@@ -47,7 +47,7 @@ namespace
 int app::process(const app::Args& args)
 {
     int r = EC_ERROR;
-
+    
     const auto flags = app::Flags(args.containsForce(),
                 args.containsQuiet(),
                 args.containsVerbose());

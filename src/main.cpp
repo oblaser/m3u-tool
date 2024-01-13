@@ -151,8 +151,6 @@ int main(int argc, char** argv)
     app::Args args(argc, argv);
 #endif // OMW_PLAT_WIN
 
-    int r = 0;
-
 #if defined(PRJ_DEBUG) && 1
     if (args.size() == 0)
     {
@@ -250,15 +248,19 @@ int main(int argc, char** argv)
     cout << "--======# end args #======--" << endl << omw::defaultForeColor;
 #endif
 
+    int r = EC_ERROR;
+
     if (args.isValid())
     {
+        r = EC_OK;
+
         if (/*args.containsHelp()*/ args.isGlobalHelp()) printHelp();
         else if (args.containsVersion()) printVersion();
         else r = app::process(args);
     }
     else
     {
-        r = 1;
+        r = EC_ERROR;
 
         if (args.count() == 0)
         {

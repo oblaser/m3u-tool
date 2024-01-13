@@ -141,7 +141,6 @@
     <ClCompile Include="..\..\src\middleware\curl-helper.cpp" />
     <ClCompile Include="..\..\src\middleware\encoding-helper.cpp" />
     <ClCompile Include="..\..\src\middleware\m3u.cpp" />
-    <ClCompile Include="..\..\src\middleware\split-path.cpp" />
     <ClCompile Include="..\..\src\middleware\util.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -154,7 +153,6 @@
     <ClInclude Include="..\..\src\middleware\curl-helper.h" />
     <ClInclude Include="..\..\src\middleware\encoding-helper.h" />
     <ClInclude Include="..\..\src\middleware\m3u.h" />
-    <ClInclude Include="..\..\src\middleware\split-path.h" />
     <ClInclude Include="..\..\src\middleware\util.h" />
     <ClInclude Include="..\..\src\project.h" />
   </ItemGroup>
