@@ -23,7 +23,7 @@ namespace m3u
     extern const char* const ext_x_media_str;
     extern const char* const ext_x_stream_inf_str;
 
-    extern const char* const serializeEndOfLine;
+    extern const char* const serialiseEndOfLine;
 
     class Entry
     {
@@ -47,6 +47,8 @@ namespace m3u
             int type() const { return m_type; }
             const std::string& data() const { return m_data; }
 
+            void setData(const std::string& data) { m_data = data; }
+
             bool empty() const { return m_data.empty(); }
 
             operator const std::string& () const { return m_data; }
@@ -67,6 +69,7 @@ namespace m3u
             virtual ~ExtParameter() {}
 
             const std::string& key() const { return first; }
+            m3u::Entry::ExtParamValue& value() { return second; }
             const m3u::Entry::ExtParamValue& value() const { return second; }
 
             const bool isValid() const { return m_validity; }
@@ -90,11 +93,9 @@ namespace m3u
         explicit Entry(const std::string& data, const std::string& ext = std::string()) : m_ext(ext), m_extParam(), m_data(data) { m_parseExtData(); }
         virtual ~Entry() {}
 
+        const std::string& ext() const { return m_ext; }
         const std::string& data() const { return m_data; }
 
-        std::string& ext() { return m_ext; }
-        const std::string& ext() const { return m_ext; }
-        
         bool extIs(const std::string& extBaseStr) const;
 
         const ExtParamContainer& extParam() const { return m_extParam; }
@@ -106,13 +107,16 @@ namespace m3u
         bool hasExtension() const { return !m_ext.empty(); }
         bool isRegularRes() const { return (isResource() && !hasExtension()); }
 
-        void setData(const std::string& data) { m_data = data; }
+        virtual void setExt(const std::string& ext) { m_ext = ext; m_parseExtData(); }
+        virtual void setData(const std::string& data) { m_data = data; }
 
-        std::string serialize(const char* endOfLine = serializeEndOfLine) const;
+        std::string serialise(const char* endOfLine = serialiseEndOfLine) const;
 
     protected:
-        std::string m_ext;
         m3u::Entry::ExtParamContainer m_extParam;
+
+    private:
+        std::string m_ext;
         std::string m_data;
 
         void m_parseExtData();
@@ -146,7 +150,7 @@ namespace m3u
         bool isEmpty() const { return m_entries.empty(); }
         bool isExtended() const { return (isEmpty() ? false : (m_entries[0] == m3u::Entry("", m3u::extm3u_str))); }
 
-        std::string serialize(const char* endOfLine = serializeEndOfLine) const;
+        std::string serialise(const char* endOfLine = serialiseEndOfLine) const;
 
     protected:
         std::vector<m3u::Entry> m_entries;
@@ -157,17 +161,19 @@ namespace m3u
     class HLS : protected M3U
     {
     public:
-        class AudioStream : protected m3u::Entry
+        class AudioStream : public m3u::Entry
         {
         public:
             AudioStream() = delete;
             AudioStream(const m3u::Entry& entry) : m3u::Entry(entry) {}
             virtual ~AudioStream() {}
 
-            std::string serialize(const char* endOfLine = serializeEndOfLine) const { return m3u::Entry::serialize(endOfLine); }
+            const std::string uri() const;
+
+            void setUri(const std::string& uri);
         };
 
-        class Subtitles : protected m3u::Entry
+        class Subtitles : public m3u::Entry
         {
         public:
             Subtitles() = delete;
@@ -178,7 +184,7 @@ namespace m3u
             bool forced() const { return m_forced; }
             const std::string& uri() const { return m_uri; }
 
-            std::string serialize(const char* endOfLine = serializeEndOfLine) const { return m3u::Entry::serialize(endOfLine); }
+            virtual void setExt(const std::string& ext) { m3u::Entry::setExt(ext); m_parse(); }
 
         private:
             std::string m_language;
@@ -188,7 +194,7 @@ namespace m3u
             void m_parse();
         };
 
-        class Stream : protected m3u::Entry
+        class Stream : public m3u::Entry
         {
         public:
             Stream() = delete;
@@ -198,7 +204,7 @@ namespace m3u
             m3u::Entry::ExtParameter resolutionExtParam() const;
             int resolutionHeight() const { return m_resolutionHeight; }
 
-            std::string serialize(const char* endOfLine = serializeEndOfLine) const { return m3u::Entry::serialize(endOfLine); }
+            virtual void setExt(const std::string& ext) { m3u::Entry::setExt(ext); m_parse(); }
 
         private:
             int m_resolutionHeight;
@@ -218,7 +224,7 @@ namespace m3u
         const std::vector<m3u::HLS::Stream>& streams() const { return  m_streams; }
         const std::vector<m3u::Entry>& otherEntries() const { return  m_otherEntries; }
 
-        std::string serialize(const char* endOfLine = serializeEndOfLine) const { return m3u::M3U::serialize(endOfLine); }
+        std::string serialise(const char* endOfLine = serialiseEndOfLine) const { return m3u::M3U::serialise(endOfLine); }
 
     private:
         std::vector<m3u::HLS::AudioStream> m_audioStreams;

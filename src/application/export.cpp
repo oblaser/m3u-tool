@@ -69,7 +69,7 @@ int app::exprt(const app::Args& args, const app::Flags& flags)
     // check and read in file
     ///////////////////////////////////////////////////////////
 
-    const m3u::M3U m3u = app::getFromUri(flags, m3uFileArg);
+    const m3u::M3U m3u = app::getFromUri(flags, util::Uri(m3uFileArg));
 
 
     ///////////////////////////////////////////////////////////

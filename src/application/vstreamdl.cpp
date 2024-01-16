@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            04.01.2024
+date            14.01.2024
 copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
@@ -34,9 +34,28 @@ namespace fs = std::filesystem;
 
 namespace
 {
-#ifdef PRJ_DEBUG
-    const std::string magentaDebugStr = "\033[95mDEBUG\033[39m";
-#endif
+    // if url is a relative path, prepend url from m3u
+    std::string handleUrl(const std::string& url, const util::Uri& m3uFileUri)
+    {
+        std::string r = url;
+
+        auto streamUri = util::Uri(url);
+
+        if (streamUri.scheme().empty() && streamUri.authority().empty() && // is relative path
+            !m3uFileUri.scheme().empty() && !m3uFileUri.authority().empty())
+        {
+            const fs::path basePath = enc::path(m3uFileUri.path()).parent_path();
+            const std::string path = basePath.u8string() + '/' + streamUri.path();
+
+            streamUri.setScheme(m3uFileUri.scheme());
+            streamUri.setAuthority(m3uFileUri.authority());
+            streamUri.setPath(path);
+
+            r = streamUri.string();
+        }
+
+        return r;
+    }
 }
 
 
@@ -48,18 +67,17 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     IMPLEMENT_FLAGS();
 
     // TODO make nicer
-    const std::string m3uFile = args.raw.at(1);
-    const std::string outDir = args.raw.at(2);
-    const std::string outName = args.raw.at(3);
-    std::string maxResHStr = "1080";
-    if (args.raw.size() > 4) maxResHStr = args.raw.at(4);
+    const std::string m3uFileArg = args.raw.at(1);
+    const std::string outDirArg = args.raw.at(2);
+    const std::string outNameArg = args.raw.at(3);
+    const std::string maxResHArg = (args.raw.size() > 4 ? args.raw.at(4) : "1080");
 
     util::ResultCounter rcnt = 0;
 
-    const fs::path m3uFilePath = enc::path(m3uFile);
-    const fs::path outDirPath = enc::path(outDir);
+    const util::Uri m3uFileUri = util::Uri(m3uFileArg);
+    const fs::path outDirPath = enc::path(outDirArg);
 
-#if defined(PRJ_DEBUG) && 1
+#if defined(PRJ_DEBUG) && 0
     app::dbg_rm_outDir(outDirPath);
 #endif
 
@@ -68,53 +86,55 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     // check and read in file
     ///////////////////////////////////////////////////////////
 
-    const m3u::HLS hls = getFromUri(flags, m3uFile);
+    const m3u::HLS hls = getFromUri(flags, m3uFileUri);
 
 
     ///////////////////////////////////////////////////////////
     // check/create out dir
     ///////////////////////////////////////////////////////////
 
-    app::checkCreateOutDir(flags, outDirPath, outDir);
+    app::checkCreateOutDir(flags, outDirPath, outDirArg);
 
 
     ///////////////////////////////////////////////////////////
     // process
     ///////////////////////////////////////////////////////////
 
-    const std::string stemFileName = outName;
+    if (!omw::isUInteger(maxResHArg)) ERROR_PRINT_EC_THROWLINE("invalid MAX-RES-HEIGHT", EC_ERROR);
 
-    if (!omw::isUInteger(maxResHStr)) ERROR_PRINT_EC_THROWLINE("invalid MAX-RES-HEIGHT", EC_ERROR);
+    const int maxResHeight = std::stoi(maxResHArg);
 
-    const int maxResHeight = std::stoi(maxResHStr);
+    const bool hasAudio = !hls.audioStreams().empty();
+    const bool hasVideo = !hls.streams().empty();
+    const bool hasSubtitles = !hls.subtitles().empty();
 
-    const bool noAudio = hls.audioStreams().empty();
-    const bool noVideo = hls.streams().empty();
-    const bool noSubtitles = hls.subtitles().empty();
+    if (!hasAudio && !hasVideo && !hasSubtitles) ERROR_PRINT_EC_THROWLINE("empty stream", EC_STREAM_EMPTY);
 
-    if (noAudio && noVideo && noSubtitles) ERROR_PRINT_EC_THROWLINE("empty stream", EC_STREAM_EMPTY);
-
-    if (noAudio && !noVideo) WARNING_PRINT("no audio");
-    if (!noAudio && noVideo) WARNING_PRINT("no video");
-    if (!noAudio && !noVideo)
+    if (!hasAudio && hasVideo) WARNING_PRINT("no audio");
+    if (hasAudio && !hasVideo) WARNING_PRINT("no video");
+    if (hasAudio || hasVideo)
     {
         std::string txt = "";
 
         for (size_t i = 0; i < hls.otherEntries().size(); ++i)
         {
-            txt += hls.otherEntries()[i].serialize();
-            txt += m3u::serializeEndOfLine;
+            txt += hls.otherEntries()[i].serialise();
+            txt += m3u::serialiseEndOfLine;
         }
 
-        txt += m3u::serializeEndOfLine;
+        txt += m3u::serialiseEndOfLine;
 
         for (size_t i = 0; i < hls.audioStreams().size(); ++i)
         {
-            txt += hls.audioStreams()[i].serialize();
-            txt += m3u::serializeEndOfLine;
+            auto astream = hls.audioStreams()[i];
+
+            astream.setUri(::handleUrl(astream.uri(), m3uFileUri));
+
+            txt += astream.serialise();
+            txt += m3u::serialiseEndOfLine;
         }
 
-        txt += m3u::serializeEndOfLine;
+        txt += m3u::serialiseEndOfLine;
 
         size_t streamIdx = 0;
         for (size_t i = 1; i < hls.streams().size(); ++i)
@@ -123,19 +143,21 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
 
             if ((h > hls.streams()[streamIdx].resolutionHeight()) && (h <= maxResHeight)) streamIdx = i;
         }
-        const auto& stream = hls.streams()[streamIdx];
+        auto vstream = hls.streams()[streamIdx];
 
         // no stream found with resolution <= maxResHeight
-        if (stream.resolutionHeight() > maxResHeight)
+        if (vstream.resolutionHeight() > maxResHeight)
         {
             // TODO improve with force and verbosity flags
-            WARNING_PRINT("stream resolution: " + stream.resolutionExtParam().value().data());
+            WARNING_PRINT("stream resolution: " + vstream.resolutionExtParam().value().data());
         }
 
-        txt += stream.serialize();
-        txt += m3u::serializeEndOfLine;
+        vstream.setData(::handleUrl(vstream.data(), m3uFileUri));
 
-        const auto outFile = outDirPath / enc::path(stemFileName + ".m3u");
+        txt += vstream.serialise();
+        txt += m3u::serialiseEndOfLine;
+
+        const auto outFile = outDirPath / enc::path(outNameArg + ".m3u");
 
         // TODO check if file exists
         util::writeFile(outFile, txt);
@@ -144,22 +166,22 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     }
     else WARNING_PRINT("no audio and no video");
 
-    if (!noSubtitles)
+    if (hasSubtitles)
     {
-        std::string srtScript = "# generated by " + std::string(prj::website) + "\n# " + util::getDateTimeStr() + "\n\nmkdir subs\n\n";
+        std::string srtScript = "# generated with " + std::string(prj::appName) + " " + std::string(prj::website) + "\n# " + util::getDateTimeStr() + "\n\nmkdir subs\n\n";
 
         for (const auto& st : hls.subtitles())
         {
             if (!st.uri().empty())
             {
-                const std::string filename = "./subs/" + stemFileName + "-" + st.language() + (st.forced() ? "-forced" : "") + ".srt";
+                const std::string filename = "./subs/" + outNameArg + "-" + st.language() + (st.forced() ? "-forced" : "") + ".srt";
 
-                srtScript += "ffmpeg -i \"" + st.uri() + "\" -scodec srt -loglevel warning \"" + filename + "\"\n";
+                srtScript += "ffmpeg -i \"" + ::handleUrl(st.uri(), m3uFileUri) + "\" -scodec srt -loglevel warning \"" + filename + "\"\n";
                 srtScript += "echo $?\n";
             }
         }
 
-        const auto scriptFile = outDirPath / enc::path("dl-subs-" + stemFileName + ".sh");
+        const auto scriptFile = outDirPath / enc::path("dl-subs-" + outNameArg + ".sh");
 
         // TODO check if file exists
         util::writeFile(scriptFile, srtScript);
