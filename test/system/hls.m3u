@@ -4,7 +4,7 @@
 #EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio0",NAME="Français",LANGUAGE="fr",AUTOSELECT=NO,DEFAULT=NO,CHANNELS="2",URI="https://example.com/index-f7-a1.m3u8"
 #EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio0",NAME="Deutsch",LANGUAGE="de",AUTOSELECT=YES,DEFAULT=YES,CHANNELS="2",URI="https://example.com/index-f1-a1.m3u8"
 
-#EXT-X-MEDIA:TYPE=test,A="ab""cdef",B="abc,def",C=abcdef
+#EXT-X-MEDIA:TYPE=test,A="ab""cdef",B="abc,def",C=abcdef,D=ab"cdef
 
 #EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="subs0",NAME="English",LANGUAGE="en",AUTOSELECT=NO,DEFAULT=NO,URI="https://example.com/index-f13.m3u8"
 #EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="subs0",NAME="Français",LANGUAGE="fr",AUTOSELECT=NO,DEFAULT=NO,URI="https://example.com/index-f14.m3u8"
