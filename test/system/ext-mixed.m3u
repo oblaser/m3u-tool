@@ -7,8 +7,11 @@
 D:\Musik\Interpreten\Dire Straits\1979 Communiqué\03 - Where Do You Think You're Going.mp3
 #EXTINF:350,Follow Me Home - Dire Straits
 D:\Musik\Interpreten\Dire Straits\1979 Communiqué\09 - Follow Me Home.mp3
+
+# the following entry has a case misspelling by design, for testing
 #EXTINF:312,Expresso Love - Dire Straits
-D:\Musik\Interpreten\Dire Straits\1980 Making Movies\04 - Expresso Love.mp3
+D:\Musik\Interpreten\Dire Straits\1980 Making Movies\04 - expresso love.mp3
+
 #EXTINF:858,Telegraph Road - Dire Straits
 D:\Musik\Interpreten\Dire Straits\1982 Love Over Gold\01 - Telegraph Road.mp3
 #EXTINF:406,Private Investigations - Dire Straits

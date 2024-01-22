@@ -59,6 +59,9 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     const fs::path m3uFilePath = enc::path(m3uFile);
     const fs::path outDirPath = enc::path(outDir);
 
+    if (!omw::isUInteger(maxResHStr)) ERROR_PRINT_EC_THROWLINE("invalid MAX-RES-HEIGHT", EC_ERROR);
+    const int maxResHeight = std::stoi(maxResHStr);
+
 #if defined(PRJ_DEBUG) && 1
     app::dbg_rm_outDir(outDirPath);
 #endif
@@ -83,10 +86,6 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     ///////////////////////////////////////////////////////////
 
     const std::string stemFileName = outName;
-
-    if (!omw::isUInteger(maxResHStr)) ERROR_PRINT_EC_THROWLINE("invalid MAX-RES-HEIGHT", EC_ERROR);
-
-    const int maxResHeight = std::stoi(maxResHStr);
 
     const bool noAudio = hls.audioStreams().empty();
     const bool noVideo = hls.streams().empty();

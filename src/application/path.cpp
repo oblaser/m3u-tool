@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            12.01.2024
+date            13.01.2024
 copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
@@ -40,6 +40,7 @@ int app::path(const app::Args& args, const app::Flags& flags)
     const std::string outBaseArg = ((args.raw.size() > 4) && !args.isOption(4) ? args.raw.at(4) : "");
 
     const bool rmArg = args.contains("--remove");
+    const bool checkExist = args.contains("--ck-exists");
 
     const fs::path outFilePath = enc::path(outFileArg);
 
@@ -166,6 +167,13 @@ int app::path(const app::Args& args, const app::Flags& flags)
                 target.add(e);
 
                 PRINT_INFO_V("entry is copied");
+            }
+
+            if (checkExist)
+            {
+                // TODO add file counter?
+
+                const fs::path file 
             }
         }
         else target.add(e);
