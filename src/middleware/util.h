@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            12.01.2024
+date            14.01.2024
 copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
@@ -60,6 +60,44 @@ namespace util
         counter_type m_w;
     };
 
+    class Uri
+    {
+    public:
+        Uri() : m_validity(false), m_scheme(), m_authority(), m_path(), m_query(), m_fragment() {}
+        explicit Uri(const std::string& uri) : m_validity(false), m_scheme(), m_authority(), m_path(), m_query(), m_fragment() { set(uri); }
+        virtual ~Uri() {}
+
+        void set(const std::string& uri);
+        void clear();
+
+        const std::string& scheme() const { return m_scheme; }
+        const std::string& authority() const { return m_authority; }
+        const std::string& path() const { return m_path; }
+        const std::string& query() const { return m_query; }
+        const std::string& fragment() const { return m_fragment; }
+
+        void setScheme(const std::string& scheme) { m_scheme = scheme; }
+        void setAuthority(const std::string& authority) { m_authority = authority; }
+        void setPath(const std::string& path) { m_path = path; }
+        void setQuery(const std::string& query) { m_query = query; }
+        void setFragment(const std::string& fragment) { m_fragment = fragment; }
+
+        std::string string() const;
+
+        bool isValid() const { return m_validity; }
+
+
+        bool isUrl() const;
+
+    private:
+        bool m_validity;
+        std::string m_scheme;
+        std::string m_authority;
+        std::string m_path;
+        std::string m_query;
+        std::string m_fragment;
+    };
+
     std::string getDateTimeStr(time_t t = std::time(nullptr), const char* strftimeFormat = "%FT%T%z");
 
     omw::string getDirName(const std::filesystem::path& dir);
@@ -77,6 +115,7 @@ namespace omw_
     omw::string to_string(uint64_t val, int base, const char* digits);
     
     std::string toUpper(const std::string& str);
+    std::string toLower(const std::string& str);
     std::string& upper(std::string& str); // do not implement!
 #endif
 }

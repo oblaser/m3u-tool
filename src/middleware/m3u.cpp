@@ -99,6 +99,19 @@ namespace
 
         return lines;
     }
+
+    std::string serialiseExtParam(const m3u::Entry::ExtParameter& param)
+    {
+        std::string value = param.value().data();
+
+        if (param.value().type() == m3u::Entry::ExtParamValue::T_STRING)
+        {
+            omw::replaceAll(value, '"', "\"\"");
+            value = '"' + value + '"';
+        }
+
+        return param.key() + '=' + value;
+    }
 }
 
 
@@ -110,7 +123,7 @@ const char* const m3u::extinf_str = "#EXTINF:";
 const char* const m3u::ext_x_media_str = "#EXT-X-MEDIA:";
 const char* const m3u::ext_x_stream_inf_str = "#EXT-X-STREAM-INF:";
 
-const char* const m3u::serializeEndOfLine = "\n";
+const char* const m3u::serialiseEndOfLine = "\n";
 
 
 
@@ -171,13 +184,26 @@ bool m3u::Entry::extIs(const std::string& extBaseStr) const
     return ::isExtType(*this, extBaseStr);
 }
 
-std::string m3u::Entry::serialize(const char* endOfLine) const
+std::string m3u::Entry::serialise(const char* endOfLine) const
 {
     std::string r = "";
 
     if (!m_ext.empty())
     {
-        r += m_ext;
+        const auto colonPos = m_ext.find(':');
+
+        r += m_ext.substr(0, colonPos);
+
+        if (colonPos < std::string::npos)
+        {
+            r += ':';
+
+            for (size_t i=0; i<m_extParam.size();++i)
+            {
+                if (i) r += ',';
+                r += ::serialiseExtParam(m_extParam[i]);
+            }
+        }
 
         if (!m_data.empty()) r += endOfLine;
     }
@@ -189,7 +215,7 @@ std::string m3u::Entry::serialize(const char* endOfLine) const
 
 void m3u::Entry::m_parseExtData()
 {
-    const size_t colonPos = m_ext.find(':');
+    const auto colonPos = m_ext.find(':');
 
     if (colonPos != std::string::npos)
     {
@@ -245,13 +271,13 @@ void m3u::Entry::m_parseExtData()
 
 
 
-std::string m3u::M3U::serialize(const char* endOfLine) const
+std::string m3u::M3U::serialise(const char* endOfLine) const
 {
     std::string r = "";
 
     for (size_t i = 0; i < m_entries.size(); ++i)
     {
-        r += m_entries[i].serialize(endOfLine) + endOfLine;
+        r += m_entries[i].serialise(endOfLine) + endOfLine;
     }
 
     return r;
@@ -301,6 +327,40 @@ void m3u::M3U::m_parse(const char* p, const char* pEnd)
 
         if (m_entries.back().isEmpty()) m_entries.pop_back();
     }
+}
+
+const std::string m3u::HLS::AudioStream::uri() const
+{
+    for (const auto& param : m_extParam)
+    {
+        if (!param.value().empty())
+        {
+            if (param.key() == "URI") return param.value();
+        }
+    }
+
+    return "";
+}
+
+void m3u::HLS::AudioStream::setUri(const std::string& uri)
+{
+    m3u::Entry::ExtParameter* p = nullptr;
+
+    for (size_t i = 0; i<m_extParam.size();++i)
+    {
+        const auto& param = m_extParam[i];
+
+        if (!param.value().empty())
+        {
+            if (param.key() == "URI")
+            {
+                p = m_extParam.data() + i;
+            }
+        }
+    }
+
+    if (p) p->value().setData(uri);
+    else m_extParam.push_back(m3u::Entry::ExtParameter("URI", uri));
 }
 
 void m3u::HLS::Subtitles::m_parse()
@@ -377,5 +437,5 @@ void m3u::HLS::m_parse()
         else m_otherEntries.push_back(e);
     }
 
-    // do not clear entries, needed by serialize
+    // do not clear entries, needed by serialise
 }

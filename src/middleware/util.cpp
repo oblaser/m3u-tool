@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            12.01.2024
+date            14.01.2024
 copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
@@ -17,6 +17,7 @@ copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 #include "util.h"
 
 #include <omw/omw.h>
+#include <omw/string.h>
 
 
 using std::cout;
@@ -26,6 +27,121 @@ namespace fs = std::filesystem;
 
 namespace
 {
+    bool isSchemeChar(char c)
+    {
+        return (omw::isAlnum(c) || (c == '+') || (c == '.') || (c == '-'));
+    }
+}
+
+
+
+void util::Uri::set(const std::string& uri)
+{
+    const char* p = uri.c_str();
+    const char* const pEnd = p + uri.length();
+
+    clear();
+
+    // not URI confirm, needed by m3u-tool
+#pragma region non-uri-path
+    // filenames with colon would fail to be processed
+    if (omw::contains(uri, ':'))
+    {
+#pragma endregion non-uri-path
+
+        m_validity = omw::isAlpha(*p);
+
+        while (p < pEnd)
+        {
+            if (*p != ':')
+            {
+                m_validity &= isSchemeChar(*p);
+                m_scheme.push_back(*p);
+            }
+            else
+            {
+                ++p;
+                break;
+            }
+
+            ++p;
+        }
+    }
+
+    if (((pEnd - p) >= 2) && (std::string(p, 2) == "//"))
+    {
+        p += 2;
+
+        while (p < pEnd)
+        {
+            if (*p != '/') m_authority.push_back(*p);
+            else break;
+            ++p;
+        }
+    }
+
+    while (p < pEnd)
+    {
+        if (*p != '?') m_path.push_back(*p);
+        else
+        {
+            ++p;
+            break;
+        }
+
+        ++p;
+    }
+
+    while (p < pEnd)
+    {
+        if (*p != '#') m_query.push_back(*p);
+        else
+        {
+            ++p;
+            break;
+        }
+
+        ++p;
+    }
+
+    while (p < pEnd)
+    {
+        m_fragment.push_back(*p);
+        ++p;
+    }
+}
+
+void util::Uri::clear()
+{
+    m_validity = false;
+
+    m_scheme.clear();
+    m_authority.clear();
+    m_path.clear();
+}
+
+std::string util::Uri::string() const
+{
+    std::string r;
+
+    if (m_scheme.empty() && m_authority.empty() && m_query.empty() && m_fragment.empty())
+    {
+        r = m_path;
+    }
+    else
+    {
+        r = m_scheme + ':' + "//" + m_authority + m_path;
+        
+        if (!m_query.empty()) r += '?' + m_query;
+        if (!m_fragment.empty()) r += '#' + m_fragment;
+    }
+
+    return r;
+}
+
+bool util::Uri::isUrl() const
+{
+    return (this->isValid() && ((this->scheme() == "https") || (this->scheme() == "http")));
 }
 
 
@@ -129,6 +245,18 @@ std::string omw_::toUpper(const std::string& str)
     for (auto& c : r)
     {
         if ((c >= 'a') && (c <= 'z')) c -= 32;
+    }
+
+    return r;
+}
+
+std::string omw_::toLower(const std::string& str)
+{
+    std::string r = str;
+
+    for (auto& c : r)
+    {
+        if ((c >= 'A') && (c <= 'Z')) c += 32;
     }
 
     return r;

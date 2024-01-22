@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            12.01.2024
+date            14.01.2024
 copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
@@ -136,7 +136,7 @@ namespace app
     void checkCreateOutDir(const app::Flags& flags, const std::filesystem::path& outDirPath, const std::string& outDirArg);
     static inline void checkCreateOutDir(const app::Flags& flags, const std::filesystem::path& outDirPath) { app::checkCreateOutDir(flags, outDirPath, outDirPath.u8string()); }
 
-    m3u::M3U getFromUri(const app::Flags& flags, const std::string& uri);
+    m3u::M3U getFromUri(const app::Flags& flags, const util::Uri& uri);
 
 #ifdef PRJ_DEBUG
     void dbg_rm_outDir(const std::filesystem::path& outDir);

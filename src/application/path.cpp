@@ -49,7 +49,7 @@ int app::path(const app::Args& args, const app::Flags& flags)
     // check and read in file
     ///////////////////////////////////////////////////////////
 
-    const m3u::M3U m3u = app::getFromUri(flags, inFileArg);
+    const m3u::M3U m3u = app::getFromUri(flags, util::Uri(inFileArg));
 
 
     ///////////////////////////////////////////////////////////
@@ -173,13 +173,13 @@ int app::path(const app::Args& args, const app::Flags& flags)
             {
                 // TODO add file counter?
 
-                const fs::path file 
+                const fs::path file ;
             }
         }
         else target.add(e);
     }
 
-    util::writeFile(outFilePath, target.serialize());
+    util::writeFile(outFilePath, target.serialise());
 
 
     ///////////////////////////////////////////////////////////

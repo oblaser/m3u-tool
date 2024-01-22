@@ -98,7 +98,8 @@ int app::process(const app::Args& args)
         else if (args.raw.at(0) == "vstreamdl") r = app::vstreamdl(args, flags);
         else if (args.raw.at(0) == "parse")
         {
-            const m3u::M3U m3u = app::getFromUri(flags, args.raw.at(1));
+            const auto uri = util::Uri(args.raw.at(1));
+            const m3u::M3U m3u = app::getFromUri(flags, uri);
 
             for (const auto& e : m3u.entries())
             {
@@ -110,7 +111,7 @@ int app::process(const app::Args& args)
             }
 
 #if defined(PRJ_DEBUG) && 1
-            cout << "\n===================================================\n" << m3u.serialize() << "<EOF>==============================================" << endl;
+            cout << "\n===================================================\n" << m3u.serialise() << "<EOF>==============================================" << endl;
 #endif
             r = EC_OK;
         }

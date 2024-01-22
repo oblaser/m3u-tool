@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            12.01.2024
+date            14.01.2024
 copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
@@ -9,6 +9,7 @@ copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 #include <iomanip>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "common.h"
@@ -30,11 +31,19 @@ namespace
 {
     constexpr int ewiWidth = 10;
 
+    /*
     bool isUrl(const std::string& uri)
     {
-        const auto tmp = uri.substr(0, 10);
-        return (omw::contains(tmp, "https://") || omw::contains(tmp, "http://"));
+        to be tested
+        constexpr std::string_view http = "http://";
+        constexpr std::string_view https = "https://";
+
+        if (uri.substr(0, https.length()) == https) return true;
+        if (uri.substr(0, http.length()) == http) return true;
+
+        return false;
     }
+    */
 }
 
 
@@ -186,15 +195,15 @@ void app::checkCreateOutDir(const app::Flags& flags, const std::filesystem::path
     }
 }
 
-m3u::M3U app::getFromUri(const app::Flags& flags, const std::string& uri)
+m3u::M3U app::getFromUri(const app::Flags& flags, const util::Uri& uri)
 {
     IMPLEMENT_FLAGS();
 
-    if (isUrl(uri))
+    if (uri.isUrl())
     {
         util::Curl curl;
 
-        const auto res = curl.httpGET(uri, 60, 60);
+        const auto res = curl.httpGET(uri.string(), 60, 60);
 
         if (!res.good())
         {
@@ -206,7 +215,7 @@ m3u::M3U app::getFromUri(const app::Flags& flags, const std::string& uri)
     }
     else
     {
-        const auto file = enc::path(uri);
+        const auto file = enc::path(uri.path());
 
         if (!fs::exists(file)) PRINT_ERROR_EXIT("M3U file not found", EC_M3UFILE_NOTFOUND);
 

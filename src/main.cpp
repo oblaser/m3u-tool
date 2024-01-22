@@ -175,7 +175,7 @@ int main(int argc, char** argv)
         //args.add("../../test/system/non-ext.m3u");
         //args.add("https://raw.githubusercontent.com/oblaser/m3u-tool/main/test/system/hls.m3u");
 
-#elif 1 // path
+#elif 0 // path
 
         args.add("path");
 
@@ -203,14 +203,18 @@ int main(int argc, char** argv)
         
         //args.add("../../test/system/ext-mixed.m3u");
         //args.add("../../test/system/hls.m3u");
-        args.add("https://raw.githubusercontent.com/oblaser/m3u-tool/main/test/system/hls.m3u?param=asdf&t=1230");
+        //args.add("../../test/system/hls-url-querry.m3u");
         //args.add("../../test/system/non-ext.m3u");
+        args.add("https://raw.githubusercontent.com/oblaser/m3u-tool/dev/test/system/hls.m3u?param=asdf&t=1230#asdf");
+        //args.add("https://raw.githubusercontent.com/oblaser/m3u-tool/dev/test/system/hls-url-querry.m3u?param=asdf&t=1230#asdf");
         
         args.add("../../test/system/out-vstreamdl-\xc3\xae");
 
         args.add("test-\xc3\xae");
 
         args.add("900");
+
+        args.add("-f");
 #else
 //#warning "nop"
 #endif
