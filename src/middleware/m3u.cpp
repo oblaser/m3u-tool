@@ -110,7 +110,11 @@ namespace
             value = '"' + value + '"';
         }
 
-        return param.key() + '=' + value;
+        std::string r;
+        if (!param.key().empty()) r = param.key() + '=' + value;
+        else r = value;
+
+        return r;
     }
 }
 
@@ -198,7 +202,7 @@ std::string m3u::Entry::serialise(const char* endOfLine) const
         {
             r += ':';
 
-            for (size_t i=0; i<m_extParam.size();++i)
+            for (size_t i = 0; i < m_extParam.size(); ++i)
             {
                 if (i) r += ',';
                 r += ::serialiseExtParam(m_extParam[i]);
