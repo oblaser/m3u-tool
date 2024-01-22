@@ -187,13 +187,14 @@ int main(int argc, char** argv)
         args.add("../../test/system/out/path-out.m3u8");
 
         // in base
-        //args.add("D:\\Musik\\Interpreten");
+        args.add("D:\\Musik\\Interpreten");
         //args.add("asdf");
         
         // out base
-        //args.add("artists");
+        args.add("/home/oliver/Music/Musik/Interpreten");
 
-        args.add("--remove");
+        //args.add("--remove");
+        args.add("--ck-exists");
         args.add("-f");
 
 #elif 1 // video stream download

@@ -79,6 +79,9 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     const util::Uri m3uFileUri = util::Uri(m3uFileArg);
     const fs::path outDirPath = enc::path(outDirArg);
 
+    if (!omw::isUInteger(maxResHArg)) ERROR_PRINT_EC_THROWLINE("invalid MAX-RES-HEIGHT", EC_ERROR);
+    const int maxResHeight = std::stoi(maxResHArg);
+
 #if defined(PRJ_DEBUG) && 0
     app::dbg_rm_outDir(outDirPath);
 #endif
@@ -103,8 +106,6 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     ///////////////////////////////////////////////////////////
 
     if (!omw::isUInteger(maxResHArg)) ERROR_PRINT_EC_THROWLINE("invalid MAX-RES-HEIGHT", EC_ERROR);
-
-    const int maxResHeight = std::stoi(maxResHArg);
 
     const bool hasAudio = !hls.audioStreams().empty();
     const bool hasVideo = !hls.streams().empty();
