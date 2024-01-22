@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            14.01.2024
+date            20.01.2024
 copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
@@ -64,6 +64,8 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
 {
     int r = EC_ERROR;
 
+    util::ResultCounter rcnt = 0;
+
     IMPLEMENT_FLAGS();
 
     // TODO make nicer
@@ -72,7 +74,7 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     const std::string outNameArg = args.raw.at(3);
     const std::string maxResHArg = (args.raw.size() > 4 ? args.raw.at(4) : "1080");
 
-    util::ResultCounter rcnt = 0;
+    const bool noSubsArg = args.contains("--no-subs");
 
     const util::Uri m3uFileUri = util::Uri(m3uFileArg);
     const fs::path outDirPath = enc::path(outDirArg);
@@ -157,7 +159,7 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
         txt += vstream.serialise();
         txt += m3u::serialiseEndOfLine;
 
-        const auto outFile = outDirPath / enc::path(outNameArg + ".m3u");
+        const auto outFile = outDirPath / enc::path(outNameArg + ".m3u8");
 
         // TODO check if file exists
         util::writeFile(outFile, txt);
@@ -166,27 +168,30 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     }
     else WARNING_PRINT("no audio and no video");
 
-    if (hasSubtitles)
+    if (!noSubsArg)
     {
-        std::string srtScript = "# generated with " + std::string(prj::appName) + " " + std::string(prj::website) + "\n# " + util::getDateTimeStr() + "\n\nmkdir subs\n\n";
-
-        for (const auto& st : hls.subtitles())
+        if (hasSubtitles)
         {
-            if (!st.uri().empty())
+            std::string srtScript = "# generated with " + std::string(prj::appName) + " " + std::string(prj::website) + "\n# " + util::getDateTimeStr() + "\n\nmkdir subs\n\n";
+
+            for (const auto& st : hls.subtitles())
             {
-                const std::string filename = "./subs/" + outNameArg + "-" + st.language() + (st.forced() ? "-forced" : "") + ".srt";
+                if (!st.uri().empty())
+                {
+                    const std::string filename = "./subs/" + outNameArg + "-" + st.language() + (st.forced() ? "-forced" : "") + ".srt";
 
-                srtScript += "ffmpeg -i \"" + ::handleUrl(st.uri(), m3uFileUri) + "\" -scodec srt -loglevel warning \"" + filename + "\"\n";
-                srtScript += "echo $?\n";
+                    srtScript += "ffmpeg -i \"" + ::handleUrl(st.uri(), m3uFileUri) + "\" -scodec srt -loglevel warning \"" + filename + "\"\n";
+                    srtScript += "echo $?\n";
+                }
             }
+
+            const auto scriptFile = outDirPath / enc::path("dl-subs-" + outNameArg + ".sh");
+
+            // TODO check if file exists
+            util::writeFile(scriptFile, srtScript);
         }
-
-        const auto scriptFile = outDirPath / enc::path("dl-subs-" + outNameArg + ".sh");
-
-        // TODO check if file exists
-        util::writeFile(scriptFile, srtScript);
+        else if (verbose) INFO_PRINT("no subtitles");
     }
-    else if (verbose) INFO_PRINT("no subtitles");
 
 
     ///////////////////////////////////////////////////////////
