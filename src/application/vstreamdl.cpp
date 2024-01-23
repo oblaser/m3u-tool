@@ -72,7 +72,7 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     const std::string m3uFileArg = args.raw.at(1);
     const std::string outDirArg = args.raw.at(2);
     const std::string outNameArg = args.raw.at(3);
-    const std::string maxResHArg = (args.raw.size() > 4 ? args.raw.at(4) : "1080");
+    const std::string maxResHArg = ((args.raw.size() > 4) && !args.isOption(4) ? args.raw.at(4) : "1080");
 
     const bool noSubsArg = args.contains("--no-subs");
 

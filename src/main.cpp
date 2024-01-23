@@ -175,7 +175,7 @@ int main(int argc, char** argv)
         //args.add("../../test/system/non-ext.m3u");
         //args.add("https://raw.githubusercontent.com/oblaser/m3u-tool/main/test/system/hls.m3u");
 
-#elif 0 // path
+#elif 1 // path
 
         args.add("path");
 
@@ -187,14 +187,14 @@ int main(int argc, char** argv)
         args.add("../../test/system/out/path-out.m3u8");
 
         // in base
-        args.add("D:\\Musik\\Interpreten");
+        args.add("D:\\Musik\\Interpreten\\");
         //args.add("asdf");
         
         // out base
-        args.add("/home/oliver/Music/Musik/Interpreten");
+        //args.add("/home/oliver/Music/Musik/Interpreten");
 
-        //args.add("--remove");
-        args.add("--ck-exists");
+        args.add("--remove");
+        //args.add("--ck-exists");
         args.add("-f");
 
 #elif 1 // video stream download

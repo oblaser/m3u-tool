@@ -36,11 +36,11 @@ int app::path(const app::Args& args, const app::Flags& flags)
     // TODO make nicer
     const std::string inFileArg = args.raw.at(1);
     const std::string outFileArg = args.raw.at(2);
-    const std::string inBaseArg = ((args.raw.size() > 3)&&!args.isOption(3) ? args.raw.at(3) : "");
+    const std::string inBaseArg = ((args.raw.size() > 3) && !args.isOption(3) ? args.raw.at(3) : "");
     const std::string outBaseArg = ((args.raw.size() > 4) && !args.isOption(4) ? args.raw.at(4) : "");
 
     const bool rmArg = args.contains("--remove");
-    const bool checkExist = args.contains("--ck-exists");
+    const bool checkExistArg = args.contains("--ck-exists");
 
     const fs::path outFilePath = enc::path(outFileArg);
 
@@ -135,26 +135,23 @@ int app::path(const app::Args& args, const app::Flags& flags)
 
         if (e.isResource())
         {
-            std::string uri = e.data();
+            std::string uriStr = e.data();
 
-            if (uri.substr(0, inBaseArg.length()) == inBaseArg)
+            if (uriStr.substr(0, inBaseArg.length()) == inBaseArg)
             {
-                uri.erase(0, inBaseArg.length());
+                uriStr.erase(0, inBaseArg.length());
 
-                omw::replaceAll(uri, '\\', '/');
+                omw::replaceAll(uriStr, '\\', '/');
 
                 fs::path path;
 
                 if (rmArg)
                 {
-                    if (inBaseArg.empty()) path = enc::path(uri).filename();
-                    else if (uri.at(0) == '/') path = enc::path(uri.erase(0, 1));
+                    if (inBaseArg.empty()) path = enc::path(uriStr).filename();
+                    else if (uriStr.at(0) == '/') path = enc::path(uriStr.erase(0, 1));
+                    else path = enc::path(uriStr);
                 }
-                else
-                {
-                    uri = outBaseArg + '/' + uri;
-                    path = enc::path(uri);
-                }
+                else path = enc::path(outBaseArg + '/' + uriStr);
 
                 target.add(m3u::Entry(path.lexically_normal().u8string(), e.ext()));
             }
@@ -169,7 +166,7 @@ int app::path(const app::Args& args, const app::Flags& flags)
                 PRINT_INFO_V("entry is copied");
             }
 
-            if (checkExist)
+            if (checkExistArg)
             {
                 // TODO add file counter?
 
