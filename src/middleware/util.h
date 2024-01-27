@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            14.01.2024
+date            23.01.2024
 copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
@@ -17,26 +17,48 @@ copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 
 namespace util
 {
-    class FileCounter
+    class FileCounter_Base
     {
     public:
         using counter_type = size_t;
 
     public:
-        FileCounter() : m_total(0), m_copied(0) {}
-        virtual ~FileCounter() {}
+        FileCounter_Base() : m_total(0), m_value(0) {}
+        virtual ~FileCounter_Base() {}
 
-        FileCounter& add(counter_type total, counter_type copied) { m_total += total; m_copied += copied; return (*this); }
-        FileCounter& add(const FileCounter& other) { return add(other.total(), other.copied()); }
-        FileCounter& addTotal(counter_type value = 1) { m_total += value; return (*this); }
-        FileCounter& addCopied(counter_type value = 1) { m_copied += value; return (*this); }
+        void addTotal(counter_type value = 1) { m_total += value; }
 
         const counter_type& total() const { return m_total; }
-        const counter_type& copied() const { return m_copied; }
+
+    protected:
+        void addValue(counter_type value = 1) { m_value += value; }
+        const counter_type& value() const { return m_value; }
 
     private:
         counter_type m_total;
-        counter_type m_copied;
+        counter_type m_value;
+    };
+
+    class CopyFileCounter : public FileCounter_Base
+    {
+    public:
+        CopyFileCounter() : FileCounter_Base() {}
+        virtual ~CopyFileCounter() {}
+
+        void addCopied(counter_type value = 1) { addValue(value); }
+
+        const counter_type& copied() const { return value(); }
+    };
+
+    class ExistsFileCounter : public FileCounter_Base
+    {
+    public:
+        ExistsFileCounter() : FileCounter_Base() {}
+        virtual ~ExistsFileCounter() {}
+
+        void addExists(counter_type value = 1) { addValue(value); }
+
+        const counter_type& exists() const { return value(); }
     };
 
     class ResultCounter

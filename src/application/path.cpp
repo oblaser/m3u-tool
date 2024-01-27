@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            13.01.2024
+date            27.01.2024
 copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
@@ -32,6 +32,8 @@ namespace
 int app::path(const app::Args& args, const app::Flags& flags)
 {
     IMPLEMENT_FLAGS();
+
+    util::ExistsFileCounter fileCnt;
 
     // TODO make nicer
     const std::string inFileArg = args.raw.at(1);
@@ -135,6 +137,8 @@ int app::path(const app::Args& args, const app::Flags& flags)
 
         if (e.isResource())
         {
+            m3u::Entry newEntry = e;
+
             std::string uriStr = e.data();
 
             if (uriStr.substr(0, inBaseArg.length()) == inBaseArg)
@@ -153,7 +157,7 @@ int app::path(const app::Args& args, const app::Flags& flags)
                 }
                 else path = enc::path(outBaseArg + '/' + uriStr);
 
-                target.add(m3u::Entry(path.lexically_normal().u8string(), e.ext()));
+                newEntry = m3u::Entry(path.lexically_normal().u8string(), e.ext());
             }
             else
             {
@@ -161,17 +165,34 @@ int app::path(const app::Args& args, const app::Flags& flags)
                     (e.hasExtension() ? (e.ext() + ' ') : std::string()) +
                     '"' + e.data() + '"');
 
-                target.add(e);
+                // e is already assigned to newEntry
 
                 PRINT_INFO_V("entry is copied");
             }
 
+            target.add(newEntry);
+
             if (checkExistArg)
             {
-                // TODO add file counter?
+                const fs::path file = enc::path(newEntry.data());
+                const fs::path fileRelToOutFile = outFilePath.parent_path() / file;
 
-                const fs::path file ;
+#ifdef PRJ_DEBUG
+                const auto wd = fs::current_path();
+                const auto absWd = fs::absolute(wd);
+                const auto absFile = fs::absolute(file);
+                const auto absRel = fs::absolute(fileRelToOutFile);
+                const auto absRelWd = fs::absolute(wd / file);
+#endif // PRJ_DEBUG
+
+                if (fs::exists(file) || fs::exists(fileRelToOutFile))
+                {
+                    fileCnt.addExists();
+                }
+                else PRINT_WARNING_V("###output file \"" + file.u8string() + "\" not found");
             }
+
+            fileCnt.addTotal();
         }
         else target.add(e);
     }
@@ -183,7 +204,21 @@ int app::path(const app::Args& args, const app::Flags& flags)
     // end
     ///////////////////////////////////////////////////////////
 
-    //if (verbose) cout << "\n" << omw::fgBrightGreen << "done" << omw::defaultForeColor << endl;
+    int r = EC_OK;
 
-    return EC_OK;
+    if (checkExistArg)
+    {
+        if (verbose && ((fileCnt.total() /* TODO use number of printed messages */ > 7) || (fileCnt.exists() != fileCnt.total())))
+        {
+            cout << "========";
+
+            cout << "  " << omw::fgBrightWhite;
+            cout << fileCnt.exists() << "/" << fileCnt.total();
+            cout << omw::normal << " files found";
+
+            cout << "  ========" << endl;
+        }
+    }
+
+    return r;
 }

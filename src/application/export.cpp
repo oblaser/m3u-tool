@@ -50,12 +50,12 @@ int app::exprt(const app::Args& args, const app::Flags& flags)
 
     IMPLEMENT_FLAGS();
 
+    util::CopyFileCounter fileCnt;
+    util::ResultCounter rcnt = 0;
+
     // TODO make nicer
     const std::string m3uFileArg = args.raw.at(1);
     const std::string outDirArg = args.raw.at(2);
-
-    util::FileCounter fileCnt;
-    util::ResultCounter rcnt = 0;
 
     const fs::path m3uFilePath = enc::path(m3uFileArg);
     const fs::path outDirPath = enc::path(outDirArg);
@@ -161,7 +161,7 @@ int app::exprt(const app::Args& args, const app::Flags& flags)
     }
 
     //if (verbose) cout << "\n" << omw::fgBrightGreen << "done" << omw::defaultForeColor << endl;
-        
+    
     if (fileCnt.copied() != fileCnt.total()) r = EC_ERROR;
 
     return r;

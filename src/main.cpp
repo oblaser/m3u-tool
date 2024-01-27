@@ -184,7 +184,8 @@ int main(int argc, char** argv)
         //args.add("../../test/system/f\xc3\xael\xc3\xab\xc3\xb1\xc3\xa0m\xc3\xa9.m3u");
 
         // outfile
-        args.add("../../test/system/out/path-out.m3u8");
+        //args.add("../../test/system/out/path-out.m3u8");
+        args.add("../../test/system/path-out.m3u8");
 
         // in base
         args.add("D:\\Musik\\Interpreten\\");
@@ -192,9 +193,10 @@ int main(int argc, char** argv)
         
         // out base
         //args.add("/home/oliver/Music/Musik/Interpreten");
+        args.add("../../../../Musik/Interpreten");
 
-        args.add("--remove");
-        //args.add("--ck-exists");
+        //args.add("--remove");
+        args.add("--ck-exists");
         args.add("-f");
 
 #elif 1 // video stream download
