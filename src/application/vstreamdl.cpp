@@ -64,9 +64,10 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
 {
     int r = EC_ERROR;
 
-    util::ResultCounter rcnt = 0;
-
     IMPLEMENT_FLAGS();
+
+    MessageCounter msgCnt = 0;
+    util::ResultCounter rcnt = 0;
 
     // TODO make nicer
     const std::string m3uFileArg = args.raw.at(1);
@@ -91,14 +92,14 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     // check and read in file
     ///////////////////////////////////////////////////////////
 
-    const m3u::HLS hls = getFromUri(flags, m3uFileUri);
+    const m3u::HLS hls = getFromUri(msgCnt, flags, m3uFileUri);
 
 
     ///////////////////////////////////////////////////////////
     // check/create out dir
     ///////////////////////////////////////////////////////////
 
-    app::checkCreateOutDir(flags, outDirPath, outDirArg);
+    app::checkCreateOutDir(msgCnt, flags, outDirPath, outDirArg);
 
 
     ///////////////////////////////////////////////////////////

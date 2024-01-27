@@ -1,6 +1,6 @@
 /*
 author          Oliver Blaser
-date            14.01.2024
+date            27.01.2024
 copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 */
 
@@ -160,7 +160,7 @@ void app::printDebug(const std::string& text)
 }
 #endif // PRJ_DEBUG
 
-void app::checkCreateOutDir(const app::Flags& flags, const std::filesystem::path& outDirPath, const std::string& outDirArg)
+void app::checkCreateOutDir(app::MessageCounter& msgCnt, const app::Flags& flags, const std::filesystem::path& outDirPath, const std::string& outDirArg)
 {
     IMPLEMENT_FLAGS();
 
@@ -195,7 +195,7 @@ void app::checkCreateOutDir(const app::Flags& flags, const std::filesystem::path
     }
 }
 
-m3u::M3U app::getFromUri(const app::Flags& flags, const util::Uri& uri)
+m3u::M3U app::getFromUri(app::MessageCounter& msgCnt, const app::Flags& flags, const util::Uri& uri)
 {
     IMPLEMENT_FLAGS();
 

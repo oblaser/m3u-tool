@@ -33,6 +33,7 @@ int app::path(const app::Args& args, const app::Flags& flags)
 {
     IMPLEMENT_FLAGS();
 
+    MessageCounter msgCnt = 0;
     util::ExistsFileCounter fileCnt;
 
     // TODO make nicer
@@ -51,7 +52,7 @@ int app::path(const app::Args& args, const app::Flags& flags)
     // check and read in file
     ///////////////////////////////////////////////////////////
 
-    const m3u::M3U m3u = app::getFromUri(flags, util::Uri(inFileArg));
+    const m3u::M3U m3u = app::getFromUri(msgCnt, flags, util::Uri(inFileArg));
 
 
     ///////////////////////////////////////////////////////////
@@ -208,7 +209,8 @@ int app::path(const app::Args& args, const app::Flags& flags)
 
     if (checkExistArg)
     {
-        if (verbose && ((fileCnt.total() /* TODO use number of printed messages */ > 7) || (fileCnt.exists() != fileCnt.total())))
+        if ((verbose && (msgCnt > 7) && (fileCnt.exists() != fileCnt.total())) ||
+            (verbose && (msgCnt > 7)))
         {
             cout << "========";
 

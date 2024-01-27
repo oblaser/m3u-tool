@@ -50,6 +50,7 @@ int app::exprt(const app::Args& args, const app::Flags& flags)
 
     IMPLEMENT_FLAGS();
 
+    MessageCounter msgCnt = 0;
     util::CopyFileCounter fileCnt;
     util::ResultCounter rcnt = 0;
 
@@ -69,14 +70,14 @@ int app::exprt(const app::Args& args, const app::Flags& flags)
     // check and read in file
     ///////////////////////////////////////////////////////////
 
-    const m3u::M3U m3u = app::getFromUri(flags, util::Uri(m3uFileArg));
+    const m3u::M3U m3u = app::getFromUri(msgCnt, flags, util::Uri(m3uFileArg));
 
 
     ///////////////////////////////////////////////////////////
     // check/create out dir
     ///////////////////////////////////////////////////////////
 
-    app::checkCreateOutDir(flags, outDirPath, outDirArg);
+    app::checkCreateOutDir(msgCnt, flags, outDirPath, outDirArg);
 
 
     ///////////////////////////////////////////////////////////

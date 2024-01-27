@@ -93,13 +93,15 @@ int app::process(const app::Args& args)
         }
 #endif
 
+        MessageCounter msgCnt = 0; // dummy
+
         if (args.raw.at(0) == "export") r = app::exprt(args, flags);
         else if (args.raw.at(0) == "path") r = app::path(args, flags);
         else if (args.raw.at(0) == "vstreamdl") r = app::vstreamdl(args, flags);
         else if (args.raw.at(0) == "parse")
         {
             const auto uri = util::Uri(args.raw.at(1));
-            const m3u::M3U m3u = app::getFromUri(flags, uri);
+            const m3u::M3U m3u = app::getFromUri(msgCnt, flags, uri);
 
             for (const auto& e : m3u.entries())
             {
