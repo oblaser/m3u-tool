@@ -162,7 +162,7 @@ size_t app::Args::size() const
 
 bool app::Args::isValid() const
 {
-    return true;
+    return !raw.empty();
 
     // TODO the whole cliarg has to be redone anyway...
 

@@ -50,6 +50,8 @@ if (quiet) ___verbose = false;
 }
 #pragma endregion
 
+#define PROCESS_EXIT(ec) throw app::processor_exit((ec))
+
 #define PRINT_ERROR(msg)        { if (!quiet) app::printError((msg)); }
 #define PRINT_INFO(msg)         { if (!quiet) app::printInfo((msg)); }
 #define PRINT_WARNING(msg)      { if (!quiet) app::printWarning((msg)); }
@@ -61,7 +63,7 @@ if (quiet) ___verbose = false;
 #define PRINT_ERROR_EXIT(msg, ec)   \
 {                                   \
     if (!quiet) app::printError((msg)); \
-    throw app::processor_exit((ec)); \
+    PROCESS_EXIT(ec);               \
 }
 
 

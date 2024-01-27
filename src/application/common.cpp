@@ -208,7 +208,10 @@ m3u::M3U app::getFromUri(const app::Flags& flags, const util::Uri& uri)
         if (!res.good())
         {
             if (verbose) app::printInfo(res.toString());
-            PRINT_ERROR_EXIT("HTTP GET failed", EC_M3UFILE_NOTFOUND);
+
+            PRINT_ERROR("HTTP GET failed");
+            PRINT_INFO_V("###M3U file: \"" + uri.string() + "\"");
+            PROCESS_EXIT(EC_M3UFILE_NOTFOUND);
         }
 
         return res.data();
@@ -217,7 +220,12 @@ m3u::M3U app::getFromUri(const app::Flags& flags, const util::Uri& uri)
     {
         const auto file = enc::path(uri.path());
 
-        if (!fs::exists(file)) PRINT_ERROR_EXIT("M3U file not found", EC_M3UFILE_NOTFOUND);
+        if (!fs::exists(file))
+        {
+            PRINT_ERROR("M3U file not found");
+            PRINT_INFO_V("###M3U file: \"" + uri.string() + "\"");
+            PROCESS_EXIT(EC_M3UFILE_NOTFOUND);
+        }
 
         return util::readFile(file);
     }
