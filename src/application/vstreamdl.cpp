@@ -106,6 +106,14 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     // process
     ///////////////////////////////////////////////////////////
 
+    if (m3uFileUri.isUrl()) // TODO add arg
+    {
+        const auto outFile = outDirPath / enc::path(outNameArg + ".in.m3u8");
+
+        // TODO check if file exists
+        util::writeFile(outFile, hls.serialise());
+    }
+
     if (!omw::isUInteger(maxResHArg)) ERROR_PRINT_EC_THROWLINE("invalid MAX-RES-HEIGHT", EC_ERROR);
 
     const bool hasAudio = !hls.audioStreams().empty();
@@ -120,11 +128,16 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     {
         std::string txt = "";
 
+#if 0
         for (size_t i = 0; i < hls.otherEntries().size(); ++i)
         {
             txt += hls.otherEntries()[i].serialise();
             txt += m3u::serialiseEndOfLine;
         }
+#else
+        txt += m3u::extm3u_str;
+        txt += m3u::serialiseEndOfLine;
+#endif
 
         txt += m3u::serialiseEndOfLine;
 

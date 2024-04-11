@@ -209,8 +209,10 @@ int app::path(const app::Args& args, const app::Flags& flags)
 
     if (checkExistArg)
     {
-        if ((verbose && (msgCnt > 7) && (fileCnt.exists() != fileCnt.total())) ||
-            (verbose && (msgCnt > 7)))
+        constexpr size_t threshold = 7;
+
+        if ((verbose && (msgCnt > threshold) && (fileCnt.exists() != fileCnt.total())) ||
+            (verbose && (msgCnt > threshold)))
         {
             cout << "========";
 

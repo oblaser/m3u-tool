@@ -31,6 +31,27 @@ namespace
     {
         return (omw::isAlnum(c) || (c == '+') || (c == '.') || (c == '-'));
     }
+
+    bool containsScheme(const std::string& uri)
+    {
+        const std::vector<size_t> delimiterPositions = {
+            uri.find('.'),
+            uri.find('@'),
+            uri.find('/'),
+            uri.find('['), // IPv6 contains colon
+            uri.find('?'),
+            uri.find('#'),
+        };
+
+        size_t end = SIZE_MAX;
+
+        for (const auto& pos : delimiterPositions)
+        {
+            if (pos < end) end = pos;
+        }
+
+        return omw::contains(uri.substr(0, end), ':');
+    }
 }
 
 
@@ -42,10 +63,10 @@ void util::Uri::set(const std::string& uri)
 
     clear();
 
-    // not URI confirm, needed by m3u-tool
+    // not URI conform, needed by m3u-tool
 #pragma region non-uri-path
     // filenames with colon would fail to be processed
-    if (omw::contains(uri, ':'))
+    if (::containsScheme(uri))
     {
 #pragma endregion non-uri-path
 
