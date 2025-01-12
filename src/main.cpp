@@ -208,8 +208,7 @@ int main(int argc, char** argv)
         //args.add("../../test/system/hls-url-querry.m3u");
         //args.add("../../test/system/non-ext.m3u");
         //args.add("https://raw.githubusercontent.com/oblaser/m3u-tool/dev/test/system/hls.m3u?param=asdf&t=1230#asdf");
-        //args.add("https://raw.githubusercontent.com/oblaser/m3u-tool/dev/test/system/hls-url-querry.m3u?param=asdf&t=1230#asdf");
-        args.add("https://srf-vod-amd.akamaized.net/ch/hls/spielfilm/2023/11/spielfilm_20231111_013913_2656790_v_webcast_h264_,q40,q10,q20,q30,q50,q60,.mp4.csmil/master.m3u8?caption=srf/4ccee98a-3211-4f49-b0d7-262271561c8d/episode/de/vod/vod.m3u8:de:Deutsch:sdh&webvttbaseurl=subtitles.eai-general.aws.srf.ch");
+        args.add("https://raw.githubusercontent.com/oblaser/m3u-tool/dev/test/system/hls-url-querry.m3u?param=asdf&t=1230#asdf");
         
         args.add("../../test/system/out-vstreamdl-\xc3\xae");
 
@@ -217,6 +216,8 @@ int main(int argc, char** argv)
 
         args.add("900");
 
+        args.add("--save-original");
+        //args.add("--no-subs");
         args.add("-f");
 #else
 //#warning "nop"

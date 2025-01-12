@@ -76,6 +76,7 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     const std::string maxResHArg = ((args.raw.size() > 4) && !args.isOption(4) ? args.raw.at(4) : "1080");
 
     const bool noSubsArg = args.contains("--no-subs");
+    const bool saveOrigArg = args.contains("--save-original");
 
     const util::Uri m3uFileUri = util::Uri(m3uFileArg);
     const fs::path outDirPath = enc::path(outDirArg);
@@ -106,12 +107,15 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     // process
     ///////////////////////////////////////////////////////////
 
-    if (m3uFileUri.isUrl()) // TODO add arg
+    if (saveOrigArg && m3uFileUri.isUrl())
     {
-        const auto outFile = outDirPath / enc::path(outNameArg + ".in.m3u8");
+        const std::string origFileName = outNameArg + ".original.m3u8";
+        const fs::path origFilePath = outDirPath / enc::path(origFileName);
 
-        // TODO check if file exists
-        util::writeFile(outFile, hls.serialise());
+        checkOutFile(msgCnt, flags, origFilePath, origFileName, "original file");
+
+        util::writeFile(origFilePath, hls.serialise());
+        PRINT_INFO_V("created file \"" + fs::weakly_canonical(origFilePath).u8string() + "\"");
     }
 
     if (!omw::isUInteger(maxResHArg)) ERROR_PRINT_EC_THROWLINE("invalid MAX-RES-HEIGHT", EC_ERROR);
@@ -174,12 +178,13 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
         txt += vstream.serialise();
         txt += m3u::serialiseEndOfLine;
 
-        const auto outFile = outDirPath / enc::path(outNameArg + ".m3u8");
+        const std::string outFileName = outNameArg + ".m3u8";
+        const fs::path outFilePath = outDirPath / enc::path(outFileName);
 
-        // TODO check if file exists
-        util::writeFile(outFile, txt);
+        checkOutFile(msgCnt, flags, outFilePath, outFileName, "output file");
 
-        INFO_PRINT("created file \"" + fs::weakly_canonical(outFile).u8string() + "\"");
+        util::writeFile(outFilePath, txt);
+        PRINT_INFO_V("created file \"" + fs::weakly_canonical(outFilePath).u8string() + "\"");
     }
     else WARNING_PRINT("no audio and no video");
 
@@ -200,10 +205,13 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
                 }
             }
 
-            const auto scriptFile = outDirPath / enc::path("dl-subs-" + outNameArg + ".sh");
+            const std::string scriptFileName = "dl-subs-" + outNameArg + ".sh";
+            const fs::path scriptFilePath = outDirPath / enc::path(scriptFileName);
 
-            // TODO check if file exists
-            util::writeFile(scriptFile, srtScript);
+            checkOutFile(msgCnt, flags, scriptFilePath, scriptFileName, "subs dl script");
+
+            util::writeFile(scriptFilePath, srtScript);
+            PRINT_INFO_V("created file \"" + fs::weakly_canonical(scriptFilePath).u8string() + "\"");
         }
         else if (verbose) INFO_PRINT("no subtitles");
     }
@@ -214,7 +222,7 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     ///////////////////////////////////////////////////////////
 
     //if (verbose) cout << "\n" << omw::fgBrightGreen << "done" << omw::defaultForeColor << endl;
-    r = EC_OK;
+    if (rcnt.errors() == 0) { r = EC_OK; }
 
     return r;
 }

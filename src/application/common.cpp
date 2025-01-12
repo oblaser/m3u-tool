@@ -195,6 +195,31 @@ void app::checkCreateOutDir(app::MessageCounter& msgCnt, const app::Flags& flags
     }
 }
 
+void app::checkOutFile(app::MessageCounter& msgCnt, const app::Flags& flags, const std::filesystem::path& outFilePath, const std::string& fileDisplayPath, const std::string& fileDisplayTitle)
+{
+    IMPLEMENT_FLAGS();
+
+    if (fs::exists(outFilePath))
+    {
+        if (flags.force) { PRINT_WARNING_V("overwriting " + fileDisplayTitle); }
+        else
+        {
+            const std::string msg = "###" + fileDisplayTitle + " \"" + fileDisplayPath + "\" already exists";
+
+            if (verbose)
+            {
+                PRINT_INFO(msg);
+
+                if (2 == omw_::cli::choice("overwrite " + fileDisplayTitle + "?"))
+                {
+                    throw app::processor_exit(EC_USER_ABORT);
+                }
+            }
+            else PRINT_ERROR_EXIT(msg, EC_OUTFILE_EXISTS);
+        }
+    }
+}
+
 m3u::M3U app::getFromUri(app::MessageCounter& msgCnt, const app::Flags& flags, const util::Uri& uri)
 {
     IMPLEMENT_FLAGS();

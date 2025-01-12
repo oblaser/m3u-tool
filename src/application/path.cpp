@@ -68,25 +68,7 @@ int app::path(const app::Args& args, const app::Flags& flags)
         PRINT_INFO_V("OUTFILE encoding will be UTF-8 (without BOM) anyway");
     }
 
-    if (fs::exists(outFilePath))
-    {
-        if (flags.force) { PRINT_WARNING_V("overwriting OUTFILE"); }
-        else
-        {
-            const std::string msg = "###OUTFILE \"" + outFileArg + "\" already exists";
-
-            if (verbose)
-            {
-                app::printInfo(msg);
-
-                if (2 == omw_::cli::choice("overwrite OUTFILE?"))
-                {
-                    throw app::processor_exit(EC_USER_ABORT);
-                }
-            }
-            else PRINT_ERROR_EXIT(msg, EC_OUTFILE_EXISTS);
-        }
-    }
+    checkOutFile(msgCnt, flags, outFilePath, outFileArg, "OUTFILE");
 
     if (!fs::exists(outFilePath.parent_path()))
     {

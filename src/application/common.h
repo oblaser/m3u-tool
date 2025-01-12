@@ -140,6 +140,8 @@ namespace app
     void checkCreateOutDir(app::MessageCounter& msgCnt, const app::Flags& flags, const std::filesystem::path& outDirPath, const std::string& outDirArg);
     static inline void checkCreateOutDir(app::MessageCounter& msgCnt, const app::Flags& flags, const std::filesystem::path& outDirPath) { app::checkCreateOutDir(msgCnt, flags, outDirPath, outDirPath.u8string()); }
 
+    void checkOutFile(app::MessageCounter& msgCnt, const app::Flags& flags, const std::filesystem::path& outFilePath, const std::string& fileDisplayPath, const std::string& fileDisplayTitle);
+
     m3u::M3U getFromUri(app::MessageCounter& msgCnt, const app::Flags& flags, const util::Uri& uri);
 
 #ifdef PRJ_DEBUG
