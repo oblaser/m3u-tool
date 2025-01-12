@@ -192,7 +192,12 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     {
         if (hasSubtitles)
         {
-            std::string srtScript = "# generated with " + std::string(prj::appName) + " " + std::string(prj::website) + "\n# " + util::getDateTimeStr() + "\n\nmkdir subs\n\n";
+            std::string srtScript = "";
+            srtScript += "# generated with " + std::string(prj::appName) + " " + std::string(prj::website) + "\n";
+            srtScript += "# generated at " + util::getDateTimeStr() + "\n";
+            srtScript += "\n";
+            srtScript += "mkdir -p subs\n";
+            srtScript += "\n";
 
             for (const auto& st : hls.subtitles())
             {
