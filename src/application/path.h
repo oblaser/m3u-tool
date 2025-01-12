@@ -14,9 +14,10 @@ copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 #include "application/common.h"
 
 
-namespace app
-{
-    int path(const app::Args& args, const app::Flags& flags);
+namespace app {
+
+int path(const app::Args& args, const app::Flags& flags);
+
 }
 
 

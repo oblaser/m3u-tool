@@ -23,9 +23,7 @@ using std::endl;
 
 namespace fs = std::filesystem;
 
-namespace
-{
-}
+namespace {}
 
 
 
@@ -70,10 +68,7 @@ int app::path(const app::Args& args, const app::Flags& flags)
 
     checkOutFile(msgCnt, flags, outFilePath, outFileArg, "OUTFILE");
 
-    if (!fs::exists(outFilePath.parent_path()))
-    {
-        PRINT_ERROR_EXIT("###could not find \"" + outFilePath.parent_path().u8string() + "\"", EC_OUTDIR_NOTFOUND);
-    }
+    if (!fs::exists(outFilePath.parent_path())) { PRINT_ERROR_EXIT("###could not find \"" + outFilePath.parent_path().u8string() + "\"", EC_OUTDIR_NOTFOUND); }
 
 
     ///////////////////////////////////////////////////////////
@@ -86,9 +81,7 @@ int app::path(const app::Args& args, const app::Flags& flags)
     const auto headerEntry = m3u::Entry("", m3u::extm3u_str);
     const auto extencEntry = m3u::Entry("", m3u::extenc_str + std::string("UTF-8"));
 
-    if ((m3u.entries().size() > 1) &&
-        (m3u.entries().at(0) == headerEntry) &&
-        m3u.entries().at(1).extIs(m3u::extenc_str))
+    if ((m3u.entries().size() > 1) && (m3u.entries().at(0) == headerEntry) && m3u.entries().at(1).extIs(m3u::extenc_str))
     {
         if ((m3u.entries().at(1).extParam().size() < 1) || (omw_::toUpper(m3u.entries().at(1).extParam().at(0).value()) != "UTF-8"))
         {
@@ -105,9 +98,7 @@ int app::path(const app::Args& args, const app::Flags& flags)
         else entryIndex = 1;
     }
 
-    if (outFileExtIsU8 && (m3u.entries().size() > 1) &&
-        (m3u.entries().at(0) == headerEntry) &&
-        m3u.entries().at(1).extIs(m3u::extenc_str))
+    if (outFileExtIsU8 && (m3u.entries().size() > 1) && (m3u.entries().at(0) == headerEntry) && m3u.entries().at(1).extIs(m3u::extenc_str))
     {
         target.add(headerEntry);
 
@@ -144,9 +135,7 @@ int app::path(const app::Args& args, const app::Flags& flags)
             }
             else
             {
-                PRINT_WARNING("###INBASEPATH not found in entry " +
-                    (e.hasExtension() ? (e.ext() + ' ') : std::string()) +
-                    '"' + e.data() + '"');
+                PRINT_WARNING("###INBASEPATH not found in entry " + (e.hasExtension() ? (e.ext() + ' ') : std::string()) + '"' + e.data() + '"');
 
                 // e is already assigned to newEntry
 
@@ -168,10 +157,7 @@ int app::path(const app::Args& args, const app::Flags& flags)
                 const auto absRelWd = fs::absolute(wd / file);
 #endif // PRJ_DEBUG
 
-                if (fs::exists(file) || fs::exists(fileRelToOutFile))
-                {
-                    fileCnt.addExists();
-                }
+                if (fs::exists(file) || fs::exists(fileRelToOutFile)) { fileCnt.addExists(); }
                 else PRINT_WARNING_V("###output file \"" + file.u8string() + "\" not found");
             }
 
@@ -193,8 +179,7 @@ int app::path(const app::Args& args, const app::Flags& flags)
     {
         constexpr size_t threshold = 7;
 
-        if ((verbose && (msgCnt > threshold) && (fileCnt.exists() != fileCnt.total())) ||
-            (verbose && (msgCnt > threshold)))
+        if ((verbose && (msgCnt > threshold) && (fileCnt.exists() != fileCnt.total())) || (verbose && (msgCnt > threshold)))
         {
             cout << "========";
 

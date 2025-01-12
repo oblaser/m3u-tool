@@ -35,11 +35,12 @@ using std::endl;
 
 namespace fs = std::filesystem;
 
-namespace
-{
+namespace {
+
 #ifdef PRJ_DEBUG
-    const std::string magentaDebugStr = "\033[95mDEBUG\033[39m";
+const std::string magentaDebugStr = "\033[95mDEBUG\033[39m";
 #endif
+
 }
 
 
@@ -47,10 +48,8 @@ namespace
 int app::process(const app::Args& args)
 {
     int r = EC_ERROR;
-    
-    const auto flags = app::Flags(args.containsForce(),
-                args.containsQuiet(),
-                args.containsVerbose());
+
+    const auto flags = app::Flags(args.containsForce(), args.containsQuiet(), args.containsVerbose());
 
     IMPLEMENT_FLAGS();
 
@@ -60,7 +59,7 @@ int app::process(const app::Args& args)
         {
             // https://stackoverflow.com/questions/45401822/how-to-convert-filesystem-path-to-string
 
-            //const std::string str_u8 = "\xc3\xae-\xc3\xab-\xC5\xA4";
+            // const std::string str_u8 = "\xc3\xae-\xc3\xab-\xC5\xA4";
             const std::string str_u8 = "\xc3\xae-\xc3\xab";
             const std::string str_mb = "\xEE-\xEB";
             const std::wstring str_w = enc::u8tos(str_u8);
@@ -69,15 +68,16 @@ int app::process(const app::Args& args)
             for (const auto& c : str_u8) { ___bin_u8w.push_back((uint8_t)c); }
             const std::vector<wchar_t>& bin_u8w = ___bin_u8w;
             const std::vector<wchar_t> bin_w(str_w.begin(), str_w.end());
-            //const auto binstr_u8 = omw::toHexStr(bin_u8);
+            // const auto binstr_u8 = omw::toHexStr(bin_u8);
 
             // no encoding conversation done
             const auto p_u8 = fs::path(str_u8); // contains the UTF-8 encoded string as wchar_t (like uint8_t to uint16_t), failes find existing file
-            const auto p_w = fs::path(str_w); // natively encoded, can find existing files
+            const auto p_w = fs::path(str_w);   // natively encoded, can find existing files
 
             const std::wstring pnative_u8 = p_u8.native(); // c_str()
-            const std::wstring pnative_w = p_w.native(); // c_str()
-            const bool pnative_ok = ((bin_u8w == std::vector<wchar_t>(pnative_u8.begin(), pnative_u8.end())) && (bin_w == std::vector<wchar_t>(pnative_w.begin(), pnative_w.end())));
+            const std::wstring pnative_w = p_w.native();   // c_str()
+            const bool pnative_ok = ((bin_u8w == std::vector<wchar_t>(pnative_u8.begin(), pnative_u8.end())) &&
+                                     (bin_w == std::vector<wchar_t>(pnative_w.begin(), pnative_w.end())));
 
             const std::string pstr_u8 = p_u8.string();
             const std::string pstr_w = p_w.string(); // converts to the current Windows code page
@@ -85,7 +85,8 @@ int app::process(const app::Args& args)
 
             const std::string pu8str_u8 = p_u8.u8string();
             const std::string pu8str_w = p_w.u8string();
-            const bool pu8str_ok = ((pu8str_u8 == enc::stou8(std::wstring(bin_u8w.begin(), bin_u8w.end()))) && (bin_u8 == std::vector<char>(pu8str_w.begin(), pu8str_w.end())));
+            const bool pu8str_ok =
+                ((pu8str_u8 == enc::stou8(std::wstring(bin_u8w.begin(), bin_u8w.end()))) && (bin_u8 == std::vector<char>(pu8str_w.begin(), pu8str_w.end())));
 
             // debugger display
             const std::wstring wpu8str_u8 = enc::u8tos(pu8str_u8);
@@ -105,15 +106,19 @@ int app::process(const app::Args& args)
 
             for (const auto& e : m3u.entries())
             {
-                if (e.isRegularRes()) cout << omw::fgBrightCyan << "R " << omw::fgBrightWhite << e.data() << omw::fgDefault << endl;
-                else if (e.isComment()) cout << omw::fgBrightBlack << "C " << omw::fgDefault << e.data() << endl;
-                else if (e.isExtension()) cout << omw::fgGreen << "X " << omw::fgDefault << e.ext() << endl;
-                else if (e.hasExtension()) cout << omw::fgBrightYellow << "X " << omw::fgDefault << e.ext() << "\n  " << omw::fgBrightWhite << e.data() << omw::fgDefault << endl;
-                else cout << omw::fgBrightRed << "E " << omw::fgDefault << e.data() << endl;
+                if (e.isRegularRes()) { cout << omw::fgBrightCyan << "R " << omw::fgBrightWhite << e.data() << omw::fgDefault << endl; }
+                else if (e.isComment()) { cout << omw::fgBrightBlack << "C " << omw::fgDefault << e.data() << endl; }
+                else if (e.isExtension()) { cout << omw::fgGreen << "X " << omw::fgDefault << e.ext() << endl; }
+                else if (e.hasExtension())
+                {
+                    cout << omw::fgBrightYellow << "X " << omw::fgDefault << e.ext() << "\n  " << omw::fgBrightWhite << e.data() << omw::fgDefault << endl;
+                }
+                else { cout << omw::fgBrightRed << "E " << omw::fgDefault << e.data() << endl; }
             }
 
 #if defined(PRJ_DEBUG) && 1
-            cout << "\n===================================================\n" << m3u.serialise() << "<EOF>==============================================" << endl;
+            cout << "\n===================================================\n"
+                 << m3u.serialise() << "<EOF>==============================================" << endl;
 #endif
             r = EC_OK;
         }
@@ -175,7 +180,7 @@ int app::process(const app::Args& args)
         if (!quiet) app::printError("unspecified fatal error");
     }
 
-    //if (r == EC_USER_ABORT) r = EC_OK;
+    // if (r == EC_USER_ABORT) r = EC_OK;
 
     return r;
 }

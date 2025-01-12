@@ -11,61 +11,62 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 #include <mutex>
 #include <string>
 
-namespace util
+namespace util {
+
+class HttpGetResponse
 {
-    class HttpGetResponse
-    {
-    public:
-        HttpGetResponse();
-        HttpGetResponse(const std::string& data);
-        HttpGetResponse(int curlCode, int httpCode, const std::string& data);
-        virtual ~HttpGetResponse() {}
+public:
+    HttpGetResponse();
+    HttpGetResponse(const std::string& data);
+    HttpGetResponse(int curlCode, int httpCode, const std::string& data);
+    virtual ~HttpGetResponse() {}
 
-        int curlCode() const { return m_curlCode; }
-        int httpCode() const { return m_httpCode; }
-        const std::string& data() const { return m_data; }
+    int curlCode() const { return m_curlCode; }
+    int httpCode() const { return m_httpCode; }
+    const std::string& data() const { return m_data; }
 
-        bool good() const;
-        bool aborted() const;
+    bool good() const;
+    bool aborted() const;
 
-        std::string toString() const;
+    std::string toString() const;
 
-    private:
-        int m_curlCode;
-        int m_httpCode;
-        std::string m_data;
-    };
+private:
+    int m_curlCode;
+    int m_httpCode;
+    std::string m_data;
+};
 
-    class Curl
-    {
-    public:
-        static const char* const defaultUserAgent;
+class Curl
+{
+public:
+    static const char* const defaultUserAgent;
 
-    public:
-        Curl();
-        virtual ~Curl();
+public:
+    Curl();
+    virtual ~Curl();
 
-        bool isInitDone() const { return m_initDone; }
+    bool isInitDone() const { return m_initDone; }
 
-        HttpGetResponse httpGET(const std::string& reqStr, long timeoutConn = 0, long timeout = 0, const std::string& userAgent = defaultUserAgent);
+    HttpGetResponse httpGET(const std::string& reqStr, long timeoutConn = 0, long timeout = 0, const std::string& userAgent = defaultUserAgent);
 
-        bool isAborted() const;
-        void abort();
+    bool isAborted() const;
+    void abort();
 
-    private:
-        bool m_initDone;
+private:
+    bool m_initDone;
 
-        bool m_abortState;
-        mutable std::mutex m_mtx;
+    bool m_abortState;
+    mutable std::mutex m_mtx;
 
-        void m_abort(bool state);
+    void m_abort(bool state);
 
-    private:
-        Curl(const Curl& other) = delete;
-        Curl& operator=(const Curl&);
+private:
+    Curl(const Curl& other) = delete;
+    Curl& operator=(const Curl&);
 
-        static size_t s_nInstances;
-    };
-}
+    static size_t s_nInstances;
+};
+
+} // namespace util
 
 #endif // IG_MIDDLEWARE_CURLHELPER_H

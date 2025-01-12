@@ -32,31 +32,32 @@ using std::endl;
 
 namespace fs = std::filesystem;
 
-namespace
+namespace {
+
+// if url is a relative path, prepend url from m3u
+std::string handleUrl(const std::string& url, const util::Uri& m3uFileUri)
 {
-    // if url is a relative path, prepend url from m3u
-    std::string handleUrl(const std::string& url, const util::Uri& m3uFileUri)
+    std::string r = url;
+
+    auto streamUri = util::Uri(url);
+
+    if (streamUri.scheme().empty() && streamUri.authority().empty() && // is relative path
+        !m3uFileUri.scheme().empty() && !m3uFileUri.authority().empty())
     {
-        std::string r = url;
+        const fs::path basePath = enc::path(m3uFileUri.path()).parent_path();
+        const std::string path = basePath.u8string() + '/' + streamUri.path();
 
-        auto streamUri = util::Uri(url);
+        streamUri.setScheme(m3uFileUri.scheme());
+        streamUri.setAuthority(m3uFileUri.authority());
+        streamUri.setPath(path);
 
-        if (streamUri.scheme().empty() && streamUri.authority().empty() && // is relative path
-            !m3uFileUri.scheme().empty() && !m3uFileUri.authority().empty())
-        {
-            const fs::path basePath = enc::path(m3uFileUri.path()).parent_path();
-            const std::string path = basePath.u8string() + '/' + streamUri.path();
-
-            streamUri.setScheme(m3uFileUri.scheme());
-            streamUri.setAuthority(m3uFileUri.authority());
-            streamUri.setPath(path);
-
-            r = streamUri.string();
-        }
-
-        return r;
+        r = streamUri.string();
     }
+
+    return r;
 }
+
+} // namespace
 
 
 
@@ -226,7 +227,7 @@ int app::vstreamdl(const app::Args& args, const app::Flags& flags)
     // end
     ///////////////////////////////////////////////////////////
 
-    //if (verbose) cout << "\n" << omw::fgBrightGreen << "done" << omw::defaultForeColor << endl;
+    // if (verbose) cout << "\n" << omw::fgBrightGreen << "done" << omw::defaultForeColor << endl;
     if (rcnt.errors() == 0) { r = EC_OK; }
 
     return r;

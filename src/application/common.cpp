@@ -27,44 +27,39 @@ using std::endl;
 
 namespace fs = std::filesystem;
 
-namespace
+namespace {
+
+constexpr int ewiWidth = 10;
+
+/*
+bool isUrl(const std::string& uri)
 {
-    constexpr int ewiWidth = 10;
+    to be tested
+    constexpr std::string_view http = "http://";
+    constexpr std::string_view https = "https://";
 
-    /*
-    bool isUrl(const std::string& uri)
-    {
-        to be tested
-        constexpr std::string_view http = "http://";
-        constexpr std::string_view https = "https://";
+    if (uri.substr(0, https.length()) == https) return true;
+    if (uri.substr(0, http.length()) == http) return true;
 
-        if (uri.substr(0, https.length()) == https) return true;
-        if (uri.substr(0, http.length()) == http) return true;
+    return false;
+}
+*/
 
-        return false;
-    }
-    */
 }
 
 
 
-// 
+//
 // "### normal "quoted bright" white"
 // "### normal @just bright@ white"
-// 
+//
 void app::printFormattedText(const std::string& text)
 {
     bool format = false;
 
     if (text.length() > 5)
     {
-        if ((text[0] == '#') &&
-            (text[1] == '#') &&
-            (text[2] == '#')
-            )
-        {
-            format = true;
-        }
+        if ((text[0] == '#') && (text[1] == '#') && (text[2] == '#')) { format = true; }
     }
 
     if (format)
@@ -126,10 +121,7 @@ void app::printError(const std::string& text)
     cout << endl;
 }
 
-void app::printInfo()
-{
-    cout << omw::fgBrightCyan << std::left << std::setw(ewiWidth) << "info:" << omw::defaultForeColor;
-}
+void app::printInfo() { cout << omw::fgBrightCyan << std::left << std::setw(ewiWidth) << "info:" << omw::defaultForeColor; }
 
 void app::printInfo(const std::string& text)
 {
@@ -147,7 +139,7 @@ void app::printWarning(const std::string& text)
 
 void app::printTitle(const std::string& title)
 {
-    //cout << omw::fgBrightWhite << title << omw::normal << endl;
+    // cout << omw::fgBrightWhite << title << omw::normal << endl;
     cout << title << endl;
 }
 
@@ -177,10 +169,7 @@ void app::checkCreateOutDir(app::MessageCounter& msgCnt, const app::Flags& flags
                 {
                     app::printInfo(msg);
 
-                    if (2 == omw_::cli::choice("use non empty OUTDIR?"))
-                    {
-                        throw app::processor_exit(EC_USER_ABORT);
-                    }
+                    if (2 == omw_::cli::choice("use non empty OUTDIR?")) { throw app::processor_exit(EC_USER_ABORT); }
                 }
                 else PRINT_ERROR_EXIT(msg, EC_OUTDIR_NOTEMPTY);
             }
@@ -195,7 +184,8 @@ void app::checkCreateOutDir(app::MessageCounter& msgCnt, const app::Flags& flags
     }
 }
 
-void app::checkOutFile(app::MessageCounter& msgCnt, const app::Flags& flags, const std::filesystem::path& outFilePath, const std::string& fileDisplayPath, const std::string& fileDisplayTitle)
+void app::checkOutFile(app::MessageCounter& msgCnt, const app::Flags& flags, const std::filesystem::path& outFilePath, const std::string& fileDisplayPath,
+                       const std::string& fileDisplayTitle)
 {
     IMPLEMENT_FLAGS();
 
@@ -210,10 +200,7 @@ void app::checkOutFile(app::MessageCounter& msgCnt, const app::Flags& flags, con
             {
                 PRINT_INFO(msg);
 
-                if (2 == omw_::cli::choice("overwrite " + fileDisplayTitle + "?"))
-                {
-                    throw app::processor_exit(EC_USER_ABORT);
-                }
+                if (2 == omw_::cli::choice("overwrite " + fileDisplayTitle + "?")) { throw app::processor_exit(EC_USER_ABORT); }
             }
             else PRINT_ERROR_EXIT(msg, EC_OUTFILE_EXISTS);
         }

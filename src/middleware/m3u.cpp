@@ -13,110 +13,105 @@ copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 #include <omw/string.h>
 
 
-namespace
+namespace {
+
+inline bool isExtType(const std::string& line, const std::string& extBaseStr) { return (line.substr(0, extBaseStr.size()) == extBaseStr); }
+
+inline bool isExtType(const m3u::Entry& entry, const std::string& extBaseStr) { return (entry.ext().substr(0, extBaseStr.size()) == extBaseStr); }
+
+std::vector<std::string> readAllLines(const char* p, const char* const pEnd)
 {
-    inline bool isExtType(const std::string& line, const std::string& extBaseStr)
+    // TODO encoding check and conversion
+
+
+    /*
+    // UTF BOM check
+    if (txt.size() >= 4)
     {
-        return (line.substr(0, extBaseStr.size()) == extBaseStr);
+        if (txt[0] == (char)(0x00) && txt[1] == (char)(0x00) &&
+            txt[2] == (char)(0xFe) && txt[3] == (char)(0xFF))
+        {
+            printError(ewiFile, "encoding not supported: UTF-32 BE");
+            return 1;
+        }
+        if (txt[0] == (char)(0xFF) && txt[1] == (char)(0xFe) &&
+            txt[2] == (char)(0x00) && txt[3] == (char)(0x00))
+        {
+            printError(ewiFile, "encoding not supported: UTF-32 LE");
+            return 1;
+        }
     }
 
-    inline bool isExtType(const m3u::Entry& entry, const std::string& extBaseStr)
+    if (txt.size() >= 2)
     {
-        return (entry.ext().substr(0, extBaseStr.size()) == extBaseStr);
+        if (txt[0] == (char)(0xFe) && txt[1] == (char)(0xFF))
+        {
+            printError(ewiFile, "encoding not supported: UTF-16 BE");
+            return 1;
+        }
+        if (txt[0] == (char)(0xFF) && txt[1] == (char)(0xFe))
+        {
+            printError(ewiFile, "encoding not supported: UTF-16 LE");
+            return 1;
+        }
     }
 
-    std::vector<std::string> readAllLines(const char* p, const char* const pEnd)
+    bool isUTF8 = false;
+
+    if (size >= 3)
     {
-        // TODO encoding check and conversion
+        // EF BB BF
 
+        p += 3;
 
-/*
-        // UTF BOM check
-        if (txt.size() >= 4)
-        {
-            if (txt[0] == (char)(0x00) && txt[1] == (char)(0x00) &&
-                txt[2] == (char)(0xFe) && txt[3] == (char)(0xFF))
-            {
-                printError(ewiFile, "encoding not supported: UTF-32 BE");
-                return 1;
-            }
-            if (txt[0] == (char)(0xFF) && txt[1] == (char)(0xFe) &&
-                txt[2] == (char)(0x00) && txt[3] == (char)(0x00))
-            {
-                printError(ewiFile, "encoding not supported: UTF-32 LE");
-                return 1;
-            }
-        }
-
-        if (txt.size() >= 2)
-        {
-            if (txt[0] == (char)(0xFe) && txt[1] == (char)(0xFF))
-            {
-                printError(ewiFile, "encoding not supported: UTF-16 BE");
-                return 1;
-            }
-            if (txt[0] == (char)(0xFF) && txt[1] == (char)(0xFe))
-            {
-                printError(ewiFile, "encoding not supported: UTF-16 LE");
-                return 1;
-            }
-        }
-
-        bool isUTF8 = false;
-
-        if (size >= 3)
-        {
-            // EF BB BF
-
-            p += 3;
-
-            isUTF8 = true;
-        }
-
-        if(file extension == "m3u8") isUTF8 = true;
-
-        if (!isUTF8) iconv;
-*/
-
-
-        std::vector<std::string> lines;
-
-        if (p < pEnd) lines.push_back("");
-
-        while (p < pEnd)
-        {
-            const size_t nnlc = omw::peekNewLine(p, pEnd);
-            
-            if (nnlc == 0) lines.back().push_back(*p);
-            else
-            {
-                lines.push_back("");
-                if (nnlc > 1) ++p;
-            }
-
-            ++p;
-        }
-
-        return lines;
+        isUTF8 = true;
     }
 
-    std::string serialiseExtParam(const m3u::Entry::ExtParameter& param)
-    {
-        std::string value = param.value().data();
+    if(file extension == "m3u8") isUTF8 = true;
 
-        if (param.value().type() == m3u::Entry::ExtParamValue::T_STRING)
+    if (!isUTF8) iconv;
+    */
+
+
+    std::vector<std::string> lines;
+
+    if (p < pEnd) lines.push_back("");
+
+    while (p < pEnd)
+    {
+        const size_t nnlc = omw::peekNewLine(p, pEnd);
+
+        if (nnlc == 0) lines.back().push_back(*p);
+        else
         {
-            omw::replaceAll(value, '"', "\"\"");
-            value = '"' + value + '"';
+            lines.push_back("");
+            if (nnlc > 1) ++p;
         }
 
-        std::string r;
-        if (!param.key().empty()) r = param.key() + '=' + value;
-        else r = value;
-
-        return r;
+        ++p;
     }
+
+    return lines;
 }
+
+std::string serialiseExtParam(const m3u::Entry::ExtParameter& param)
+{
+    std::string value = param.value().data();
+
+    if (param.value().type() == m3u::Entry::ExtParamValue::T_STRING)
+    {
+        omw::replaceAll(value, '"', "\"\"");
+        value = '"' + value + '"';
+    }
+
+    std::string r;
+    if (!param.key().empty()) r = param.key() + '=' + value;
+    else r = value;
+
+    return r;
+}
+
+} // namespace
 
 
 
@@ -157,7 +152,7 @@ void m3u::Entry::ExtParamValue::m_parse(const std::string& value)
 bool m3u::Entry::ExtParamContainer::contains(const std::string& key) const
 {
     bool r = false;
-    
+
     for (size_type i = 0; i < size(); ++i)
     {
         if (at(i).key() == key)
@@ -174,19 +169,13 @@ const m3u::Entry::ExtParameter& m3u::Entry::ExtParamContainer::get(const std::st
 {
     for (size_type i = 0; i < size(); ++i)
     {
-        if (at(i).key() == key)
-        {
-            return at(i);
-        }
+        if (at(i).key() == key) { return at(i); }
     }
 
     throw std::out_of_range("no \"" + key + "\" parameter");
 }
 
-bool m3u::Entry::extIs(const std::string& extBaseStr) const
-{
-    return ::isExtType(*this, extBaseStr);
-}
+bool m3u::Entry::extIs(const std::string& extBaseStr) const { return ::isExtType(*this, extBaseStr); }
 
 std::string m3u::Entry::serialise(const char* endOfLine) const
 {
@@ -242,8 +231,7 @@ void m3u::Entry::m_parseExtData()
 
                     // proper quote interpretation is done in m3u::Entry::ExtParamValue ctor
 
-                    while ((p < pEnd) &&
-                           ((*p != ',') || ignoreComma))
+                    while ((p < pEnd) && ((*p != ',') || ignoreComma))
                     {
                         if (*p == '"') ignoreComma = !ignoreComma;
 
@@ -279,10 +267,7 @@ std::string m3u::M3U::serialise(const char* endOfLine) const
 {
     std::string r = "";
 
-    for (size_t i = 0; i < m_entries.size(); ++i)
-    {
-        r += m_entries[i].serialise(endOfLine) + endOfLine;
-    }
+    for (size_t i = 0; i < m_entries.size(); ++i) { r += m_entries[i].serialise(endOfLine) + endOfLine; }
 
     return r;
 }
@@ -304,8 +289,7 @@ void m3u::M3U::m_parse(const char* p, const char* pEnd)
                 if (!lines[i].empty())
                 {
                     // is entry with extension
-                    if (::isExtType(lines[i], m3u::extinf_str) ||
-                        ::isExtType(lines[i], m3u::ext_x_stream_inf_str))
+                    if (::isExtType(lines[i], m3u::extinf_str) || ::isExtType(lines[i], m3u::ext_x_stream_inf_str))
                     {
                         if (i < (lines.size() - 1))
                         {
@@ -350,16 +334,13 @@ void m3u::HLS::AudioStream::setUri(const std::string& uri)
 {
     m3u::Entry::ExtParameter* p = nullptr;
 
-    for (size_t i = 0; i<m_extParam.size();++i)
+    for (size_t i = 0; i < m_extParam.size(); ++i)
     {
         const auto& param = m_extParam[i];
 
         if (!param.value().empty())
         {
-            if (param.key() == "URI")
-            {
-                p = m_extParam.data() + i;
-            }
+            if (param.key() == "URI") { p = m_extParam.data() + i; }
         }
     }
 
@@ -406,12 +387,9 @@ void m3u::HLS::Stream::m_parse()
             {
                 const auto tokens = omw::split(param.value(), 'x');
 
-                if ((tokens.size() == 2) && omw::isUInteger(tokens[0]) && omw::isUInteger(tokens[1]))
-                {
-                    m_resolutionHeight = std::stoi(tokens[1]);
-                }
+                if ((tokens.size() == 2) && omw::isUInteger(tokens[0]) && omw::isUInteger(tokens[1])) { m_resolutionHeight = std::stoi(tokens[1]); }
             }
-            //else if (param.key() == "") ;
+            // else if (param.key() == "") ;
         }
     }
 }
@@ -434,10 +412,7 @@ void m3u::HLS::m_parse()
             }
             else m_otherEntries.push_back(e);
         }
-        else if (::isExtType(e, m3u::ext_x_stream_inf_str))
-        {
-            m_streams.push_back(e);
-        }
+        else if (::isExtType(e, m3u::ext_x_stream_inf_str)) { m_streams.push_back(e); }
         else m_otherEntries.push_back(e);
     }
 

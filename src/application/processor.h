@@ -13,9 +13,10 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 #include "application/cliarg.h"
 
 
-namespace app
-{
-    int process(const app::Args& args);
+namespace app {
+
+int process(const app::Args& args);
+
 }
 
 

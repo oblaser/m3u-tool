@@ -11,9 +11,9 @@ copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 #include <functional>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
-#include <sstream>
 #include <vector>
 
 #include "application/cliarg.h"
@@ -35,11 +35,12 @@ using std::endl;
 
 namespace fs = std::filesystem;
 
-namespace
-{
+namespace {
+
 #ifdef PRJ_DEBUG
-    const std::string magentaDebugStr = "\033[95mDEBUG\033[39m";
+const std::string magentaDebugStr = "\033[95mDEBUG\033[39m";
 #endif
+
 }
 
 
@@ -132,37 +133,36 @@ int app::exprt(const app::Args& args, const app::Flags& flags)
     if (!quiet)
     {
         cout << "========";
-        
+
         cout << "  " << omw::fgBrightWhite;
         cout << fileCnt.copied() << "/" << fileCnt.total();
         cout << omw::normal << " exported";
-            
+
         cout << ", ";
         if (rcnt.errors() != 0) cout << omw::fgBrightRed;
         cout << rcnt.errors();
         if (rcnt.errors() != 0) cout << omw::normal;
         cout << " error";
         if (rcnt.errors() != 1) cout << "s";
-        
+
         cout << ", ";
         if (rcnt.warnings() != 0) cout << omw::fgBrightYellow;
         cout << rcnt.warnings();
         if (rcnt.warnings() != 0) cout << omw::normal;
         cout << " warning";
         if (rcnt.warnings() != 1) cout << "s";
-        
+
         cout << "  ========" << endl;
     }
-        
-    if (((fileCnt.copied() == fileCnt.total()) && (rcnt.errors() != 0)) ||
-        ((fileCnt.copied() != fileCnt.total()) && (rcnt.errors() == 0)))
+
+    if (((fileCnt.copied() == fileCnt.total()) && (rcnt.errors() != 0)) || ((fileCnt.copied() != fileCnt.total()) && (rcnt.errors() == 0)))
     {
         r = EC_OK;
         throw (int)(__LINE__);
     }
 
-    //if (verbose) cout << "\n" << omw::fgBrightGreen << "done" << omw::defaultForeColor << endl;
-    
+    // if (verbose) cout << "\n" << omw::fgBrightGreen << "done" << omw::defaultForeColor << endl;
+
     if (fileCnt.copied() != fileCnt.total()) r = EC_ERROR;
 
     return r;

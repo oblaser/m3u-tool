@@ -19,64 +19,61 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 
 
 
-namespace
+namespace {
+
+using curl_data_t = std::string;
+
+size_t dataCallback(char* p, size_t size, size_t nmemb, void* pClientData)
 {
-    using curl_data_t = std::string;
-
-    size_t dataCallback(char* p, size_t size, size_t nmemb, void* pClientData)
-    {
-        size_t effSize = size * nmemb;
-        for (size_t i = 0; i < effSize; ++i) ((curl_data_t*)pClientData)->push_back(*(p + i));
-        return effSize;
-    }
-
-    struct ProgressData
-    {
-        ProgressData() = delete;
-        ProgressData(const util::Curl* pCurl) : curl(pCurl) {}
-
-        const util::Curl* const curl;
-    };
-
-    int progressCallback(void* pClientData, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow)
-    {
-        // https://curl.se/libcurl/c/progressfunc.html
-        // https://curl.se/libcurl/c/CURLOPT_XFERINFOFUNCTION.html
-        // https://curl.se/libcurl/c/CURLOPT_NOPROGRESS.html
-
-        const ProgressData* const p = (const ProgressData*)pClientData;
-
-        int r = CURL_PROGRESSFUNC_CONTINUE;
-
-        if (p->curl->isAborted()) r = -1;
-
-        return r;
-    }
+    size_t effSize = size * nmemb;
+    for (size_t i = 0; i < effSize; ++i) ((curl_data_t*)pClientData)->push_back(*(p + i));
+    return effSize;
 }
+
+struct ProgressData
+{
+    ProgressData() = delete;
+    ProgressData(const util::Curl* pCurl)
+        : curl(pCurl)
+    {}
+
+    const util::Curl* const curl;
+};
+
+int progressCallback(void* pClientData, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow)
+{
+    // https://curl.se/libcurl/c/progressfunc.html
+    // https://curl.se/libcurl/c/CURLOPT_XFERINFOFUNCTION.html
+    // https://curl.se/libcurl/c/CURLOPT_NOPROGRESS.html
+
+    const ProgressData* const p = (const ProgressData*)pClientData;
+
+    int r = CURL_PROGRESSFUNC_CONTINUE;
+
+    if (p->curl->isAborted()) r = -1;
+
+    return r;
+}
+
+} // namespace
 
 
 
 util::HttpGetResponse::HttpGetResponse()
     : m_curlCode(-1), m_httpCode(-1), m_data()
-{ }
+{}
 
 util::HttpGetResponse::HttpGetResponse(const std::string& data)
     : m_curlCode(-1), m_httpCode(-1), m_data(data)
-{ }
+{}
 
 util::HttpGetResponse::HttpGetResponse(int curlCode, int httpCode, const std::string& data)
     : m_curlCode(curlCode), m_httpCode(httpCode), m_data(data)
-{ }
+{}
 
-bool util::HttpGetResponse::good() const
-{
-    return ((m_curlCode == CURLE_OK) && (m_httpCode == 200));
-}
+bool util::HttpGetResponse::good() const { return ((m_curlCode == CURLE_OK) && (m_httpCode == 200)); }
 
-bool util::HttpGetResponse::aborted() const
-{
-    return (m_curlCode == CURLE_ABORTED_BY_CALLBACK);
-}
+bool util::HttpGetResponse::aborted() const { return (m_curlCode == CURLE_ABORTED_BY_CALLBACK); }
 
 std::string util::HttpGetResponse::toString() const
 {
@@ -165,10 +162,7 @@ bool util::Curl::isAborted() const
     return m_abortState;
 }
 
-void util::Curl::abort()
-{
-    m_abort(true);
-}
+void util::Curl::abort() { m_abort(true); }
 
 void util::Curl::m_abort(bool state)
 {

@@ -25,34 +25,29 @@ using std::endl;
 
 namespace fs = std::filesystem;
 
-namespace
+namespace {
+
+bool isSchemeChar(char c) { return (omw::isAlnum(c) || (c == '+') || (c == '.') || (c == '-')); }
+
+bool containsScheme(const std::string& uri)
 {
-    bool isSchemeChar(char c)
+    const std::vector<size_t> delimiterPositions = {
+        uri.find('.'), uri.find('@'), uri.find('/'),
+        uri.find('['), // IPv6 contains colon
+        uri.find('?'), uri.find('#'),
+    };
+
+    size_t end = SIZE_MAX;
+
+    for (const auto& pos : delimiterPositions)
     {
-        return (omw::isAlnum(c) || (c == '+') || (c == '.') || (c == '-'));
+        if (pos < end) end = pos;
     }
 
-    bool containsScheme(const std::string& uri)
-    {
-        const std::vector<size_t> delimiterPositions = {
-            uri.find('.'),
-            uri.find('@'),
-            uri.find('/'),
-            uri.find('['), // IPv6 contains colon
-            uri.find('?'),
-            uri.find('#'),
-        };
-
-        size_t end = SIZE_MAX;
-
-        for (const auto& pos : delimiterPositions)
-        {
-            if (pos < end) end = pos;
-        }
-
-        return omw::contains(uri.substr(0, end), ':');
-    }
+    return omw::contains(uri.substr(0, end), ':');
 }
+
+} // namespace
 
 
 
@@ -68,7 +63,7 @@ void util::Uri::set(const std::string& uri)
     // filenames with colon would fail to be processed
     if (::containsScheme(uri))
     {
-#pragma endregion non-uri-path
+#pragma endregion non - uri - path
 
         m_validity = omw::isAlpha(*p);
 
@@ -145,14 +140,11 @@ std::string util::Uri::string() const
 {
     std::string r;
 
-    if (m_scheme.empty() && m_authority.empty() && m_query.empty() && m_fragment.empty())
-    {
-        r = m_path;
-    }
+    if (m_scheme.empty() && m_authority.empty() && m_query.empty() && m_fragment.empty()) { r = m_path; }
     else
     {
         r = m_scheme + ':' + "//" + m_authority + m_path;
-        
+
         if (!m_query.empty()) r += '?' + m_query;
         if (!m_fragment.empty()) r += '#' + m_fragment;
     }
@@ -160,10 +152,7 @@ std::string util::Uri::string() const
     return r;
 }
 
-bool util::Uri::isUrl() const
-{
-    return (this->isValid() && ((this->scheme() == "https") || (this->scheme() == "http")));
-}
+bool util::Uri::isUrl() const { return (this->isValid() && ((this->scheme() == "https") || (this->scheme() == "http"))); }
 
 
 
@@ -229,8 +218,7 @@ int omw_::cli::choice(const std::string& q, int def, char first, char second)
     const omw::string b(1, second);
     omw::string data;
 
-    do
-    {
+    do {
         std::cout << q << " [" << (def == 1 ? a.toUpper_ascii() : a) << "/" << (def == 2 ? b.toUpper_ascii() : b) << "] ";
         std::getline(std::cin, data);
 

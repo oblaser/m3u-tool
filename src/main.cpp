@@ -26,69 +26,72 @@ using std::cout;
 using std::endl;
 using std::setw;
 
-namespace
+namespace {
+
+const std::string usageString = std::string(prj::exeName) + " MODULE ...";
+
+void printHelp()
 {
-    const std::string usageString = std::string(prj::exeName) + " MODULE ...";
+    constexpr int lw = 18;
 
-    void printHelp()
-    {
-        constexpr int lw = 18;
-
-        cout << prj::appName << endl;
-        cout << endl;
-        cout << "Usage:" << endl;
-        cout << "  " << usageString << endl;
-        cout << "  " << prj::exeName << " export INFILE OUTDIR [options]" << endl;
-        cout << "  " << prj::exeName << " parse INFILE [options]" << endl;
-        cout << "  " << prj::exeName << " path INFILE OUTFILE [INBASEPATH [OUTBASEPATH]] [options]" << endl;
-        cout << "  " << prj::exeName << " vstreamdl INFILE OUTDIR NAME [MAX-RES-HEIGHT] [options]" << endl;
-        cout << "  " << std::string(strlen(prj::exeName), ' ') << "     MAX-RES-HEIGHT defaults to 1080" << endl;
-        cout << endl;
-        cout << "Modules:" << endl;
-        cout << std::left << setw(lw) << std::string("  ") + "export" << "copy and rename the files of the playlist" << endl;
-        cout << std::left << setw(lw) << std::string("  ") + "parse" << "display the m3u entries" << endl;
-        cout << std::left << setw(lw) << std::string("  ") + "vstreamdl" << "" << endl;
-        cout << std::left << setw(lw) << std::string("  ") << omw::fgCyan << "tbd..." << omw::fgDefault << endl;
-        cout << endl;
-        cout << "Options:" << endl;
-        cout << std::left << setw(lw) << std::string("  ") + argstr::force << "force overwriting output files" << endl;
-        cout << std::left << setw(lw) << std::string("  ") + argstr::quiet << "quiet" << endl;
-        cout << std::left << setw(lw) << std::string("  ") + argstr::verbose << "verbose" << endl;
-        cout << std::left << setw(lw) << std::string("  ") + argstr::noColor << "monochrome console output" << endl;
-        cout << std::left << setw(lw) << std::string("  ") + argstr::help + std::string(", ") + argstr::help_alt << "prints this help text" << endl;
-        cout << std::left << setw(lw) << std::string("  ") + argstr::version << "prints version info" << endl;
-        cout << std::left << setw(lw) << std::string("  ") << omw::fgCyan << "tbd..." << omw::fgDefault << endl;
-        cout << endl;
-        cout << "Website: <" << prj::website << ">" << endl;
-    }
-
-    void printUsageAndTryHelp()
-    {
-        cout << "Usage: " << usageString << "\n\n";
-        cout << "Try '" << prj::exeName << " --help' for more options." << endl;
-    }
-
-    void printVersion()
-    {
-        const omw::Version& v = prj::version;
-
-        cout << prj::appName << "   ";
-        if (v.isPreRelease()) cout << omw::fgBrightMagenta;
-        cout << v.toString();
-        if (v.isPreRelease()) cout << omw::defaultForeColor;
-#ifdef PRJ_DEBUG
-        cout << "   " << omw::fgBrightRed << "DEBUG" << omw::defaultForeColor << "   " << __DATE__ << " " << __TIME__;
-#endif
-        cout << endl;
-
-        cout << endl;
-        cout << "project page: " << prj::website << endl;
-        cout << endl;
-        cout << "Copyright (c) 2025 Oliver Blaser." << endl;
-        cout << "License: GNU GPLv3 <http://gnu.org/licenses/>." << endl;
-        cout << "This is free software. There is NO WARRANTY." << endl;
-    }
+    // clang-format off
+    cout << prj::appName << endl;
+    cout << endl;
+    cout << "Usage:" << endl;
+    cout << "  " << usageString << endl;
+    cout << "  " << prj::exeName << " export INFILE OUTDIR [options]" << endl;
+    cout << "  " << prj::exeName << " parse INFILE [options]" << endl;
+    cout << "  " << prj::exeName << " path INFILE OUTFILE [INBASEPATH [OUTBASEPATH]] [options]" << endl;
+    cout << "  " << prj::exeName << " vstreamdl INFILE OUTDIR NAME [MAX-RES-HEIGHT] [options]" << endl;
+    cout << "  " << std::string(strlen(prj::exeName), ' ') << "     MAX-RES-HEIGHT defaults to 1080" << endl;
+    cout << endl;
+    cout << "Modules:" << endl;
+    cout << std::left << setw(lw) << std::string("  ") + "export" << "copy and rename the files of the playlist" << endl;
+    cout << std::left << setw(lw) << std::string("  ") + "parse" << "display the m3u entries" << endl;
+    cout << std::left << setw(lw) << std::string("  ") + "vstreamdl" << "" << endl;
+    cout << std::left << setw(lw) << std::string("  ") << omw::fgCyan << "tbd..." << omw::fgDefault << endl;
+    cout << endl;
+    cout << "Options:" << endl;
+    cout << std::left << setw(lw) << std::string("  ") + argstr::force << "force overwriting output files" << endl;
+    cout << std::left << setw(lw) << std::string("  ") + argstr::quiet << "quiet" << endl;
+    cout << std::left << setw(lw) << std::string("  ") + argstr::verbose << "verbose" << endl;
+    cout << std::left << setw(lw) << std::string("  ") + argstr::noColor << "monochrome console output" << endl;
+    cout << std::left << setw(lw) << std::string("  ") + argstr::help + std::string(", ") + argstr::help_alt << "prints this help text" << endl;
+    cout << std::left << setw(lw) << std::string("  ") + argstr::version << "prints version info" << endl;
+    cout << std::left << setw(lw) << std::string("  ") << omw::fgCyan << "tbd..." << omw::fgDefault << endl;
+    cout << endl;
+    cout << "Website: <" << prj::website << ">" << endl;
+    // clang-format on
 }
+
+void printUsageAndTryHelp()
+{
+    cout << "Usage: " << usageString << "\n\n";
+    cout << "Try '" << prj::exeName << " --help' for more options." << endl;
+}
+
+void printVersion()
+{
+    const omw::Version& v = prj::version;
+
+    cout << prj::appName << "   ";
+    if (v.isPreRelease()) cout << omw::fgBrightMagenta;
+    cout << v.toString();
+    if (v.isPreRelease()) cout << omw::defaultForeColor;
+#ifdef PRJ_DEBUG
+    cout << "   " << omw::fgBrightRed << "DEBUG" << omw::defaultForeColor << "   " << __DATE__ << " " << __TIME__;
+#endif
+    cout << endl;
+
+    cout << endl;
+    cout << "project page: " << prj::website << endl;
+    cout << endl;
+    cout << "Copyright (c) 2025 Oliver Blaser." << endl;
+    cout << "License: GNU GPLv3 <http://gnu.org/licenses/>." << endl;
+    cout << "This is free software. There is NO WARRANTY." << endl;
+}
+
+} // namespace
 
 
 
@@ -121,13 +124,16 @@ int wmain(int argc, wchar_t** argv)
 
         cout << endl;
     }
-#endif// print argv
+#endif // print argv
 
     std::vector<std::string> rawArgs(argc);
 
     for (int i = 0; i < argc; ++i)
     {
-        try { rawArgs[i] = omw::windows::wstou8(argv[i]); }
+        try
+        {
+            rawArgs[i] = omw::windows::wstou8(argv[i]);
+        }
         catch (const std::exception& ex)
         {
             app::printError("faild to convert argv");
@@ -140,7 +146,7 @@ int wmain(int argc, wchar_t** argv)
 #ifndef PRJ_DEBUG
     const
 #endif // PRJ_DEBUG
-    app::Args args(rawArgs);
+        app::Args args(rawArgs);
 
 #else // OMW_PLAT_WIN
 int main(int argc, char** argv)
@@ -148,13 +154,13 @@ int main(int argc, char** argv)
 #ifndef PRJ_DEBUG
     const
 #endif // PRJ_DEBUG
-    app::Args args(argc, argv);
+        app::Args args(argc, argv);
 #endif // OMW_PLAT_WIN
 
 #if defined(PRJ_DEBUG) && 1
     if (args.size() == 0)
     {
-        //args.add("--help");
+        // args.add("--help");
 
 #if 0 // export
         
@@ -166,14 +172,14 @@ int main(int argc, char** argv)
         args.add("../../test/system/out-export-\xC5\xA4");
 
 #elif 0 // parse m3u
-        
+
         args.add("parse");
-        
+
         args.add("../../test/system/ext-mixed.m3u");
-        //args.add("../../test/system/f\xc3\xael\xc3\xab\xc3\xb1\xc3\xa0m\xc3\xa9.m3u");
-        //args.add("../../test/system/hls.m3u");
-        //args.add("../../test/system/non-ext.m3u");
-        //args.add("https://raw.githubusercontent.com/oblaser/m3u-tool/main/test/system/hls.m3u");
+        // args.add("../../test/system/f\xc3\xael\xc3\xab\xc3\xb1\xc3\xa0m\xc3\xa9.m3u");
+        // args.add("../../test/system/hls.m3u");
+        // args.add("../../test/system/non-ext.m3u");
+        // args.add("https://raw.githubusercontent.com/oblaser/m3u-tool/main/test/system/hls.m3u");
 
 #elif 0 // path
 
@@ -181,35 +187,35 @@ int main(int argc, char** argv)
 
         // in file
         args.add("../../test/system/ext-mixed.m3u");
-        //args.add("../../test/system/f\xc3\xael\xc3\xab\xc3\xb1\xc3\xa0m\xc3\xa9.m3u");
+        // args.add("../../test/system/f\xc3\xael\xc3\xab\xc3\xb1\xc3\xa0m\xc3\xa9.m3u");
 
         // outfile
-        //args.add("../../test/system/out/path-out.m3u8");
+        // args.add("../../test/system/out/path-out.m3u8");
         args.add("../../test/system/path-out.m3u8");
 
         // in base
         args.add("D:\\Musik\\Interpreten\\");
-        //args.add("asdf");
-        
+        // args.add("asdf");
+
         // out base
-        //args.add("/home/oliver/Music/Musik/Interpreten");
+        // args.add("/home/oliver/Music/Musik/Interpreten");
         args.add("../../../../Musik/Interpreten");
 
-        //args.add("--remove");
+        // args.add("--remove");
         args.add("--ck-exists");
         args.add("-f");
 
 #elif 1 // video stream download
-        
+
         args.add("vstreamdl");
-        
-        //args.add("../../test/system/ext-mixed.m3u");
-        //args.add("../../test/system/hls.m3u");
-        //args.add("../../test/system/hls-url-querry.m3u");
-        //args.add("../../test/system/non-ext.m3u");
-        //args.add("https://raw.githubusercontent.com/oblaser/m3u-tool/dev/test/system/hls.m3u?param=asdf&t=1230#asdf");
+
+        // args.add("../../test/system/ext-mixed.m3u");
+        // args.add("../../test/system/hls.m3u");
+        // args.add("../../test/system/hls-url-querry.m3u");
+        // args.add("../../test/system/non-ext.m3u");
+        // args.add("https://raw.githubusercontent.com/oblaser/m3u-tool/dev/test/system/hls.m3u?param=asdf&t=1230#asdf");
         args.add("https://raw.githubusercontent.com/oblaser/m3u-tool/dev/test/system/hls-url-querry.m3u?param=asdf&t=1230#asdf");
-        
+
         args.add("../../test/system/out-vstreamdl-\xc3\xae");
 
         args.add("test-\xc3\xae");
@@ -217,18 +223,18 @@ int main(int argc, char** argv)
         args.add("900");
 
         args.add("--save-original");
-        //args.add("--no-subs");
+        // args.add("--no-subs");
         args.add("-f");
 #else
-//#warning "nop"
+// #warning "nop"
 #endif
         // options
-        //args.add("-vf");
+        // args.add("-vf");
         args.add("-v");
-        //args.add("-f");
-        //args.add("-h");
-        //args.add("-q");
-        //args.add("--version");
+        // args.add("-f");
+        // args.add("-h");
+        // args.add("-q");
+        // args.add("--version");
     }
 #endif
 

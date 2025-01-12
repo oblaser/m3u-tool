@@ -9,34 +9,26 @@ copyright       GPL-3.0 - Copyright (c) 2023 Oliver Blaser
 #include <vector>
 
 #include "cliarg.h"
-#include "project.h"
 #include "middleware/util.h"
+#include "project.h"
 
 #include <omw/intdef.h>
 #include <omw/string.h>
 
 
-namespace
-{
-}
+namespace {}
 
 
 
-inline std::string app::FileList::getFile(size_t idx) const
-{
-    return (this->size() > idx ? this->at(idx) : "");
-}
+inline std::string app::FileList::getFile(size_t idx) const { return (this->size() > idx ? this->at(idx) : ""); }
 
-bool app::FileList::isValid() const
-{
-    return (this->size() >= 2);
-}
+bool app::FileList::isValid() const { return (this->size() >= 2); }
 
 
 
 app::OptionList::OptionList()
     : m_unrecognizedIdx(OMW_SIZE_MAX), m_isValid(true)
-{ }
+{}
 
 void app::OptionList::add(const std::string& opt)
 {
@@ -44,10 +36,7 @@ void app::OptionList::add(const std::string& opt)
     {
         if ((opt[1] != '-') && (opt.length() > 2))
         {
-            for (size_t i = 1; i < opt.length(); ++i)
-            {
-                addOpt(std::string("-") + opt[i]);
-            }
+            for (size_t i = 1; i < opt.length(); ++i) { addOpt(std::string("-") + opt[i]); }
         }
         else addOpt(opt);
     }
@@ -58,19 +47,13 @@ bool app::OptionList::contains(const std::string& arg) const
 {
     for (const auto& e : *this)
     {
-        if (e == arg)
-        {
-           return  true;
-        }
+        if (e == arg) { return true; }
     }
 
     return false;
 }
 
-std::string app::OptionList::unrecognized() const
-{
-    return (m_unrecognizedIdx != OMW_SIZE_MAX ? this->at(m_unrecognizedIdx) : "");
-}
+std::string app::OptionList::unrecognized() const { return (m_unrecognizedIdx != OMW_SIZE_MAX ? this->at(m_unrecognizedIdx) : ""); }
 
 void app::OptionList::addOpt(const std::string& opt)
 {
@@ -85,19 +68,13 @@ void app::OptionList::addOpt(const std::string& opt)
 
 bool app::OptionList::checkOpt(const std::string& opt) const
 {
-    return (
-        (opt == argstr::force) ||
-        (opt == argstr::help) || (opt == argstr::help_alt) ||
-        (opt == argstr::noColor) ||
-        (opt == argstr::quiet) ||
-        (opt == argstr::verbose) ||
-        (opt == argstr::version)
-        );
+    return ((opt == argstr::force) || (opt == argstr::help) || (opt == argstr::help_alt) || (opt == argstr::noColor) || (opt == argstr::quiet) ||
+            (opt == argstr::verbose) || (opt == argstr::version));
 }
 
 
 
-void app::Args::parse(int argc, const char* const* argv)
+void app::Args::parse(int argc, const char* const * argv)
 {
     for (int i = 1; i < argc; ++i)
     {
@@ -131,34 +108,22 @@ void app::Args::add(const std::string& arg)
 std::vector<std::string> app::Args::inDirs() const
 {
     std::vector<std::string> r;
-    
+
     const size_t n = m_files.size() - 1;
 
     if (n > 0) // needed because size is unsigned
     {
-        for (size_t i = 0; i < n; ++i)
-        {
-            r.push_back(m_files[i]);
-        }
+        for (size_t i = 0; i < n; ++i) { r.push_back(m_files[i]); }
     }
 
     return r;
 }
 
-std::string app::Args::outDir() const
-{
-    return m_files.back();
-}
+std::string app::Args::outDir() const { return m_files.back(); }
 
-size_t app::Args::count() const
-{
-    return size();
-}
+size_t app::Args::count() const { return size(); }
 
-size_t app::Args::size() const
-{
-    return (m_files.size() + m_options.size());
-}
+size_t app::Args::size() const { return (m_files.size() + m_options.size()); }
 
 bool app::Args::isValid() const
 {
@@ -166,10 +131,10 @@ bool app::Args::isValid() const
 
     // TODO the whole cliarg has to be redone anyway...
 
-    //return (
-    //    (m_files.isValid() && m_options.isValid()) ||
-    //    (m_options.isValid() && (containsHelp() || containsVersion()))
-    //    );
+    // return (
+    //     (m_files.isValid() && m_options.isValid()) ||
+    //     (m_options.isValid() && (containsHelp() || containsVersion()))
+    //     );
 }
 
 const std::string& app::Args::operator[](size_t idx) const

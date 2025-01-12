@@ -14,10 +14,11 @@ copyright       GPL-3.0 - Copyright (c) 2024 Oliver Blaser
 #include "application/common.h"
 
 
-namespace app
-{
-    // no, that's not a typo, "export" is a keyword
-    int exprt(const app::Args& args, const app::Flags& flags);
+namespace app {
+
+// no, that's not a typo, "export" is a keyword
+int exprt(const app::Args& args, const app::Flags& flags);
+
 }
 
 
